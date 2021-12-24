@@ -12,27 +12,63 @@
 	 
 	document.write(new Date().getTime(), '<br><br>')
 	
+	function shift1(v) { // clona v[] dal secondo elemento
+		for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1] = v[i]; return r
+	}
+	function subn(z, s) { // clona z[] sottranedo agli elementi s
+		if (s==0) return z
+		for (var r=[], i=0, e=z.length; i<e; i+=1) r[i] = Math.max(0, z[i]-s) //z[i]<=s?0:z[i]-s
+		return r
+	}
+	function sub(a, b) { // clona a[] sottraendo agli elementi b[]
+		for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i] = a[i] - b[i]) < 0) return
+		return r
+	}
+	function subm(z, m) { // clona z[] sottranedo le colonne di m[,]
+		var r=[]; for (var n of z) r.push(n)
+		for (var v of m) for (var i=0, e=v.length; i<e; i+=1) if ((r[i] -= v[i]) < 0) return
+		return r
+	}
+	function sum(a, b) { // somma a[] a b[]
+		for (var r=[], i=0, e=a.length; i<e; i+=1) r[i] = a[i] + b[i]
+		return r
+	}
+
 	function R(c, rs) { // c:[...], r:sum(v) 
 		return Rn(c, rs, [])
 		
 		function* Rn(c, rs, v) {
 			if (c.length == 0)
 				yield v
-			else for (var n=rs<c.length?0:1, e=c[0]==0?0:1; n<=e; n+=1) {
+			else for (var n=c.length>rs?0:1, e=c[0]==0?0:1; n<=e; n+=1) {
 				var rsn = rs-n
 				if (rsn < 0) continue
 				yield* Rn(shift1(c), rsn, v.concat(n))
 			}
-			function shift1(v) {
-				for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1]=v[i]; return r
-			}
 		}
 	}
 	
-	//var i=0; for (var v of R(5,3)) document.write(i+=1, ') ', v, '<br>')
+	//var i=0; for (var v of R([1,1,1,1,0],3)) document.write(i+=1, ') ', v, '<br>')
+	
+	function* M(z, cs, r, rs, m) {
+		// z[]: elementi per colonna
+		// cs[]: totali per colonna
+		// r: righe per scheda
+		// rs: elementi per riga
+		// m[,]: scheda
+		if (r == 0) {
+			// se non ci sono totali colonna a zero 
+			if (cs.indexOf(0) == -1) yield m // [m,z] ... fondo
+		}
+		else for (var v of R(z, rs)) {
+			var nz = sub(z, v)
+			if (!nz) continue
+			yield* M(nz, sum(cs, v), r-1, rs, m.concat( [v] ))
+		}
+	}
 	
 	function T(z, s, r, rs) {
-		// z: array elementi per colonna
+		// z[]: elementi per colonna
 		// s: numero schede
 		// r: righe per scheda
 		// rs: elementi per riga
@@ -40,11 +76,11 @@
 		
 		function* Z(z, s, t) {
 			if (s == 0) {
-				for (n of z) if (n)	return
+				for (n of z) if (n > 0)	return
 				yield t
 			}
-			else for (var m of M(subn(z,s-1), Array(z.length).fill(0), r, [])) {
-				var nz = sub(z, m)
+			else for (var m of M(subn(z,s-1), Array(z.length).fill(0), r, rs, [])) {
+				var nz = subm(z, m)
 				if (!nz) continue
 				yield* Z(nz, s-1, t.concat( [m] ))
 				//var [mi, nz] = m
@@ -52,38 +88,9 @@
 				//yield* Z(m[0], s-1, t.concat( [m[1]] ))
 				//yield* Z(m[1], s-1, t.concat( [m[0]] ))
 			}	
-			function sub(z, m) { // fa una copia di z sottranedo gli elementi di m 
-				var r=[]; for (var n of z) r.push(n)
-				for (var v of m) for (var i=0, e=v.length; i<e; i+=1) if ((r[i]-=v[i]) < 0) return
-				return r
-			}
-			function subn(z, s) { // fa una copia di z sottraendo agli elementi s
-				if (s==0) return z
-				for (var r=[], i=0, e=z.length; i<e; i+=1) r[i]=Math.max(0,z[i]-s) //z[i]<=s?0:z[i]-s
-				return r
-			}
 		}
 		
-		function* M(z, cs, r, m) {
-			if (r == 0) {
-				if (cs.indexOf(0) == -1) yield m // [m,z] ... fondo
-			}
-			else for (var v of R(z, rs)) {
-				var nz = sub(z, v)
-				if (!nz) continue
-				var ncs = sum(cs, v)
-				yield* M(nz, ncs, r-1, m.concat( [v] ))
-			}
-			function sub(a, b) {
-				for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i]=a[i]-b[i])<0) return
-				return r
-			}
-			function sum(a, b) {
-				for (var r=[], i=0, e=a.length; i<e; i+=1) r[i]=a[i]+b[i]
-				return r
-			}
-		}
-	}
+	}	
 	
 	writeAll( T([3,4,4,4,4,5], 2, 3, 4) )
 	//writeAll( T([9,10,10,10,10,10,10,10,11], 6, 3, 5) )
