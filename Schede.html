@@ -1,0 +1,62 @@
+<!DOCTYPE html 4.0>
+
+<html>
+<head>
+	<title>Schede 1</title>
+	<meta charset="windows-1252" />
+</head>
+
+<body>
+
+<script>
+	document.write(new Date().getTime(), '<br><br>')
+	
+	function R(c, rs) { // c:#colonne, r:sum(v) 
+		return Rn(c, rs, [])
+		function* Rn(c, rs, v) {
+			if (c == 1) {
+				//if (r < 0) return
+				yield v.concat(rs)
+				return 
+			}
+			for (var n=rs<c?0:1; n<=1; n+=1) {
+				var rsn = rs-n
+				if (rsn < 0) break
+				yield* Rn(c-1, rsn, v.concat(n))
+			}
+		}
+	}
+	
+	//var i=0; for (var v of R(5,3)) document.write(i+=1, ') ', v, '<br>')
+	
+	function M(c, r, rs) {
+		var vs=[]; for (var v of R(c, rs)) vs.push(v)
+		return Mn(c, Array(c).fill(0), r, [])
+		
+		function* Mn(c, cs, r, m) {
+			if (r == 0) {
+				if (cs.indexOf(0) == -1) yield m 
+			}
+			else for (var v of vs) {
+				yield* Mn(c, sum(cs, v), r-1, m.concat( [v] ))
+			}
+		}
+	}
+	
+	function sum(c, a) {
+		for (var r=[], i=0, e=c.length; i<e; i+=1) r[i]=c[i]+a[i]; return r
+	}
+	
+	var i=0
+	for (var m of M(9, 3, 5)) {
+		if (i==500) break
+		document.write('<div style="float:left; margin-right:10px; margin-bottom:10px">')
+		document.write(i+=1, ') <br>')
+		for (var v of m) document.write(v, '<br>')
+		document.write('</div>')
+	}	
+
+</script>
+
+</body>
+</html>
