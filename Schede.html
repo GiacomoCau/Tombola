@@ -15,14 +15,11 @@
 		return Rn(c, rs, [])
 		
 		function* Rn(c, rs, v) {
-			if (c == 1) {
-				//if (r < 0) return
-				yield v.concat(rs)
-				return 
-			}
-			for (var n=rs<c?0:1; n<=1; n+=1) { // se totale di riga < colonne rimanenti ? 0 : mx-
+			if (c == 0)
+				yield v
+			else for (var n=rs<c?0:1; n<=1; n+=1) {
 				var rsn = rs-n
-				if (rsn < 0) break
+				if (rsn < 0) continue
 				yield* Rn(c-1, rsn, v.concat(n))
 			}
 		}
@@ -37,67 +34,88 @@
 		
 		function* Z(z, s, t) {
 			if (s == 0) {
-				for (n of z) 
-					if (n)
-						return
+				for (n of z) if (n)	return
 				yield t
 			}
-			else for (var m of M(z, c, Array(c).fill(0), r, [])) {
+			else for (var m of M(z, Array(c).fill(0), r, [])) {
 				var nz = sub(z, m)
-				if (!nz)
-					continue
+				if (!nz) continue
 				yield* Z(nz, s-1, t.concat( [m] ))
 			}	
 			function sub(z, m) {
 				var r=[]; for (var n of z) r.push(n)
-				for (var v of m)
-					for (var i=0, e=v.length; i<e; i+=1)
-						if ((r[i]-=v[i]) < 0) 
-							return
+				for (var v of m) for (var i=0, e=v.length; i<e; i+=1) if ((r[i]-=v[i]) < 0) return
 				return r
 			}
 		}
 		
-		function* M(z, c, cs, r, m) {
+		function* M(z, cs, r, m) {
 			if (r == 0) {
-				if (cs.indexOf(0) == -1)
-					yield m 
+				if (cs.indexOf(0) == -1) yield m 
 			}
 			else for (var v of vs) {
 				var nz = sub(z, v)
-				if (!nz)
-					continue
+				if (!nz) continue
 				var ncs = sum(cs, v)
-				yield* M(nz, c, ncs, r-1, m.concat( [v] ))
+				yield* M(nz, ncs, r-1, m.concat( [v] ))
 			}
 			function sub(a, b) {
-				for (var r=[], i=0, e=a.length; i<e; i+=1)
-					if ((r[i]=a[i]-b[i])<0)
-						return
+				for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i]=a[i]-b[i])<0) return
 				return r
 			}
 			function sum(a, b) {
-				for (var r=[], i=0, e=a.length; i<e; i+=1)
-					r[i]=a[i]+b[i]
+				for (var r=[], i=0, e=a.length; i<e; i+=1) r[i]=a[i]+b[i]
 				return r
 			}
 		}
 	}
 	
+	writeAll( T([3,4,4,4,4,5], 2, 3, 4) )
+	//writeAll( T([9,10,10,10,10,10,10,10,11], 6, 3, 5) )
 	
-	var i=0
-	//for (var t of T([9,10,10,10,10,10,10,10,11], 6, 3, 5)) {
-	for (var t of T([3,4,4,4,4,5], 2, 3, 4)) {
-		//if (i==10) break
+	function writeAll(ta) {
+		var i=0, tm=new Date().getTime(), inc=3000, lim=inc
+		for (var t of ta) {
+			i+=1
+			if (true)
+				writeT(i, t)
+			else if (i > lim)
+				lim += (document.write(lim, ' (', new Date().getTime()-tm ,')', '<br>'), inc) // logging
+		}	
+		document.write('<br style="clear:left">', 'Totale: ', i, ' (', new Date().getTime()-tm ,')')
+	}
+	
+	function writeAll(t) {
+		var tm=new Date().getTime(), inc=3000, lim=inc
+		if (t) 
+			writeAlli(0)
+		else
+			document.write(t, '<br>')
+			
+		function writeAlli(i) {
+			var nt = t.next()
+			if (nt.done) 
+				document.write('<br style="clear:left">', 'Totale: ', i)
+			else {
+				if (true)
+					writeT(i, nt.value)
+				else if (i > lim) 
+					lim += (document.write(lim, ' (', new Date().getTime()-tm ,')', '<br>'), inc) // logging
+				setTimeout(writeAlli, 0, i+1)
+			}
+		}
+	}
+
+	function writeT(i, t) {
 		document.write('<div style="float:left; margin-right:10px; margin-bottom:10px">')
-		document.write(i+=1, ') <br>')
+		document.write(i, ') <br>')
 		for (var m of t) {
 			for (var r of m) document.write(r, '<br>')
 			document.write('<br>')
 		}
 		document.write('</div>')
-	}	
-
+	}
+	
 </script>
 
 </body>
