@@ -9,98 +9,189 @@
 <body style="font-family:Courier New; font-size:9pt">
 
 <script>
-	 
-	document.write(new Date().getTime(), '<br><br>')
+  
+	document.write(new Date() /*.getTime()*/, '<br><br>')
 	
 	function shift1(v) { // clona v[] dal secondo elemento
-		for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1] = v[i]; return r
+		//for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1] = v[i]; return r
+		return v.slice(1)
 	}
-	function subn(z, s) { // clona z[] sottranedo agli elementi s
+	//console.log(shift1([1,2,3])) // [2,3]
+	
+	function subn(z, s, n) { // clona z[] sottranedo agli elementi s
 		if (s==0) return z
-		for (var r=[], i=0, e=z.length; i<e; i+=1) r[i] = Math.max(0, z[i]-s) //z[i]<=s?0:z[i]-s
-		return r
+		//for (var r=[], i=0, e=z.length; i<e; i+=1) r[i] = Math.max(0, z[i]-s); return r
+		//var r=[]; for (var i in z) r[i] = Math.max(0, z[i]-s); return r
+		//var r=[]; for (var i in z) if ((r[i] = z[i] - s) < (n||0)) return; return r
+		var r=z.slice(0); for (var i in z) if ((r[i] -= s) < (n||0)) return; return r
 	}
+	//console.log(subn([3,6,9],0)) // [3,6,9]
+	//console.log(subn([3,6,9],3)) // [0,3,6]
+	//console.log(subn([4,6,9],3)) // [0,3,6]
+	
 	function subv(a, b) { // clona a[] sottraendo agli elementi b[]
-		for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i] = a[i] - b[i]) < 0) return
-		return r
+		//for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i] = a[i] - b[i]) < 0) return; return r
+		//var r=[]; for (var i in a) if ((r[i] = a[i] - b[i]) < 0) return; return r
+		var r=a.slice(0); for (var i in a) if ((r[i] -= b[i]) < 0) return; return r
 	}
-	function subm(z, m) { // clona z[] sottranedo le colonne di m[,]
-		var r=[]; for (var n of z) r.push(n)
-		for (var v of m) for (var i=0, e=v.length; i<e; i+=1) if ((r[i] -= v[i]) < 0) return
-		return r
+	//console.log(subv([3,6,9],[3,6,9])) // [0,0,0]
+	//console.log(subv([3,6,9],[4,6,9])) // undefined
+	
+	function subm(z, m, n) { // clona z[] sottranedo le colonne di m[,]
+		//var r=[]; for (var n of z) r.push(n)
+		//for (var v of m) for (var i=0, e=v.length; i<e; i+=1) if ((r[i] -= v[i]) < 0) return
+		//return r
+		var r=z.slice(0); for (var v of m) for (var i in v) if ((r[i] -= v[i]) < (n||0)) return; return r
 	}
+	//console.log(subm([3,6,9],[[1,2,3],[1,2,3],[1,2,3]])) // [0,0,0]
+	//console.log(subm([3,6,9],[[1,2,3],[1,2,3],[1,2,4]])) // undefined
+	
+	/* non più necessari, eliminare
 	function sum(a, b) { // somma a[] a b[]
-		for (var r=[], i=0, e=a.length; i<e; i+=1) r[i] = a[i] + b[i]
-		return r
+		//for (var r=[], i=0, e=a.length; i<e; i+=1) r[i] = a[i] + b[i]; return r
+		var r=[]; for (var i in a) r[i]=a[i]+b[i]; return r
 	}
-
-	function R(rs, z) {
+	//console.log(sum([1,2,3],[1,2,3])) // [2,4,6]
+	
+	function min(v, n) { // clona z[] sottranedo agli elementi s
+		//for (var r=[], i=0, e=v.length; i<e; i+=1) r[i] = Math.min(v[i], n); return r
+		//var r=[]; for (i in v) r.push(Math.min(v[i],n)); return r
+		//var r=[]; for (i in v) r[i]=Math.min(v[i],n); return r
+		var r=[]; for (e of v) r.push(Math.min(e,n)); return r
+	}
+	//console.log(min([1,2,3,4,5,6,7], 3)) // [1,2,3,3,3,3,3]
+	*/
+	
+	//for (var i in [1,2,3]) console.log(i) // 1 2 3 
+	//var v=[1,2,3]; console.log([].concat([v])) // [[1,2,3]]
+	//console.log(2!=NaN)
+	//console.log(3!=3)
+	//console.log(2<NaN)
+	
+	var r1=0	
+	function R(r, rs, z) {
 		// rs: elementi per riga
 		// z[]: elementi per colonna
+		//if (r) console.log(r, rs, z.join(''))
 		return R(rs, z, [])
 		
 		function* R(rs, z, v) {
 			if (z.length == 0)
 				yield v
-			else for (var n=z.length>rs?0:1, e=z[0]==0?0:1; n<=e; n+=1) {
-				var rsn = rs-n
-				if (rsn < 0) continue
-				yield* R(rsn, shift1(z), v.concat(n))
+			//else if (z[0] == 0) 	
+			//	yield* R(rs, shift1(z), v.concat(0))
+			else {
+				var nr=0; for (var i in z) if (/*i!=0 &&*/ z[i]==r) nr+=1
+				console.log(r, rs, z.join(''), nr, z.length>rs&&z[0]!=r)
+				for (var n=z.length>rs&&z[0]!=r&&z.length>nr?0:1, e=z[0]>0&&rs>0?1:0; n<=e; n+=1) {
+					var nrs = rs-n
+					if (nrs < 0) { r1+=1; continue }
+					yield* R(nrs, shift1(z), v.concat(n))
+				}
 			}
 		}
 	}
+	//writeAll( R(1, [1,0]) ) // 1
+	//writeAll( R(3, 3, [10,10,10,10,10,10]) ) // 20
+	//writeAll( R(3, 3, [3,1,1,1,1,3]) ) // 4
+	//writeAll( R(3, 3, [2,2,3,2,2,3]) ) // 4
+	//writeAll( R(3, 3, [4,4,1,1,1,1]) ) // 4
+	//writeAll( R(3, 3, [3,2,2,2,4,4]) ) // 1
+	//writeAll( R(3, 4, [1,1,3,1,1,3]) ) // 6
 	
-	//writeAll( R(0, [0,0]) ) // 1
-	//writeAll( R(3, [10,10,10,10,10,10]) ) // 20
-	
+	var m1=0,m2=0
 	function M(r, rs, z) {
 		// r: righe per scheda
 		// rs: elementi per riga
 		// z[]: elementi per colonna
-		return M(z, Array(z.length).fill(0), [])
+		return M(z, [])
 		
-		function* M(z, cs, m) {
-			// cs[]: totali per colonna
+		function* M(z, m) {
 			if (m.length == r) {
-				// se non ci sono totali colonna a zero 
-				if (cs.indexOf(0) == -1) yield m // [m,z] ... fondo
+				// se ci sono totali colonna < 1 (|| == 0)  scarta
+				for (var i in z) {
+					var n=0; for (var j in m) n+=m[j][i];
+					if (n<1) {
+						m2+=1;
+						console.log('*** ', z.join(''));
+						writeT('*** '+m2,m);
+						return
+					}
+				}
+				yield m
+				
 			}
-			else for (var v of R(rs, z)) {
-				var nz = subv(z, v)
-				if (!nz) continue
-				yield* M(nz, sum(cs, v), m.concat([v]))
+			else {
+				//console.log(1+m.length, z.join())
+				var lst = m.length==r-1 
+				for (var v of R(lst?r:-1, rs, z)) {
+					var nz = subv(z, v)
+					if (!nz) { m1+=1; continue }
+					yield* M(nz, m.concat([v]))
+				}
 			}
 		}
 	}
 	
-	//writeAll( M(3, 5, [4,4,4,4,4,4]) ) // 210
-	//writeAll( M(3, 5, [5,5,5,5,5,5]) ) // 210
-	//writeAll( M(3, 5, [10,10,10,10,10,10,10,10]) ) // 107.520
-	//writeAll( M(3, 5, [9,10,10,10,10,10,10,10,11]) )
+	//writeAll( M(2, 2, [1,2,2]) ) // 4 (m2:1)
+	//writeAll( M(3, 2, [2,1,2,2]) ) // 45 (m2:6)
+	//writeAll( M(3, 3, [3,2,2,2,3]) ) // 366 (m2:66)
+	//writeAll( M(3, 4, [3,2,2,2,2,3]) ) // 540 (m2:24)
+	//writeAll( M(3, 4, [3,2,2,2,3,3]) ) // 906 (m2:90)
+	//writeAll( M(3, 4, [3,3,2,2,3,3]) ) // 1374 (m2:217)
+	//writeAll( M(3, 4, [4,4,4,4,4,4]) ) // 2600 (m2:735)
+	//writeAll( M(3, 5, [3,3,2,2,3,3]) ) // 30
 	
+	//writeAll( M(3, 5, [3,3,3,3,3,3]) ) // 210 (m2:-6)
+	//writeAll( M(3, 5, [4,4,4,4,4,4]) ) // 210 (m2:-6)
+	
+	//writeAll( M(3, 5, [3,3,3,3,3,3,3]) ) // 7700 (m2:-6)
+	
+	//writeAll( M(3, 5, [ 3, 3, 3, 3, 3, 3, 3, 3]) ) // 107.520
+	//writeAll( M(3, 5, [10,10,10,10,10,10,10,10]) ) // 107.520
+	
+	//writeAll( M(3, 5, [ 2, 3, 3, 3, 3, 3, 3, 3, 3]) ) // 647.640
+	//writeAll( M(3, 5, [ 2, 3, 3, 3, 3, 3, 3, 3, 4]) ) // 647.640
+	
+	//writeAll( M(3, 5, [ 3, 3, 3, 3, 3, 3, 3, 3, 3]) ) // 735.210
+	//writeAll( M(3, 5, [ 3, 4, 4, 4, 4, 4, 4, 4, 5]) ) // 735.210
+	//writeAll( M(3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // 735.210
+	//writeAll( M(3, 5, [10,10,10,10,10,10,10,10,10]) ) // 735.210
+	
+	var t1=0,t2=0,t3=0
 	function T(s, r, rs, z) {
 		// s: numero schede
 		// r: righe per scheda
 		// rs: elementi per riga
 		// z[]: elementi per colonna
-		return T(s, z, [])
+		return T(z, [])
 		
-		function* T(s, z, t) {
-			if (s == 0) {
-				for (n of z) if (n > 0)	return
+		function* T(z, t) {
+			if (t.length == s) {
+				// se ci sono totali di colonna > zero scarta
+				for (var n of z) if (n > 0) { /*t3+=1;*/ return }
 				yield t
 			}
-			else for (var m of M(r, rs, subn(z, s-=1))) {
-				var nz = subm(z, m)
-				if (!nz) continue
-				yield* T(s, nz, t.concat([m]))
+			else {
+				var sr = s-t.length-1 // schede successive
+				var nz = subn(z, sr, 1) // sottraendo da z 1 per ogni colonna di ogni scheda successiva
+				//console.log(1+t.length, z.join(), sr, !nz?nz:nz.join())
+				if (!nz) { /*t1+=1;*/ return } // deve residuare almeno 1 per ogni colonna della corrente
+				for (var m of M(r, rs, nz)) {
+					var nz = subm(z, m, sr) // sottraendo da z m per ogni colonna
+					if (!nz) { /*t2+=1;*/ continue } // deve residuare almeno 1 per ogni colonna di ogni scheda successiva
+					yield* T(nz, t.concat([m]))
+				}
 			}	
 		}
-	}
+	}	
+
+	//writeAll( T(2, 3, 4, [3,4,4,4,4,5]) ) // 36.288 (m2:425)
+	//writeAll( T(2, 3, 4, [4,4,4,4,4,4]) ) // 67.950 (m2:735)
+	//writeAll( T(3, 3, 4, [6,6,6,6,6,6]) ) // 73.113.840 (m2:829.635)
+	//writeAll( T(6, 3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // > 25.575.000
+	//writeAll( T(6, 3, 5, [10,10,10,10,10,10,10,10,10]) )
 	
-	//writeAll( T(2, 3, 4, [4,4,4,4,4,4]) )
-	//writeAll( T(2, 3, 4, [3,4,4,4,4,5]) )
-	writeAll( T(6, 3, 5, [9,10,10,10,10,10,10,10,11]) )
 	
 	function writeAll(t) {
 		var tm=new Date().getTime(), inc=3000, lim=inc
@@ -126,11 +217,11 @@
 	}
 	
 	function writeT(i, t) {
-		//if (t.length) {
-			if (t[0].length) {
+		if (Array.isArray(t)) {
+			if (Array.isArray(t[0])) {
 				document.write('<div style="float:left; margin-right:10px; margin-bottom:10px">')
 				document.write(i, ') <br>')
-				if (t[0][0].length) {
+				if (Array.isArray(t[0][0])) {
 					for (var m of t) {
 						for (var r of m) document.write(r, '<br>')
 						document.write('<br>')
@@ -144,7 +235,7 @@
 				return 
 			}
 			document.write(i, ') ', t, '<br>')
-		//}
+		}
 	}
 	
 </script>
