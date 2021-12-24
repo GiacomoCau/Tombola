@@ -20,7 +20,7 @@
 		for (var r=[], i=0, e=z.length; i<e; i+=1) r[i] = Math.max(0, z[i]-s) //z[i]<=s?0:z[i]-s
 		return r
 	}
-	function sub(a, b) { // clona a[] sottraendo agli elementi b[]
+	function subv(a, b) { // clona a[] sottraendo agli elementi b[]
 		for (var r=[], i=0, e=a.length; i<e; i+=1) if ((r[i] = a[i] - b[i]) < 0) return
 		return r
 	}
@@ -34,108 +34,117 @@
 		return r
 	}
 
-	function R(c, rs) { // c:[...], r:sum(v) 
-		return Rn(c, rs, [])
+	function R(rs, z) {
+		// rs: elementi per riga
+		// z[]: elementi per colonna
+		return R(rs, z, [])
 		
-		function* Rn(c, rs, v) {
-			if (c.length == 0)
+		function* R(rs, z, v) {
+			if (z.length == 0)
 				yield v
-			else for (var n=c.length>rs?0:1, e=c[0]==0?0:1; n<=e; n+=1) {
+			else for (var n=z.length>rs?0:1, e=z[0]==0?0:1; n<=e; n+=1) {
 				var rsn = rs-n
 				if (rsn < 0) continue
-				yield* Rn(shift1(c), rsn, v.concat(n))
+				yield* R(rsn, shift1(z), v.concat(n))
 			}
 		}
 	}
 	
-	//var i=0; for (var v of R([1,1,1,1,0],3)) document.write(i+=1, ') ', v, '<br>')
+	//writeAll( R(0, [0,0]) ) // 1
+	//writeAll( R(3, [10,10,10,10,10,10]) ) // 20
 	
-	function* M(z, cs, r, rs, m) {
-		// z[]: elementi per colonna
-		// cs[]: totali per colonna
+	function M(r, rs, z) {
 		// r: righe per scheda
 		// rs: elementi per riga
-		// m[,]: scheda
-		if (r == 0) {
-			// se non ci sono totali colonna a zero 
-			if (cs.indexOf(0) == -1) yield m // [m,z] ... fondo
-		}
-		else for (var v of R(z, rs)) {
-			var nz = sub(z, v)
-			if (!nz) continue
-			yield* M(nz, sum(cs, v), r-1, rs, m.concat( [v] ))
+		// z[]: elementi per colonna
+		return M(z, Array(z.length).fill(0), [])
+		
+		function* M(z, cs, m) {
+			// cs[]: totali per colonna
+			if (m.length == r) {
+				// se non ci sono totali colonna a zero 
+				if (cs.indexOf(0) == -1) yield m // [m,z] ... fondo
+			}
+			else for (var v of R(rs, z)) {
+				var nz = subv(z, v)
+				if (!nz) continue
+				yield* M(nz, sum(cs, v), m.concat([v]))
+			}
 		}
 	}
 	
-	function T(z, s, r, rs) {
-		// z[]: elementi per colonna
+	//writeAll( M(3, 5, [4,4,4,4,4,4]) ) // 210
+	//writeAll( M(3, 5, [5,5,5,5,5,5]) ) // 210
+	//writeAll( M(3, 5, [10,10,10,10,10,10,10,10]) ) // 107.520
+	//writeAll( M(3, 5, [9,10,10,10,10,10,10,10,11]) )
+	
+	function T(s, r, rs, z) {
 		// s: numero schede
 		// r: righe per scheda
 		// rs: elementi per riga
-		return Z(z, s, [])
+		// z[]: elementi per colonna
+		return T(s, z, [])
 		
-		function* Z(z, s, t) {
+		function* T(s, z, t) {
 			if (s == 0) {
 				for (n of z) if (n > 0)	return
 				yield t
 			}
-			else for (var m of M(subn(z,s-1), Array(z.length).fill(0), r, rs, [])) {
+			else for (var m of M(r, rs, subn(z, s-=1))) {
 				var nz = subm(z, m)
 				if (!nz) continue
-				yield* Z(nz, s-1, t.concat( [m] ))
-				//var [mi, nz] = m
-				//yield* Z(nz, s-1, t.concat( [mi] ))
-				//yield* Z(m[0], s-1, t.concat( [m[1]] ))
-				//yield* Z(m[1], s-1, t.concat( [m[0]] ))
+				yield* T(s, nz, t.concat([m]))
 			}	
 		}
-		
-	}	
-	
-	writeAll( T([3,4,4,4,4,5], 2, 3, 4) )
-	//writeAll( T([9,10,10,10,10,10,10,10,11], 6, 3, 5) )
-	
-	function writeAll(ta) {
-		var i=0, tm=new Date().getTime(), inc=3000, lim=inc
-		for (var t of ta) {
-			i+=1
-			if (true)
-				writeT(i, t)
-			else if (i > lim)
-				lim += (document.write(lim, ' (', new Date().getTime()-tm ,')', '<br>'), inc) // logging
-		}	
-		document.write('<br style="clear:left">', 'Totale: ', i, ' (', new Date().getTime()-tm ,')')
 	}
+	
+	//writeAll( T(2, 3, 4, [4,4,4,4,4,4]) )
+	//writeAll( T(2, 3, 4, [3,4,4,4,4,5]) )
+	writeAll( T(6, 3, 5, [9,10,10,10,10,10,10,10,11]) )
 	
 	function writeAll(t) {
 		var tm=new Date().getTime(), inc=3000, lim=inc
-		if (t) 
-			writeAlli(0)
+		//if (t instanceof ((function*() {yield* undefined}).constructor)) {
+		//if (t == '[object Generator]') {
+		if (true) {
+			setTimeout(writeAll, 0, 1)
+		}
 		else
-			document.write(t, '<br>')
+			document.write(t, '!<br>')			
 			
-		function writeAlli(i) {
+		function writeAll(i) {
 			var nt = t.next()
-			if (nt.done) 
-				document.write('<br style="clear:left">', 'Totale: ', i)
+			if (nt.done) {
+				document.write('<br style="clear:left">', 'Totale: ', i-1)
+			}
 			else {
-				if (true)
-					writeT(i, nt.value)
-				else if (i > lim)
-					lim += (document.write(lim, ' (', new Date().getTime()-tm ,')', '<br>'), inc) // logging
-				setTimeout(writeAlli, 0, i+1)
+				writeT(i, nt.value)
+				if (i > lim) lim += (document.write(lim, ' (', new Date().getTime()-tm ,')', '<br>'), inc) // logging
+				setTimeout(writeAll, 0, i+1)
 			}
 		}
 	}
-
+	
 	function writeT(i, t) {
-		document.write('<div style="float:left; margin-right:10px; margin-bottom:10px">')
-		document.write(i, ') <br>')
-		for (var m of t) {
-			for (var r of m) document.write(r, '<br>')
-			document.write('<br>')
-		}
-		document.write('</div>')
+		//if (t.length) {
+			if (t[0].length) {
+				document.write('<div style="float:left; margin-right:10px; margin-bottom:10px">')
+				document.write(i, ') <br>')
+				if (t[0][0].length) {
+					for (var m of t) {
+						for (var r of m) document.write(r, '<br>')
+						document.write('<br>')
+					}
+				}
+				else {
+					for (var r of t) document.write(r, '<br>')
+					document.write('<br>')
+				} 
+				document.write('</div>')
+				return 
+			}
+			document.write(i, ') ', t, '<br>')
+		//}
 	}
 	
 </script>
