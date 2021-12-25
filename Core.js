@@ -58,7 +58,7 @@
 	//console.log(2<NaN)
 	
 	var r1=0	
-	function R(r, rs, sm, z) {
+	function R(rs, sm, z) {
 		// rs: elementi per riga
 		// z[]: elementi per colonna
 		return R(rs, sm, z, [])
@@ -68,7 +68,7 @@
 				yield v
 			}
 			else {
-				for (var n=rs>=z.length||sm[0]===0?1:0, e=rs>0&&z[0]>0?1:0; n<=e; n+=1) {
+				for (var n=rs>=z.length||sm[0]===0?1:0, e=rs&&z[0]?1:0; n<=e; n+=1) {
 					var nrs = rs-n
 					if (nrs < 0) { r1+=1; continue }
 					yield* R(nrs, shift1(sm), shift1(z), v.concat(n))
@@ -92,7 +92,7 @@
 			}
 			else {
 				var sm = m.length < r-1 ? [] : sum(m) 
-				for (var v of R(r, rs, sm, z)) {
+				for (var v of R(rs, sm, z)) {
 					var nz = subv(z, v)
 					if (!nz) { m1+=1; continue }
 					yield* M(nz, m.concat([v]))
