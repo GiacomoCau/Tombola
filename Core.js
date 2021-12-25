@@ -50,7 +50,7 @@
 	*/
 	
 	
-	
+	// test vari
 	//for (var i in [1,2,3]) console.log(i) // 1 2 3 
 	//var v=[1,2,3]; console.log([].concat([v])) // [[1,2,3]]
 	//console.log(2!=NaN)
@@ -58,30 +58,26 @@
 	//console.log(2<NaN)
 	
 	var r1=0	
-	function R(r, rs, z) {
+	function R(r, rs, sm, z) {
 		// rs: elementi per riga
 		// z[]: elementi per colonna
-		//console.log('start', r, rs, z.join(''))
-		return R(rs, z, [])
+		return R(rs, sm, z, [])
 		
-		function* R(rs, z, v) {
+		function* R(rs, sm, z, v) {
 			if (z.length == 0) {
-				//console.log('finish',rs,v.join(''))
 				yield v
 			}
 			else {
-				var nr=0; for (var i in z) if (i!=0 && z[i]===r) nr+=1
-				for (var n=z.length>rs/*&&z[0]!=r/*&&z.length>nr*/?0:1, e=z[0]>0&&rs>0?1:0; n<=e; n+=1) {
-					//console.log('loop', rs, z.join(''), v.join('')+n)
+				for (var n=rs>=z.length||sm[0]===0?1:0, e=rs>0&&z[0]>0?1:0; n<=e; n+=1) {
 					var nrs = rs-n
 					if (nrs < 0) { r1+=1; continue }
-					yield* R(nrs, shift1(z), v.concat(n))
+					yield* R(nrs, shift1(sm), shift1(z), v.concat(n))
 				}
 			}
 		}
 	}
 	
-	var m1=0,m2=0,m3=0 
+	var m1=0,m2=0
 	function M(r, rs, z) {
 		// r: righe per scheda
 		// rs: elementi per riga
@@ -91,27 +87,19 @@
 		function* M(z, m) {
 			if (m.length == r) {
 				// se ci sono totali colonna < 1 (|| == 0)  scarta
-				for (var i in z) {
-					var n=0; for (var j in m) n+=m[j][i];
-					if (n<1) {
-						m2+=1;
-						//console.log('*** ', z.join('')); writeT('*** '+m2,m);
-						return
-					}
-				}
+				for (var i in z) { var n=0; for (var j in m) n+=m[j][i]; if (n<1) { m2+=1; return }}
 				yield m
 			}
 			else {
-				//console.log(1+m.length, z.join())
-				//var lst = m.length==r-1 
-				//for (var v of R(lst?r/*-m.length*/:null, rs, z)) {
-				//var nz = subn(z,m.length<=r-1?1:0)
-				//if (!nz) { m3+=1; return }
-				for (var v of R(r, rs, z)) {
+				var sm = m.length < r-1 ? [] : sum(m) 
+				for (var v of R(r, rs, sm, z)) {
 					var nz = subv(z, v)
 					if (!nz) { m1+=1; continue }
 					yield* M(nz, m.concat([v]))
 				}
+			}
+			function sum(m) {
+				var r=[]; for (var v of m) for (var i in v) r[i] = (r[i]||0) + v[i]; return r
 			}
 		}
 	}
@@ -127,21 +115,20 @@
 		function* T(z, t) {
 			if (t.length == s) {
 				// se ci sono totali di colonna > zero scarta
-				for (var n of z) if (n > 0) { /*t3+=1;*/ return }
+				for (var n of z) if (n > 0) { t3+=1; return }
 				yield t
 			}
 			else {
 				var sr = s-t.length-1 // schede successive
 				var nz = subn(z, sr, 1) // sottraendo da z 1 per ogni colonna di ogni scheda successiva
-				//console.log(1+t.length, z.join(), sr, !nz?nz:nz.join())
-				if (!nz) { /*t1+=1;*/ return } // deve residuare almeno 1 per ogni colonna della corrente
+				if (!nz) { t1+=1; return } // deve residuare almeno 1 per ogni colonna della corrente
 				for (var m of M(r, rs, nz)) {
 					var nz = subm(z, m, sr) // sottraendo da z m per ogni colonna
-					if (!nz) { /*t2+=1;*/ continue } // deve residuare almeno 1 per ogni colonna di ogni scheda successiva
+					if (!nz) { t2+=1; continue } // deve residuare almeno 1 per ogni colonna di ogni scheda successiva
 					yield* T(nz, t.concat([m]))
 				}
 			}	
 		}
 	}
 	
-	module.exports = { R,r1, M,m1,m2,m3, T,t1,t2,t3 }
+	module.exports = { R,r1, M,m1,m2, T,t1,t2,t3 }
