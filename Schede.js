@@ -1,6 +1,6 @@
 	console.log(new Date() /*.getTime()*/)
 	
-	let { R,r1, M,m1,m2, T,t1,t2,t3 } = require('./Core.js')
+	let { R, M, T } = require('./Core.js')
 	
 	//writeAll( R(1, [1,0]) ) // 1
 	//writeAll( R(3, 3, [10,10,10,10,10,10]) ) // 20
@@ -22,10 +22,11 @@
 	//writeAll( M(3, 4, [3,2,2,2,2,3]) ) // 540
 	//writeAll( M(3, 4, [3,2,2,2,3,3]) ) // 906
 	//writeAll( M(3, 4, [3,3,2,2,3,3]) ) // 1374
-	//writeAll( M(3, 4, [4,4,4,4,4,4]) ) // 2600
+	writeAll( M(3, 4, [3,3,3,3,3,3]) ) // 2640
+	//writeAll( M(3, 4, [4,4,4,4,4,4]) ) // 2640
 	//writeAll( M(3, 5, [3,3,2,2,3,3]) ) // 30
 	
-	writeAll( M(3, 5, [3,3,3,3,3,3]) ) // 210
+	//writeAll( M(3, 5, [3,3,3,3,3,3]) ) // 210
 	//writeAll( M(3, 5, [4,4,4,4,4,4]) ) // 210
 	
 	//writeAll( M(3, 5, [3,3,3,3,3,3,3]) ) // 7700
@@ -53,11 +54,11 @@
 		for (var t of ts) {
 			i+=1
 			//console.log(i + ')')
-			writeT(i, t)
+			//writeT(i, t)
 			//if (i==100) break
-			if (i > lim) lim += (console.log(lim, '('+((new Date().getTime()-tm)/1000)+')', 'Scartati:',t1,t2,t3,m1,m2,r1), inc) // logging
+			if (i > lim) lim += (console.log(lim, '('+((new Date().getTime()-tm)/1000)+')'), inc) // logging
 		}
-		console.log('Totale: ' + i, '\nScartati:',t1,t2,t3,m1,m2,r1)
+		console.log('Totale: ' + i)
 	}
 	
 	function writeT(i, t) {
