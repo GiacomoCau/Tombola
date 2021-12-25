@@ -1,6 +1,6 @@
 	console.log(new Date() /*.getTime()*/)
 
-	let { R,r1, M,m1,m2, T,t1,t2,t3 } = require('./Core.js')
+	let { R,r1, M,m1,m2,m3, T,t1,t2,t3 } = require('./Core.js')
 	
 	//writeAll( R(1, [1,0]) ) // 1
 	//writeAll( R(3, 3, [10,10,10,10,10,10]) ) // 20
@@ -9,9 +9,12 @@
 	//writeAll( R(3, 3, [4,4,1,1,1,1]) ) // 4
 	//writeAll( R(3, 3, [3,2,2,2,4,4]) ) // 1
 	//writeAll( R(3, 4, [1,1,3,1,1,3]) ) // 6
-
-	//writeAll( M(2, 2, [1,2,2]) ) // 4 (m2:1)
-	//writeAll( M(3, 2, [2,1,2,2]) ) // 45 (m2:6)
+	//writeAll( M(2, 2, [2,1,2]) ) // 4
+	//writeAll( M(2, 2, [2,1,2,2]) ) // 6
+	//writeAll( M(2, 2, [2,2,2,2]) ) // 6
+	
+	writeAll( M(3, 2, [2,1,2,2]) ) // 45 (m2:6)
+	//writeAll( M(3, 2, [2,2,2,2]) ) // 90 (m2:24)
 	//writeAll( M(3, 3, [3,2,2,2,3]) ) // 366 (m2:66)
 	//writeAll( M(3, 4, [3,2,2,2,2,3]) ) // 540 (m2:24)
 	//writeAll( M(3, 4, [3,2,2,2,3,3]) ) // 906 (m2:90)
@@ -39,7 +42,7 @@
 	//writeAll( T(2, 3, 4, [4,4,4,4,4,4]) ) // 67.950 (m2:735)
 	//writeAll( T(3, 3, 4, [6,6,6,6,6,6]) ) // 73.113.840 (m2:829.635)
 	//writeAll( T(6, 3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // > 25.575.000
-	writeAll( T(6, 3, 5, [10,10,10,10,10,10,10,10,10]) )
+	//writeAll( T(6, 3, 5, [10,10,10,10,10,10,10,10,10]) )
 	
 	
 	function writeAll(ts) {
@@ -49,9 +52,9 @@
 			//console.log(i + ')')
 			writeT(i, t)
 			//if (i==100) break
-			if (i > lim) lim += (console.log(lim, '('+((new Date().getTime()-tm)/1000)+')', 'Scartati:',t1,t2,t3,m1,m2,r1), inc) // logging
+			if (i > lim) lim += (console.log(lim, '('+((new Date().getTime()-tm)/1000)+')', 'Scartati:',t1,t2,t3,m3,m1,m2,r1), inc) // logging
 		}
-		console.log('Totale: ' + i, '\nScartati:',t1,t2,t3,m1,m2,r1)
+		console.log('Totale: ' + i, '\nScartati:',t1,t2,t3,m3,m1,m2,r1)
 	}
 	
 	function writeT(i, t) {

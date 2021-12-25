@@ -36,7 +36,7 @@
 	/* non più necessari, eliminare
 	function sum(a, b) { // somma a[] a b[]
 		//for (var r=[], i=0, e=a.length; i<e; i+=1) r[i] = a[i] + b[i]; return r
-		var r=[]; for (var i in a) r[i]=a[i]+b[i]; return r
+		var r=[]; for (var i in a) r[i]=(a[i]||0)+b[i]; return r
 	}
 	//console.log(sum([1,2,3],[1,2,3])) // [2,4,6]
 	
@@ -49,6 +49,8 @@
 	//console.log(min([1,2,3,4,5,6,7], 3)) // [1,2,3,3,3,3,3]
 	*/
 	
+	
+	
 	//for (var i in [1,2,3]) console.log(i) // 1 2 3 
 	//var v=[1,2,3]; console.log([].concat([v])) // [[1,2,3]]
 	//console.log(2!=NaN)
@@ -59,18 +61,18 @@
 	function R(r, rs, z) {
 		// rs: elementi per riga
 		// z[]: elementi per colonna
-		//if (r) console.log(r, rs, z.join(''))
+		//console.log('start', r, rs, z.join(''))
 		return R(rs, z, [])
 		
 		function* R(rs, z, v) {
-			if (z.length == 0)
+			if (z.length == 0) {
+				//console.log('finish',rs,v.join(''))
 				yield v
-			//else if (z[0] == 0) 	
-			//	yield* R(rs, shift1(z), v.concat(0))
+			}
 			else {
-				var nr=0; for (var i in z) if (/*i!=0 &&*/ z[i]==r) nr+=1
-				//console.log(r, rs, z.join(''), nr, z.length>rs&&z[0]!=r)
-				for (var n=z.length>rs&&z[0]!=r&&z.length>nr?0:1, e=z[0]>0&&rs>0?1:0; n<=e; n+=1) {
+				var nr=0; for (var i in z) if (i!=0 && z[i]===r) nr+=1
+				for (var n=z.length>rs/*&&z[0]!=r/*&&z.length>nr*/?0:1, e=z[0]>0&&rs>0?1:0; n<=e; n+=1) {
+					//console.log('loop', rs, z.join(''), v.join('')+n)
 					var nrs = rs-n
 					if (nrs < 0) { r1+=1; continue }
 					yield* R(nrs, shift1(z), v.concat(n))
@@ -79,7 +81,7 @@
 		}
 	}
 	
-	var m1=0,m2=0
+	var m1=0,m2=0,m3=0 
 	function M(r, rs, z) {
 		// r: righe per scheda
 		// rs: elementi per riga
@@ -93,18 +95,19 @@
 					var n=0; for (var j in m) n+=m[j][i];
 					if (n<1) {
 						m2+=1;
-						//console.log('*** ', z.join(''));
-						//writeT('*** '+m2,m);
+						//console.log('*** ', z.join('')); writeT('*** '+m2,m);
 						return
 					}
 				}
 				yield m
-				
 			}
 			else {
 				//console.log(1+m.length, z.join())
-				var lst = m.length==r-1 
-				for (var v of R(lst?r:-1, rs, z)) {
+				//var lst = m.length==r-1 
+				//for (var v of R(lst?r/*-m.length*/:null, rs, z)) {
+				//var nz = subn(z,m.length<=r-1?1:0)
+				//if (!nz) { m3+=1; return }
+				for (var v of R(r, rs, z)) {
 					var nz = subv(z, v)
 					if (!nz) { m1+=1; continue }
 					yield* M(nz, m.concat([v]))
@@ -141,4 +144,4 @@
 		}
 	}
 	
-	module.exports = { R,r1, M,m1,m2, T,t1,t2,t3 }
+	module.exports = { R,r1, M,m1,m2,m3, T,t1,t2,t3 }
