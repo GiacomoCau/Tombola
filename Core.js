@@ -1,4 +1,6 @@
 	
+	module.exports = { R, M, T }
+	
 	function R(rs, sm, z) {
 		// rs: elementi per riga
 		// z[]: elementi per colonna
@@ -56,4 +58,4 @@
 		}
 	}
 	
-	module.exports = { R, M, T }
+
