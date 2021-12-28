@@ -3,6 +3,7 @@
 	
 	function R(rs, sm, z) {
 		// rs: elementi per riga
+		// sm[]: somme per colonna
 		// z[]: elementi per colonna
 		return R(0, rs, [])
 		
