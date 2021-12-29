@@ -1,62 +1,60 @@
 	
 	module.exports = { R, M, T }
 	
-	function R(rs, sm, z) {
-		// rs: elementi per riga
-		// sm[]: somme per colonna
-		// z[]: elementi per colonna
-		return R(0, rs, [])
+	function R(tr, tc, sc) {
+		// tr: totale per riga
+		// tc[]: totali per colonna
+		// sc[]: somme per colonna
+		return R(0, tr, [])
 		
-		function* R(i, rs, v) {
-			if (i == z.length)
-				yield v
-			else for (var n=rs>=z.length-i||sm[i]===0?1:0, e=rs&&z[i]?1:0; n<=e; n+=1) {
-				yield* R(i+1, rs-n, v.concat(n))
+		function* R(i, tr, r) {
+			if (i == tc.length)
+				yield r
+			else for (var n=tr>=tc.length-i||sc[i]===0?1:0, e=tr&&tc[i]?1:0; n<=e; n+=1) {
+				yield* R(i+1, tr-n, r.concat(n))
 			}
 		}
 	}
 	
-	function M(r, rs, z) {
-		// r: righe per scheda
-		// rs: elementi per riga
-		// z[]: elementi per colonna
-		return M(z, [])
+	function M(nr, tr, tc) {
+		// nr: righe per scheda
+		// tr: totali per riga
+		// tc[]: totali per colonna
+		return M(tc, [])
 		
-		function* M(z, m) {
-			if (m.length == r)
+		function* M(tc, m) {
+			if (m.length == nr)
 				yield m
-			else for (var v of R(rs, m.length<r-1 ? [] : sum(m), z)) {
-				yield* M(subv(z, v), m.concat([v]))
+			else for (var r of R(tr, tc, m.length<nr-1 ? [] : sumc(m))) {
+				yield* M(subr(tc, r), m.concat([r]))
 			}
-			function sum(m) {
+			function sumc(m) { // somma le colonne di m
 				var r=[]; for (var v of m) for (var i in v) r[i]=(r[i]||0)+v[i]; return r
 			}
-			function subv(z, v) { // clona a[] sottraendo agli elementi b[]
-				var r=z.slice(0); for (var i in z) r[i]-=v[i]; return r
+			function subr(tc, r) { // clona tc[] sottraendo agli elementi gli elementi di r[]
+				tc=tc.slice(0); for (var i in tc) tc[i]-=r[i]; return tc
 			}	
 		}
 	}
 	
-	function T(s, r, rs, z) {
-		// s: numero schede
-		// r: righe per scheda
-		// rs: elementi per riga
-		// z[]: elementi per colonna
-		return T(z, [])
+	function T(ns, nr, tr, tc) {
+		// ns: numero schede
+		// nr: numero righe per scheda
+		// tr: totale per riga
+		// tc[]: totali per colonna
+		return T(tc, [])
 		
-		function* T(z, t) {
-			if (t.length == s)
+		function* T(tc, t) {
+			if (t.length == ns)
 				yield t
-			else for (var m of M(r, rs, subn(z, s-t.length-1))) {
-				yield* T(subm(z, m), t.concat([m]))
+			else for (var m of M(nr, tr, subn(tc, ns-t.length-1))) {
+				yield* T(subm(tc, m), t.concat([m]))
 			}	
-			function subn(z, n) { // clona z[] sottranedo agli elementi s
-				var r=z.slice(0); for (var i in z) r[i]-=n; return r
+			function subn(tc, n) { // clona tc[] sottranedo agli elementi n
+				tc=tc.slice(0); for (var i in tc) tc[i]-=n; return tc
 			}
-			function subm(z, m) { // clona z[] sottranedo le colonne di m[,]
-				var r=z.slice(0); for (var v of m) for (var i in v) r[i]-=v[i]; return r
+			function subm(tc, m) { // clona tc[] sottranedo agli elementi le colonne di m[,]
+				tc=tc.slice(0); for (var r of m) for (var i in r) tc[i]-=r[i]; return tc
 			}
 		}
 	}
-	
-
