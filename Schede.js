@@ -53,7 +53,7 @@
 	
 	
 	function writeAll(ts) {
-		var i=0, tm=new Date().getTime(), inc=5000, lim=inc	
+		var i=0, tm=new Date().getTime(), inc=5000, lim=inc
 		for (var t of ts) {
 			i+=1
 			//console.log(i + ')')
@@ -76,7 +76,8 @@
 				}
 				else {
 					for (var m of t) {
-						for (var r of m) console.log(r.join(''))
+						//for (var r of m) console.log(r.join(' '))
+						for (var r of m) console.log(r.map(n=>!n?'  ':(' '+n).substr(-2)).join('|'))
 						console.log()
 					}
 				} 

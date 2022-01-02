@@ -30,8 +30,8 @@
 	}
 	
 	function M(nr, tr, tc) {
-		// nr: righe per scheda
-		// tr: totali per riga
+		// nr: numero righe per scheda
+		// tr: totale per riga
 		// tc[]: totali per colonna
 		//if (nr*tr != tc.reduce((a,b)=>a+b)) console.log('T: totali riga != totali colonna')
 		return M(tc, [])
@@ -57,11 +57,12 @@
 		// tr: totale per riga
 		// tc[]: totali per colonna
 		if (ns*nr*tr != tc.reduce((a,b)=>a+b)) console.log('T: totali riga != totali colonna')
+		var p = new P(tc)
 		return T(tc, [])
 		
 		function* T(tc, t) {
 			if (t.length == ns)
-				yield t
+				yield p.get(t)
 			else for (var m of M(nr, tr, subn(tc, ns-t.length-1))) {
 				yield* T(subm(tc, m), t.concat([m]))
 			}	
@@ -74,3 +75,57 @@
 		}
 	}
 
+	function N(tc) {
+		for (var m=[], d=0, i=0; i<tc.length; d+=10, i+=1) {
+			for (var v=[], n=tc[i], j=0; j<n; j+=1) v.push(d+j+(!d||tc[0]>9?1:0))
+			m.push(v)
+		}
+		this.get = ()=> m.map(r => r.slice())
+	}
+	
+	function P(tc) {
+		var n = new N(tc)
+		this.get = (t)=> {
+			var nn = n.get()
+			t = t.map(m => m.map(r => r.slice()))
+			for (var s of t) {
+				for (var i=0; i<s[0].length; i+=1) {
+					for (var j=0; j<s.length; j+=1) {
+						if (s[j][i] == 0) continue
+						s[j][i] = nn[i].shift()
+					}
+				}
+			}
+			return t
+		}
+	}
+	
+	
+	function shuffle(a) {
+		let i = a.length,  j;
+		// While there remain elements to shuffle...
+		while (i != 0) {
+			// Pick a remaining element...
+			j = Math.floor(Math.random() * i--);
+			// And swap it with the current element.
+			[a[i], a[j]] = [a[j], a[i]];
+		}
+		return a;
+	}
+
+	//console.log(new N([9,9,9]).get())
+	//console.log(new N([9,10,11]).get())
+	//console.log(new N([10,10,10]).get())
+	/*
+	var p = new P([3,2,2,2,3])
+	var m = [
+		[ [1,1,1,0,0], [1,0,0,1,1] ],
+		[ [1,1,0,0,1], [0,0,1,1,1] ]
+	]
+	console.log(p.p(m))
+	console.log(p.p([
+		[ [1,1,1,0,0], [1,0,0,1,1] ],
+		[ [1,1,0,0,1], [0,0,1,1,1] ]
+	]))
+	//*/
+	
