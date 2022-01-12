@@ -1,11 +1,4 @@
 	
-	/* TODO sostituito dal seguente
-	try {
-		module.exports = { R, M, T }
-	}
-	catch(e) {
-	}
-	*/
 	if (typeof module != 'undefined') module.exports = { R, M, T }
 	
 	function R(tr, tc, sc) {
@@ -82,33 +75,6 @@
 		}
 	}
 
-	/* TODO sostituiti dai seguenti
-	function N(tc) {
-		for (var m=[], d=0, i=0; i<tc.length; d+=10, i+=1) {
-			for (var v=[], n=tc[i], j=0; j<n; j+=1) v.push(d+j+(!d||tc[0]>9?1:0))
-			m.push(v)
-		}
-		this.get = ()=> m.map(r => r.slice())
-	}
-	
-	function P(tc) {
-		var n = new N(tc)
-		this.get = (t)=> {
-			var nn = n.get()
-			t = t.map(m => m.map(r => r.slice()))
-			for (var s of t) {
-				for (var i=0; i<s[0].length; i+=1) {
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						s[j][i] = nn[i].shift()
-					}
-				}
-			}
-			return t
-		}
-	}
-	*/
-	
 	var shuffle = false
 	
 	function N(tc) {
@@ -119,72 +85,6 @@
 		this.get = ()=> m.map(r => r.slice())
 	}
 	
-	/* TODO sostituito dal seguente
-	function P(tc) {
-		var n = new N(tc)
-		this.get = t => {
-			var nn = n.get()
-			t = t.map(m => m.map(r => r.slice()))
-			for (var s of t) {
-				for (var i=0; i<s[0].length; i+=1) {
-					var v=[]
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						if (!shuffle)
-							s[j][i] = nn[i].shift()
-						else
-							v.push(nn[i].shift())
-					}
-					if (!shuffle) continue
-					v.sort((a, b) => a - b)
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						s[j][i] = v.shift()
-					}
-				}
-			}
-			return t
-		}
-	}
-	*/
-	/* TODO sostituito dal seguente
-	function P(tc) {
-		var n = new N(tc)
-		this.get = shuffle
-		? t => {
-			var nn = n.get()
-			t = t.map(m => m.map(r => r.slice()))
-			for (var s of t) {
-				for (var i=0; i<s[0].length; i+=1) {
-					for (var v=[], j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						v.push(nn[i].shift())
-					}
-					v.sort((a, b) => a - b)
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						s[j][i] = v.shift()
-					}
-				}
-			}
-			return t
-		}
-		: t => {
-			var nn = n.get()
-			t = t.map(m => m.map(r => r.slice()))
-			for (var s of t) {
-				for (var i=0; i<s[0].length; i+=1) {
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						s[j][i] = nn[i].shift()
-					}
-				}
-			}
-			return t
-		}
-	}
-	//*/
-	//*
 	function P(tc) {
 		var n = new N(tc)
 		this.num = t => {
@@ -208,33 +108,7 @@
 			return t
 		}
 	}
-	//*/
 	
-	/* TODO sostituito dal seguente
-	function shuffle(a) {
-		let i = a.length,  j;
-		// While there remain elements to shuffle...
-		while (i != 0) {
-			// Pick a remaining element...
-			j = Math.floor(Math.random() * i--);
-			// And swap it with the current element.
-			[a[i], a[j]] = [a[j], a[i]];
-		}
-		return a;
-	}
-	*/
-	/* TODO sostituito dal seguente
-	function shuffle(a) {
-		// While there remain elements to shuffle...
-		for (var i=a.length; i!=0; ) {
-			// Pick a remaining element...
-			var j = Math.floor(Math.random() * i--)
-			// And swap it with the current element.
-			[a[i], a[j]] = [a[j], a[i]];
-		}
-		return a;
-	}
-	*/
 	Array.prototype.shuffle = function() {
 		// While there remain elements to shuffle...
 		for (var i=this.length; i!=0; ) {
