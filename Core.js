@@ -69,8 +69,8 @@
 		
 		function* T(tc, t) {
 			if (t.length == ns)
-				yield p.get(t)
-			else for (var m of M(nr, tr, subn(tc, ns-t.length-1))) {
+				yield p.num(t)
+			else for (var m of M(nr, tr, subn(tc, ns-1-t.length))) {
 				yield* T(subm(tc, m), t.concat([m]))
 			}	
 			function subn(tc, n) { // clona tc[] sottranedo agli elementi n
@@ -109,7 +109,7 @@
 	}
 	*/
 	
-	var shuffle = true
+	var shuffle = false
 	
 	function N(tc) {
 		for (var m=[], d=0, i=0; i<tc.length; d+=10, i+=1) {
@@ -147,6 +147,7 @@
 		}
 	}
 	*/
+	/* TODO sostituito dal seguente
 	function P(tc) {
 		var n = new N(tc)
 		this.get = shuffle
@@ -182,6 +183,32 @@
 			return t
 		}
 	}
+	//*/
+	//*
+	function P(tc) {
+		var n = new N(tc)
+		this.num = t => {
+			var nn = n.get()
+			t = t.map(m => m.map(r => r.slice()))
+			for (var s of t) {
+				for (var i=0; i<s[0].length; i+=1) {
+					if (shuffle) {
+						for (var v=[], j=0; j<s.length; j+=1) {
+							if (s[j][i] == 0) continue
+							v.push(nn[i].shift())
+						}
+						v.sort((a, b) => a - b)
+					}
+					for (var j=0; j<s.length; j+=1) {
+						if (s[j][i] == 0) continue
+						s[j][i] = (shuffle?v:nn[i]).shift()
+					}
+				}
+			}
+			return t
+		}
+	}
+	//*/
 	
 	/* TODO sostituito dal seguente
 	function shuffle(a) {
