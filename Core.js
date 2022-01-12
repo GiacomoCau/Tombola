@@ -93,16 +93,10 @@
 			for (var s of t) {
 				for (var i=0; i<s[0].length; i+=1) {
 					if (shuffle) {
-						for (var v=[], j=0; j<s.length; j+=1) {
-							if (s[j][i] == 0) continue
-							v.push(nn[i].shift())
-						}
+						for (var v=[], j=0; j<s.length; j+=1) if (s[j][i]) v.push(nn[i].shift())
 						v.sort((a, b) => a - b)
 					}
-					for (var j=0; j<s.length; j+=1) {
-						if (s[j][i] == 0) continue
-						s[j][i] = (shuffle?v:nn[i]).shift()
-					}
+					for (var j=0; j<s.length; j+=1) if (s[j][i]) s[j][i] = (shuffle?v:nn[i]).shift()
 				}
 			}
 			return t
@@ -116,7 +110,7 @@
 			var j = Math.floor(Math.random() * i--)
 			// And swap it with the current element.
 			//[this[i], this[j]] = [this[j], this[i]]
-			var t=this[i]
+			var t = this[i]
 			this[i] = this[j]
 			this[j] = t
 		}
