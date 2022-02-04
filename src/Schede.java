@@ -48,7 +48,7 @@ public class Schede implements Serializable{
 		for (int i=0; i<v.length; i+=1) if (v[i] < n) return false;
 		return true;
 	}
-	private boolean ge(int[] v, int[] v2) {
+	private static boolean ge(int[] v, int[] v2) {
 		for (int i=0; i<v.length; i+=1) if (v[i] < v2[i]) return false;
 		return true;
 	}
@@ -63,13 +63,13 @@ public class Schede implements Serializable{
 		return join(",", stream(s).mapToObj(i-> i+"").toArray(String[]::new));
 	}	
 	
-	private int random(int max) {
+	private static int random(int max) {
 		return (int)(max * Math.random());
 	}
-	private int[][] random(List<int[][]> l) {
+	private static int[][] random(List<int[][]> l) {
 		return l.get(random(l.size()));
 	}
-	private int[][] random(Map<Sum,List<int[][]>> sum, int[] mx, int[] mn) {
+	private static int[][] random(Map<Sum,List<int[][]>> sum, int[] mx, int[] mn) {
 		Sum[] fsum = sum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
 		int[] size = stream(fsum).mapToInt(k-> sum.get(k).size()).toArray();
 		for (int idx=random(stream(size).sum()), i=0; i<size.length; idx-=size[i], i+=1) {
