@@ -23,12 +23,7 @@ public class Schede implements Serializable{
 	private Map<Sum,List<int[][]>> sum = new TreeMap<>();
 	
 	public Schede() throws Exception {
-		//long t = System.currentTimeMillis();
 		read();
-		//System.out.println(System.currentTimeMillis()-t);
-		//System.out.println("all: " + all.size());
-		//System.out.println("parz: " + tpe.size());
-		//parz.forEach((k,l)-> System.out.println(k + ": " + l.size()));
 	}
 	
 	public int[][][] get() {
@@ -36,15 +31,8 @@ public class Schede implements Serializable{
 		int[][][] t = new int[6][][];
 		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
 			int[] zmx = sub(z, s), zmn = sub(z, s*3);
-			//System.out.println((i+1)+"\n"+ toString(z));
 			sub(z, t[i] = ge(zmx, 3) ? random(all) : random(sum, zmx, zmn));
-			//System.out.println(toString(zmx));
-			//System.out.println(toString(zmn));
-			//System.out.println(toString(t[i]));
-			//System.out.println(toString(sum(t[i])));
-			//System.out.println();
 		}
-		//System.out.println(toString(z)+"\n");
 		return t;
 	}
 
@@ -83,7 +71,6 @@ public class Schede implements Serializable{
 	}
 	private int[][] random(Map<Sum,List<int[][]>> sum, int[] mx, int[] mn) {
 		Sum[] fsum = sum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
-		//System.out.println(fsum.length);
 		int[] size = stream(fsum).mapToInt(k-> sum.get(k).size()).toArray();
 		for (int idx=random(stream(size).sum()), i=0; i<size.length; idx-=size[i], i+=1) {
 			if (idx < size[i]) return sum.get(fsum[i]).get(idx);
@@ -97,33 +84,15 @@ public class Schede implements Serializable{
 		) {
 			br.readLine();
 			for (String line; (line = br.readLine()) != null; ) {
-				//System.out.println(line);
 				if (!line.matches("\\d+\\)")) continue;
 				int id = Integer.parseInt(line.substring(0,line.indexOf(")")));
-				//System.out.println(id);
 				int[][] m = new int[3][];
 				for (int i=0; i<3; i+=1) m[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
 				all.add(m);
 				sum.computeIfAbsent(new Sum(m), k-> new ArrayList()).add(m);
-				//System.out.println(toKey(s));
-				//Arrays.stream(m).forEach(r->System.out.println(toKey(r)));
 				br.readLine();
 			}
 		}
-		/*
-		try (
-			var oos = new ObjectOutputStream(new FileOutputStream("Schede.obj"));
-		) {
-			oos.writeObject(all);
-			oos.writeObject(sum);
-		}
-		try (
-			var ois = new ObjectInputStream(new FileInputStream("Schede.obj"));
-		) {
-			all = (List<int[][]>) ois.readObject();
-			sum = (Map<Schede.Sum, List<int[][]>>) ois.readObject();
-		}
-		//*/
 	}
 	
 	class Sum implements Serializable, Comparable<Sum> {
