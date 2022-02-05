@@ -1,7 +1,7 @@
-import static java.lang.String.join;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.Comparator.naturalOrder;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -96,16 +96,13 @@ public class Schede implements Serializable{
 	}
 
 	private static String toString(int[][][] t) {
-		return join("\n\n", stream(t).map(s-> toString(s)).toArray(String[]::new));
+		return stream(t).map(s-> toString(s)).collect(joining("\n\n"));
 	}	
 	private static String toString(int[][] s) {
-		return join("\n", stream(s).map(r-> toString(r)).toArray(String[]::new));
+		return stream(s).map(r-> toString(r)).collect(joining("\n"));
 	}	
 	private static String toString(int[] r) {
-		if (!number)
-			return join(",", stream(r).mapToObj(i-> i+"").toArray(String[]::new));
-		else
-			return join("|", stream(r).mapToObj(i-> i==0 ? "  " : i<10 ? " "+i : ""+i).toArray(String[]::new));
+		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "|"));
 	}	
 	
 	private static int random(int max) {
