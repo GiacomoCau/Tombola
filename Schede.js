@@ -2,6 +2,8 @@
 	
 	let { R, M, T } = require('./Core.js')
 	
+	if (process.argv[2]) eval(process.argv[2])
+	
 	//writeAll( R(1, [1,0], [1,1]) ) // 1
 	//writeAll( R(1, [1,1], [1,1]) ) // 2
 	//writeAll( R(1, [1,1], [1,0]) ) // 1

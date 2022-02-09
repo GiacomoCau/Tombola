@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,9 @@ public class Schede {
 	static {
 		try {
 			//long tm = System.currentTimeMillis();
-			read();
+			//write("Schede.txt");
+			read("Schede.txt");
+			//sum.forEach((k,v)-> System.out.println(k));
 			//System.out.println(System.currentTimeMillis()-tm);
 		}
 		catch (Exception e) {
@@ -37,6 +40,7 @@ public class Schede {
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
 		//System.out.println(schede.getString());
+		//for (int i=0; i<100; i+=1) schede.getString();
 		for (int i=0; i<1; i+=1) System.out.println(schede.getString() + "\n\n");
 		System.out.println("finito!");
 	}
@@ -44,6 +48,8 @@ public class Schede {
 	public String getString() {
 		return toString(get());
 	}
+	
+	long tm;
 	
 	public int[][][] get() {
 		//long tm = System.currentTimeMillis();
@@ -65,7 +71,7 @@ public class Schede {
 				}
 			}
 		}
-		//System.out.println(System.currentTimeMillis()-tm);
+		//System.out.println(this.tm +=(System.currentTimeMillis()-tm));
 		return t;
 	}
 
@@ -136,10 +142,37 @@ public class Schede {
 		}
 		throw new RuntimeException();
 	}
+	/*
+	private static int[][] random2(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+		Map<Sum,Integer> fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
+		int idx = random(fsum.size());
+		for (var e: fsum.entrySet()) {
+			if (idx < e.getValue()) return sum.get(e.getKey())[idx];
+			idx -= e.getValue();
+		}
+		throw new RuntimeException();
+	}
+	*/
 	
-	private static void read() throws Exception {
+	@SuppressWarnings("unused")
+	private static void write(String fn) throws Exception {
+		ProcessBuilder pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [ 3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
+		var env = pb.environment();
+		env.put("NODE_DISABLE_COLORS", "1");
+		env.put("NODE_SKIP_PLATFORM_CHECK", "1");
+		String nodeDir = "D:\\Programmi\\Node-v13.14.0-win-x64";
+		env.put("Path", nodeDir + ";" + env.get("Path")); 
+		env.put("NODE_PATH", nodeDir + "\\node_module");
+		//env.forEach((k,v)->System.out.println(k + "=" + v));
+		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectOutput(new File(fn));
+		pb.start().waitFor();
+	}
+	
+	private static void read(String fn) throws Exception {
 		try (
-			var br = new BufferedReader(new FileReader("Schede.txt"));
+			var br = new BufferedReader(new FileReader(fn));
 		) {
 			var a = new ArrayList<int[][]>();
 			for (String line; (line = br.readLine()) != null; ) {
@@ -178,6 +211,8 @@ public class Schede {
 		public int compareTo(Sum other) {
 			if (this == other) return 0;
 			return Arrays.compare(a, other.a);
+			//if (Arrays.equals(this.a, other.a)) return 0;
+			//return ge(this.a, other.a) ? 1 : -1;
 		}
 		
 		@Override
