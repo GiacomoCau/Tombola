@@ -139,6 +139,7 @@ public class Schede {
 	private static int[][] random(int[][][] l) {
 		return l[random(l.length)];
 	}
+	/*
 	private static int[][] random(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
 		Sum[] fsum = sum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
 		int[] size = stream(fsum).mapToInt(k-> sum.get(k).length).toArray();
@@ -147,16 +148,18 @@ public class Schede {
 		}
 		throw new RuntimeException();
 	}
-	/*
-	private static int[][] random2(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	*/
+	private static int[][] random(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
 		Entry<Sum,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
 		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
 		for (var e: fsum) {
-			if (idx < e.getValue().length) return sum.get(e.getKey())[idx];
-			idx -= e.getValue().length;
+			int length = e.getValue().length;
+			if (idx < length) return sum.get(e.getKey())[idx];
+			idx -= length;
 		}
 		throw new RuntimeException();
 	}
+	/*
 	private static int[][] random3(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
 		record SumLength (Sum sum, int length) {}
 		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
@@ -176,6 +179,15 @@ public class Schede {
 		for (var e: suml) {
 			if (idx < e.length) return sum.get(e.sum)[idx];
 			idx -= e.length;
+		}
+		throw new RuntimeException();
+	}
+	private static int[][] random5(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+		Map<Sum,Integer> fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
+		int idx = random(fsum.values().stream().mapToInt(i->i).sum());
+		for (var e: fsum.entrySet()) {
+			if (idx < e.getValue()) return sum.get(e.getKey())[idx];
+			idx -= e.getValue();
 		}
 		throw new RuntimeException();
 	}
