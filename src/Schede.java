@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 public class Schede {
@@ -40,7 +41,7 @@ public class Schede {
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
 		//System.out.println(schede.getString());
-		//for (int i=0; i<100; i+=1) schede.getString();
+		//for (int i=0; i<1000; i+=1) schede.getString();
 		for (int i=0; i<1; i+=1) System.out.println(schede.getString() + "\n\n");
 		System.out.println("finito!");
 	}
@@ -49,7 +50,7 @@ public class Schede {
 		return toString(get());
 	}
 	
-	long tm;
+	//long tm;
 	
 	public int[][][] get() {
 		//long tm = System.currentTimeMillis();
@@ -57,15 +58,15 @@ public class Schede {
 		int[][][] t = new int[6][][];
 		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
 			int[] zmx = sub(z, s), zmn = sub(z, s*3);
-			sub(z, t[i] = ge(zmx, 3) ? random(all) : random(sum, zmx, zmn));
+			sub(z, t[i] = clone(ge(zmx, 3) ? random(all) : random(sum, zmx, zmn)));
 		}
 		//System.out.println(toString(z));
 		if (!number) return t;
 		var ns = numbers();
 		for (int[][] s: t) {
-			for (int j=0,ee=s[0].length; j<ee; j+=1) {
+			for (int j=0, ej=s[0].length; j<ej; j+=1) {
 				List<Integer> n = numbers(ns[j], s, j);
-				for (int i=0, e=s.length; i<e; i+=1) {
+				for (int i=0, ei=s.length; i<ei; i+=1) {
 					if (s[i][j] == 0) continue;
 					s[i][j] = n.remove(0);  
 				}
@@ -73,6 +74,10 @@ public class Schede {
 		}
 		//System.out.println(this.tm +=(System.currentTimeMillis()-tm));
 		return t;
+	}
+	
+	private int[][] clone (int[][] m) {
+		return stream(m).map(int[]::clone).toArray(int[][]::new);
 	}
 
 	private List<Integer>[] numbers() {
@@ -144,11 +149,33 @@ public class Schede {
 	}
 	/*
 	private static int[][] random2(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
-		Map<Sum,Integer> fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
-		int idx = random(fsum.size());
-		for (var e: fsum.entrySet()) {
-			if (idx < e.getValue()) return sum.get(e.getKey())[idx];
-			idx -= e.getValue();
+		Entry<Sum,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
+		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
+		for (var e: fsum) {
+			if (idx < e.getValue().length) return sum.get(e.getKey())[idx];
+			idx -= e.getValue().length;
+		}
+		throw new RuntimeException();
+	}
+	private static int[][] random3(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+		record SumLength (Sum sum, int length) {}
+		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
+		int idx = random(stream(suml).mapToInt(s->s.length).sum());
+		for (var e: suml) {
+			if (idx < e.length) return sum.get(e.sum)[idx];
+			idx -= e.length;
+		}
+		throw new RuntimeException();
+	}
+	private static int[][] random4(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+		record SumLength (Sum sum, int length) {
+			public SumLength(Entry<Sum,int[][][]> e) { this(e.getKey(), e.getValue().length); }
+		}
+		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(SumLength::new).toArray(SumLength[]::new);
+		int idx = random(stream(suml).mapToInt(s->s.length).sum());
+		for (var e: suml) {
+			if (idx < e.length) return sum.get(e.sum)[idx];
+			idx -= e.length;
 		}
 		throw new RuntimeException();
 	}
