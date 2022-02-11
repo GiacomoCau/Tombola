@@ -47,28 +47,33 @@ le cartelle sono raggruppabili in 4 tipologie
 		<li>3 tipologie per la 9ª colonna
 	</ul>
 </ul>
-		
-		1 1  2 3 3  2 3 3
-		1 1  2 2 3  2 2 3
-		1 1  2 2 1  2 2 2
-		1 2  2 1 1  2 2 1
-		2 2  1 1 1  2 1 1
-		3 2  1 1 1  1 1 1
-		= =  = = =  = = =
-		9 9  0 0 0  1 1 1
+
+		a1 a2  b1 b2 b3  c1 c2 c3 
+		 :  :   :  :  :   :  :  :
+		 1  1   2  3  3   2  3  3
+		 1  1   2  2  3   2  2  3
+		 1  1   2  2  1   2  2  2
+		 1  2   2  1  1   2  2  1
+		 2  2   1  1  1   2  1  1
+		 3  2   1  1  1   1  1  1
+		 = ==  == == ==  == == ==
+		 9  9  10 10 10  11 11 11
 
 Dato che i numeri in ogni decina sono limitati
 le combinazioni delle tipologie per le 6 cartelle
 sono a loro volta limitate
 
-	1ª d: 1 1 1 2 2 2 2 2 2 = 15
-	2ª d: 1 1 1 2 2 2 2 2 2 = 15
-	3ª d: 1 1 1 2 2 2 2 2 2 = 15
-	4ª d: 2 1 1 1 2 2 2 2 2 = 15
-	5ª b: 2 3 3 1 1 1 1 1 2 = 15
-	6ª b: 2 3 3 2 1 1 1 1 1 = 15
-	      = = = = = = = = =
-	      9 0 0 0 0 0 0 0 1  
+	      1ª 2ª 3ª 4ª 5ª 6ª 7ª 8ª 9ª
+	      a2 b3 b3 b1 b1 b1 b1 b1 c1  
+	       :  :  :  :  :  :  :  :  :
+	1ª d:  1  1  1  2  2  2  2  2  2 = 15
+	2ª d:  1  1  1  2  2  2  2  2  2 = 15
+	3ª d:  1  1  1  2  2  2  2  2  2 = 15
+	4ª d:  2  1  1  1  2  2  2  2  2 = 15
+	5ª b:  2  3  3  1  1  1  1  1  2 = 15
+	6ª b:  2  3  3  2  1  1  1  1  1 = 15
+	      == == == == == == == == ==
+	       9 10 10 10 10 10 10 10 11  
 
 Esiste un modo per generare tutte le tipologie delle 6 cartelle?<br>
 E da queste tutte le possibili schede?
