@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Untitled</title>
+</head>
+
+<body>
+
+<script>
+	/*
+		a11	a12	...	a1n	r1
+		a21	a22	...	a2n	r2
+				...		...
+		am1	am2	...	amn	rm
+		c1	c2	...	cn	
+		
+	m>2
+		a11	a12	...	a1n	r1
+		------------------
+		a21	a22	...	a2n	r2
+				...		...
+		am1	am2	...	amn	rm
+		c1	c2	...	cn	
+		-=  -=  	-= 
+		a11 a12 	a1m
+		
+		a11 = [max(0,c1-sum2(r)) .. min(r1,c1)]
+		a12 = r1-a11
+		
+	m=2, n>2	
+		a11 | a12	...	a1n	r1-=a11
+		a21 | a22	...	a2n	r2-=a21
+		c1  | c2	...	cn
+		
+		a11 = [max(0,r1-sum2(c)) .. min(c1,r1)]
+		a21 = c1-a11
+		
+		
+	m=2, n=2
+		a11	a12 r1
+		a21	a22 r2
+		c1  c2
+		
+		a11 = [max(0,r1-c2) .. min(c1,r1)]
+		a21 = c1-a11
+	*/	
+
+	var min = Math.min, max = Math.max
+	
+	/*
+	function G(m, n, r, c) {
+		if (m==2) {
+			if (n==2) {
+				//return min(c[0],r[0]) - max(0,c[0]-r[1]) + 1
+				//return min(c[0],r[0])+1 - max(0,r[0]-c[1]) 
+				return min(c[0],r[0])+1 - max(0,r[0]-sum1(c)) 
+			}
+			else {
+				for (var t=0, a=max(0,r[0]-sum1(c)), e=min(c[0],r[0])+1; a<e; a+=1) {
+					t += G( m, n-1, [r[0]-a, r[1]-c[0]-a], shift1(c) )
+				}
+				return t
+			}
+		}
+		else {
+			for (var t=0, a=max(0,c[0]-sum1(r)), e=min(r[0],c[0])+1; a<e; a+=1) {
+				t += G( m-1, n, shift1(r), cpy1(c, c[0]-a) ) 
+			}
+			return t
+		}
+		function sum1(v) {
+			for (var t=0, i=1, e=v.length; i<e; i+=1) t+=v[i]; return t
+		}
+		function shift1(v) {
+			for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1]=v[i]; return r
+		}
+		function cpy1(v, a) {
+			for (var r=[a], i=1, e=v.length; i<e; i+=1) r[i]=v[i]; return r
+		}
+	}
+	
+	document.write( G(2,2,[3,1],[2,2]), '<br>' )
+	document.write( G(2,3,[3,2],[3,1,1]), '<br>' )
+	document.write( G(3,3,[1,1,1],[1,1,1]), '<br>' )
+	document.write( G(3,3,[3,2,2],[3,1,3]), '<br>' )
+	document.write( G(3,2,[386,768,128],[620,660]), '<br>' )
+	*/
+	
+	function G(r, c) {
+		//document.write('<br>', c , ' | ', r)
+		if (r.length==2) {
+			if (c.length==2) {
+				var t = min(r[0],c[0])+1 - (c[0]-r[1]) // sum1(r) = r[1]
+			}
+			else {
+				for (var t=0, a=max(0,r[0]+c[0]-sum1(c)), e=min(c[0],r[0])+1; a<e; a+=1) {
+					t += G( [r[0]-a, r[1]-(c[0]-a)], shift1(c) ) // G!
+				}
+			}
+		}
+		else {
+			for (var t=0, r1=R(r,c), i=0, e=r1.length; i<e; i+=1) {
+				t += G( shift1(r), subn(c, r1[i])) 
+			}
+		}
+		return t
+	}
+	
+	function sum1(v) { // somma tutti gli elementi di v tranne il primo
+		for (var r=0, i=1, e=v.length; i<e; i+=1) r+=v[i]; return r
+	}
+	function shift1(v) { // clona v eliminando il primo elemento
+		for (var r=[], i=1, e=v.length; i<e; i+=1) r[i-1]=v[i]; return r
+	}
+	function sub0(v, a) { // clona v valorizzando il primo elemento con la differenza tra il primo elemento ed a
+		for (var r=[v[0]-a], i=1, e=v.length; i<e; i+=1) r[i]=v[i]; return r
+	}
+	function subn(c, a) { // crea un vettore con la differenza fra i corrispondenti elementi del primio e del secondo vettore
+		for (var r=[], i=0, e=c.length; i<e; i+=1) r[i]=c[i]-a[i]; return r
+	}
+	
+	
+	function R(r, c) {
+		if (c.length == 2) {
+			var t = min(c[0],r[0])+1 - max(0, c[0]+r[0]-sum1(r))
+		}
+		else {
+			for (var t=0, a=max(0, c[0]-sum1(r)), e=min(c[0],r[0])+1; a<e; a+=1) {
+				t += R( sub0(r, a), shift1(c) )
+			}
+		}
+		return t
+	}
+	function R(r, c) {
+		if (c.length == 2) {
+			for (var t=[], a=max(0,c[0]+r[0]-sum1(r)), e=min(c[0],r[0])+1; a<e; a+=1)
+				t.push([a, r[0]-a])
+		}
+		else {
+			for (var t=[], a=max(0,c[0]-sum1(r)), e=min(c[0],r[0])+1; a<e; a+=1) {
+				var r1s = R(sub0(r,a), shift1(c))
+				for (var i in r1s) {
+					var r1 = r1s[i]
+					r1.unshift(a)
+					t.push(r1)
+				}
+			}
+		}
+		return t
+	}
+	function R(r, c) {
+		var r1m = sum1(r)
+		return R(r[0], c)
+		function R(r0, c) {
+			if (c.length == 2) {
+				for (var t=[], a=max(0,c[0]+r0-r1m), e=min(c[0],r0)+1; a<e; a+=1)
+					t.push([a, r0-a]) // aggiunge [, ] in fondo a t
+			}
+			else {
+				for (var t=[], a=max(0,c[0]-r1m), e=min(c[0],r[0])+1; a<e; a+=1) {
+					var r1s = R(r0-a, shift1(c))
+					for (var i in r1s) {
+						var r1 = r1s[i]
+						r1.unshift(a) // aggiunge a in fondo a r1
+						t.push(r1) // aggiunge r1 in testa a t
+					}
+				}
+			}
+			return t
+		}
+	}
+	
+	/*
+	document.write( G([3,1],[2,2]), '<br>' )
+	document.write( G([3,2],[3,1,1]), '<br>' )
+	document.write( G([0,0],[0,0]), '<br>' )
+	document.write( G([2,2],[2,2]), '<br>' )
+	document.write( G([1,1,1],[1,1,1]), '<br>' )
+	*/
+	document.write( G([3,1,3], [3,2,2]), '<br>' ) // 19 non 29!
+	//for (var v=R([3,1,3], [3,2,2]), i=0, e=v.length; i<e; i+=1) document.write(v[i], '<br>')
+	
+	function G(r, c) {
+		//document.write('<br>', c , ' | ', r)
+		if (r.length==2) {
+			if (c.length==2) {
+				for (t=[], a00=max(c[0]-r[1]), e=min(r[0],c[0])+1; a00<e; a00+=1) {
+					var a01 = r[0] - a00 
+					var a10 = c[0] - a00
+					var a11 = r[1] - a01 // = c[1]-a10
+					var xxx = [	[a00, a01], [a10, a11] ]
+ 					t.push(xxx)
+				}
+				return t
+			}
+			else {
+				for (var t=[], a=max(0,r[0]+c[0]-sum1(c)), e=min(c[0],r[0])+1; a<e; a+=1) {
+					var m = G( [r[0]-a, r[1]-(c[0]-a)], shift1(c) )
+					for (var i in m) {
+						var r2 = m[i]
+						r2[0].unshift(a)
+						r2[1].unshift(a)
+						t.push(r2)
+					}
+				}
+				return t
+			}
+		}
+		else {
+			for (var t=[], r1=R(r,c), i=0, e=r1.length; i<e; i+=1) {
+				var ms = G( shift1(r), subn(c, r1[i])) 
+				for (var j in ms) {
+					var m = ms[j]
+					m.unshift(r1[i])
+					t.push(m)
+				}
+			}
+			return t
+		}
+	}
+	
+	for (var ms=G([3,1,3], [3,2,2]), i=0, e1=ms.length; i<e1; i+=1) {
+		for (var m=ms[i], j=0, e2=m.length; i<e2; j+=1) 
+	 		document.write(m[j], '<br>')
+		document.write('<br>')
+	}
+	
+	//document.write( G([620,660],[386,768,128]), '<br>' )
+	//document.write( G([386,768,128],[620,660]), '<br>' )
+	
+</script>
+
+
+</body>
+</html>
