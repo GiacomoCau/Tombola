@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Untitled</title>
+</head>
+
+<body>
+
+<script>
+
+	function partp(n,k) {
+		if (k == undefined) {
+			var sum=0;
+			for (var i=1; i<=n; i++) {
+				sum += partp(n,i);
+			}
+			return sum;
+		}
+		if ((n == 0) || (n == 1)) { return 1; } // base cases, {0} and {1}
+		if ((k == 1) || (n == k)) { return 1; } // base cases, {1+1+...} and {n}
+		var sum = 0;
+		for (var i=1; i<=Math.min(k,n-k); i++) {
+			sum += partp(n-k,i);
+		}
+		return sum;
+	}
+
+	//document.write( partp(15,9), '<br>' )
+
+	function partition(n, limit, str) { 
+		if (n == 0)
+			document.write(str.substring(0, str.length - 1), '<br>')
+		else
+			for (var i=Math.min(n, limit); i > 0; i--)
+				partition(n-i, i, str + i + '+')
+	}   
+
+ 	var n = 6
+ 	//partition(n, n, n + '=');   
+ 
+ 	function Pn(n, k, mx) {
+		if (k > n) return
+		var ceil=Math.ceil, min=Math.min
+		if (mx === undefined) mx = Infinity
+		return Pn(n, k, n-k+1)
+		
+		function Pn(n, k, s) {
+			if (k==1) return 1
+			for (var u=0, i=ceil(n/k); i<=min(mx,s); i+=1) {
+				u += Pn(n-i, k-1, min(i, n-i-k+2))
+			}
+			return u
+		}
+	}
+ 	document.write(Pn(15, 9, 3), '<br>')
+	
+ 	function P(n, k, mx) {
+		if (k > n) return
+		var ceil=Math.ceil, min=Math.min
+		if (mx === undefined) mx = Infinity
+		return P(n, k, n-k+1)
+		
+		function P(n, k, s) {
+			if (k==1) return [[n]]
+			for (var u=[], i=ceil(n/k); i<=min(mx,s); i+=1) {
+				var r = P(n-i, k-1, min(i, n-i-k+2))
+				for (var j in r) {
+					var a = r[j]
+					a.push(i) // per avere i valori di n in ordine lessicografico (ascendenti)!
+					// e.unshift(i) // per avere i valori di n discendenti
+					u.push(a)
+				}
+			}
+			return u
+		}
+	}
+	
+ 	function P(n, k, mx) {
+		if (k > n) return
+		var ceil=Math.ceil, min=Math.min
+		if (mx === undefined) mx = Infinity
+		return P(n, k, n-k+1)
+		
+		function P(n, k, s) {
+			if (k==1) return [[n]]
+			for (var u=[], i=ceil(n/k); i<=min(mx,s); i+=1) {
+				var r = P(n-i, k-1, min(i, n-i-k+2))
+				while (r.length) {
+					var a = r.shift() // invece di usare un indice, non è detto sia più efficiente!
+					a.push(i) // per avere i valori di n in ordine lessicografico (ascendenti)!
+					// e.unshift(i) // per avere i valori di n discendenti
+					u.push(a)
+				}
+			}
+			return u
+		}
+	}
+
+ 	// document.write(Math.ceil(5/2),'<br>')
+ 	var p = P(15, 9, 3)
+	for (var i in p) document.write(+i+1, ') ', p[i],'<br>')
+	document.write('<br>')
+	
+	/*	Schema schede - decine
+		6 schede per 9 decine
+		ogni scheda  è una permutazione di un partizionamento di 15 in 9 parti con massimo 3
+		ogni colonna è una permutazione di un partizionamento di 9, 10 o 11 in 6 parti con massimo 3
+		come produrre tutti i partizionamenti possibili con questo duplice vincolo?
+		
+			1	2	3	4	5	6	7	8	9
+		1									= 15 = 15-9 = 6
+		2									= 15 = 15-9 = 6
+		3									= 15 = 15-9 = 6
+		4									= 15 = 15-9 = 6
+		5									= 15 = 15-9 = 6
+		6									= 15 = 15-9 = 6
+			=	=	=	=	=	=	=	=	=
+			9	10	10	10	10	10	10	10	11
+			=	=	=	=	=	=	=	=	=
+		9-6=3	4	4	4	4	4	4	4	5
+		
+			1   1   1 . 1   1   1 . 3   3   3
+			1   1   1 . 1   2   2 . 2   2   3
+			1   1   1 . 2   2   2 . 2   2   2
+			1                       1   1   1
+			2                       1   1   1
+			3                       1   1   1
+	*/
+
+	//var p = P( 9, 6, 3);  for (var i in p) document.write(p[i],'<br>'); 	document.write('<br>')
+	//var p = P(10, 6, 3);  for (var i in p) document.write(p[i],'<br>'); 	document.write('<br>')
+	//var p = P(11, 6, 3);  for (var i in p) document.write(p[i],'<br>'); 	document.write('<br>')
+	
+
+</script>
+
+
+</body>
+</html>

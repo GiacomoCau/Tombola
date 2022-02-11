@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Untitled</title>
+</head>
+
+<body>
+<font  face="Courier New"  size="-1"> 
+<script>
+	/* google
+	algorithms combinations ripetition permutations combinatorics combinatorial C Java
+	*/
+	
+	/*
+	cache[0] = 3
+	alert(cache[0,0,0,0])
+	cache[1,2] = 'xxxx'
+	alert(cache[1,2])
+	alert((1,2) in cache)
+	alert(Math.min(3,2,1))
+	alert(Math.max(1,2,3))
+	*/
+	
+	//*
+	
+	Number.prototype.toIntString = function () {
+		return this.toLocaleString().replace(/,\d\d$/,'')
+	}
+	 
+	// http://math.stackexchange.com/questions/510693/how-many-90-ball-bingo-cards-are-there
+
+	function N(a,b,c,k) {
+		var cache = {'0.0.0.0':1}
+		return N(a,b,c,k)
+		function N(a,b,c,k) {
+			if (Math.min(a,b,c) < 0 || Math.max(a,b,c) > k) return 0
+			var e = key(a,b,c,k)
+			return cache[e] || ( cache[e]
+				= N(a-1,b-1,c-1,k-1)
+				+ N(a-1,b-1,c  ,k-1) + N(a-1,b  ,c-1,k-1) + N(a  ,b-1,c-1,k-1)
+				+ N(a-1,b  ,c  ,k-1) + N(a  ,b-1,c  ,k-1) + N(a  ,b  ,c-1,k-1)
+			)
+		}
+	}
+	//document.write(N(5,5,5,9).toIntString(),'<br>') // = 735.210
+	
+	function M(a,b,c,k) {
+		var cache = {'0.0.0.0':1}
+		return M(a,b,c,k)
+		function M(a,b,c,k) {
+			if (Math.min(a,b,c) < 0 || Math.max(a,b,c) > k) return 0
+			var e = key(a,b,c,k), v = cache[e]
+			return cache[e] || (cache[e] 
+				=  M(a-1,b-1,c-1,k-1) * C(mk(k),3)
+				+ (M(a-1,b-1,c  ,k-1) + M(a-1,b  ,c-1,k-1) + M(a  ,b-1,c-1,k-1)) * C(mk(k),2)
+				+ (M(a-1,b  ,c  ,k-1) + M(a  ,b-1,c  ,k-1) + M(a  ,b  ,c-1,k-1)) * mk(k)
+			)
+		}
+	}
+	//document.write(M(5,5,5,9).toIntString(),'<br>') // = 3.669.688.706.217.187.300 ~ 3,5 miliardi di miliardi
+	
+	function mk(k) {
+		//return 10
+		return k==1 ? 11 : k==9 ? 9 : 10
+	}
+	
+	function key(a,b,c,k) {
+		return a + '.' + b + '.' + c + '.' + k
+	}
+	
+	function F(n) { // fattoriale
+		var r = 1; while (n) r *= n--
+		return r
+	}
+	//document.write(F(6).toIntString(),'<br>')
+	
+	function C(n, k) { // combinazioni
+		if (k > n) return 0
+		for (var r=1, i=1; i<=k;) {
+			r *= n--;
+			r /= i++;
+		}
+		return r;
+	}
+	function C(n, k) { // combinazioni
+		if (k > n) return 0
+		k = Math.min(k, n-k)
+		for (var r=1, i=1; i<=k; n--, i++) r *= n/i
+		return r;
+	}
+	//document.write(C(16,7).toIntString(),'<br>') // = 11.440
+
+	function C2(n, k) { // combinazioni
+		if (k == 0) return 1
+		var r = n-k+1
+		for (var j=r+1, i=2; j<=n; ) {
+			r *= j++
+			r /= i++
+		}
+		return r
+	}
+	function C2(n, k) { // combinazioni
+		if (k == 0) return 1
+		for (var r=n-k+1, j=r+1, i=2; j<=n; j++, i++) r *= j/i
+		return r
+	}
+	
+	function C(n, k) { // combinazioni
+		if (k == 0) return 1
+		k = Math.min(k, n-k)
+		for (var r=n-k+1, i=2; i<=k; n--, i++) r *= n/i
+		return r
+	}
+	//document.write(C2(16,7).toIntString(),'<br>') // = 11.440	
+
+	//document.write(C(7,4).toIntString(),'<br>') // = 19.600
+	//document.write(C(90,15).toIntString(),'<br>') // = 19.600
+	
+	function Cr(n, k) { // combinazioni con ripetizione
+		//return F(n+k-1)/F(n-1)/F(k)
+		return C(n+k-1, k)
+	}
+	//document.write(Cr(6,10).toIntString(),'<br>') // = 19.600
+	//document.write(Cr(4,2).toIntString(),'<br>') // = 19.600
+	//document.write(Cr(4,2).toIntString(),'<br>') // = 19.600
+	
+	function P(n) { // permutazioni
+		var r = F(n)
+		for (var i=1,e=arguments.length; i<e; i+=1) r /= F(arguments[i])
+		return r
+	}
+	//document.write(P(8).toIntString(),'<br>')
+	//document.write(P(8,2,3,2).toIntString(),'<br>')
+	/*
+	document.write(P(9,6,3).toIntString(),'<br>')
+	document.write(P(9,5,2,2).toIntString(),'<br>')
+	document.write(P(9,4,3,1).toIntString(),'<br>')
+	document.write(P(9,3,6).toIntString(),'<br>')
+	*/
+	
+	function D(n,k) { // disposizioni
+		if (k > n) return 0
+		//return F(n)/F(n-k)
+		for (var t=n--; --k; ) t*=n--
+		return t
+	}
+	//document.write(D(5,2).toIntString(),'<br>')
+	
+	function Dr(n,k) { // disposizioni con ripetizione
+		return Math.pow(n,k)
+	}
+	//document.write(Dr(5,2).toIntString(),'<br>')
+
+	//*
+	//document.write(mk(3),'<br>')
+	//document.write(C(50,3).toIntString(),'<br>') // = 19.600
+	//*/
+
+	
+
+	function MSC(k, mset) {
+		var ar, n = mset.length
+		this.get = function() {
+			return ar
+		}
+		this.hasNext = function() {
+			return ar !== false
+		}
+		this.next = function() {
+			if (ar === false) ;
+			else if (ar === undefined) {
+				ar = []; for (var i=0; i<k; i++) ar[i] = mset[i]
+			}
+			else loop: {
+			    for (var i=k-1; i>0; i--) {
+			        if (ar[i] >= mset[i + (n - k)]) continue
+		            for (var j = 0; mset[j] <= ar[i]; j++) ;
+		            ar[i] = mset[j]
+		            if (i < k - 1) {
+		                for (var l = i + 1, j = j + 1; l < k; l++, j++) ar[l] = mset[j]
+		            }
+		            break loop
+			    }
+				ar = false
+			}
+		    return ar;
+		}
+	}
+	//for (var msc = new MSC(7,[1,1,1,1,3,3,3]); msc.next(); ) document.write(msc.get(), '<br>')
+	
+	/*
+	function MSP(mset) {
+		var n = mset.length-1
+		document.write(mset, '----<br>')
+		for (;;) {
+			for (var j=-1, i=0; i <= n; i++) {
+				if (mset[i+1] > mset[i]) j = i
+			}
+			if (j == -1) break
+			for (var l, i = j+1; i <= n; i++) {
+				if (mset[i] > mset[j]) l = i
+			}
+			scratch = mset[j]
+			mset[j] = mset[l]
+			mset[l] = scratch
+			var k = (n-j)/2
+			for (i=0; i<k; i++) {
+				var scratch = mset[j+1+i]
+				mset[j+1+i] = mset[n-i]
+				mset[n-i] = scratch
+			}
+			document.write(mset, '<br>')
+		}
+	}
+	MSP([1,1,1,1,3,3,3])
+	*/
+		
+	function MSP(mset) {
+		var ar, n = mset.length-1
+		this.get = function() {
+			return ar
+		}
+		this.hasNext = function() {
+			return ar !== false
+		}
+		this.next = function() {
+			if (ar === false) ;
+			else if (ar === undefined) {
+				ar = []; for (var i=0; i<=n; i++) ar[i] = mset[i]
+			}
+			else {
+				for (var j=-1, i=0; i<=n; i++) if (ar[i+1] > ar[i]) j = i
+				if (j == -1)
+					ar = false
+				else {
+					for (var l, i=j+1; i<=n; i++) if (ar[i] > ar[j]) l = i
+					swap(j,l)
+					for (var k=(n-j)/2, i=0; i<k; i++) swap(j+1+i, n-i)
+				}
+			}
+			return ar
+			function swap(j,l) {
+				var scratch = ar[j]
+				ar[j] = ar[l]
+				ar[l] = scratch
+			}
+		}
+	}
+	//for (var i=1, msp=new MSP([1,1,1,1,3,3,3]); msp.next(); i++) document.write(i, ': ', msp.get(), '<br>')
+
+	var pow = Math.pow
+	
+	//document.write(( C(90,5) ).toIntString(),'<br>')
+	//document.write(( C(C(90,5),3) ).toIntString(),'<br>')
+	//document.write((90*80*70*60*50).toIntString(),'<br>')
+	//document.write(eval('P(7,6,1)').toIntString(),'<br>')
+	//document.write(eval('C(9,2) * (pow(C(10,1),3) * pow(C(10,2),4) * P(7,3,4)) * C(11,2)').toIntString(),'<br>')	
+	
+	function write(a, o) {
+		if (typeof a == 'number') {
+			document.write(a.toIntString(),'<br>', '<br>')
+		}
+		else if (typeof a == 'string') {
+			document.write(a, ' = ', eval(a).toIntString(),'<br>','<br>')
+		}
+		else {
+			var op = o == sum ? ' + ' : ' * '
+			var t = o == sum ? 0 : 1, e=a.length-1; for (var i in a) {
+				var ai = a[i], n = eval(ai); t = o(t,n)
+				document.write(ai, ' = ', n.toIntString(), /*' ', t, /*'|', i, '|', e, '|',*/ (i<e ? op : ' = ') ,'<br>')
+			}
+			document.write('totale = ', t.toIntString(),'<br>','<br>')
+		}
+	}
+	function sum (t,v) {return t + v}
+	function sumWrite(a) { write(a, sum) }
+	function prod (t,v) {return t * v}
+	function prodWrite(a) { write(a, prod) }
+	
+	// Conteggio del numero delle quindicine possibili, ... ma sembra molto superiore a quanto dovrebbe visto che le cinquine non sono piu di 12,6M
+	var a = [
+		// 111.222.222 - 360
+			/* 1(12.222.22)1 */	'C(9,1) * ( pow(C(10,1),1) * pow(C(10,2),6)                  * P(7,1,6)   ) * C(11,1)', /* =     57.545.095.781.250 */
+			/* 1(11.222.22)2 */	'C(9,1) * ( pow(C(10,1),2) * pow(C(10,2),5)                  * P(7,2,5)   ) * C(11,2)', /* =    191.816.985.937.500 */
+			
+			/* 2(11.222.22)1 */	'C(9,2) * ( pow(C(10,1),2) * pow(C(10,2),5)                  * P(7,2,5)   ) * C(11,1)', /* =    153.453.588.750.000 */
+			/* 2(11.122.22)2 */	'C(9,2) * ( pow(C(10,1),3) * pow(C(10,2),4)                  * P(7,3,4)   ) * C(11,2)',  /* =   284.173.312.500.000 */
+
+		// 111.122.223 - 441
+			/* 1(11.222.23)1 */	'C(9,1) * ( pow(C(10,1),2) * pow(C(10,2),4) * pow(C(10,3),1) * P(7,2,4,1) ) * C(11,1)', /* =    511.511.962.500.000 */
+			/* 1(11.122.23)2 */	'C(9,1) * ( pow(C(10,1),3) * pow(C(10,2),3) * pow(C(10,3),1) * P(7,3,3,1) ) * C(11,2)', /* =    757.795.500.000.000 */
+			/* 1(11.122.22)3 */	'C(9,1) * ( pow(C(10,1),3) * pow(C(10,2),4)                  * P(7,3,4)   ) * C(11,3)', /* =    213.129.984.375.000 */
+			
+			/* 2(11.122.23)1 */	'C(9,2) * ( pow(C(10,1),3) * pow(C(10,2),3) * pow(C(10,3),1) * P(7,3,3,1) ) * C(11,1)', /* =    606.236.400.000.000 */
+			/* 2(11.112.23)2 */	'C(9,2) * ( pow(C(10,1),4) * pow(C(10,2),2) * pow(C(10,3),1) * P(7,4,2,1) ) * C(11,2)', /* =    505.197.000.000.000 */
+			/* 2(11.112.22)3 */	'C(9,2) * ( pow(C(10,1),4) * pow(C(10,2),3)                  * P(7,4,3)   ) * C(11,3)', /* =    189.448.875.000.000 */
+			
+			/* 3(11.122.22)1 */	'C(9,3) * ( pow(C(10,1),3) * pow(C(10,2),4)                  * P(7,3,4)   ) * C(11,1)', /* =    132.614.212.500.000 */
+			/* 3(11.122.23)2 */	'C(9,3) * ( pow(C(10,1),3) * pow(C(10,2),3) * pow(C(10,3),1) * P(7,3,3,1) ) * C(11,2)', /* =  7.072.758.000.000.000 */
+		
+		// 111.112.233 - 522
+			/* 1(11.122.33)1 */	'C(9,1) * ( pow(C(10,1),3) * pow(C(10,2),2) * pow(C(10,3),2) * P(7,3,2,2) ) * C(11,1)', /* =    606.236.400.000.000 */
+			/* 1(11.112.33)2 */	'C(9,1) * ( pow(C(10,1),4) * pow(C(10,2),1) * pow(C(10,3),2) * P(7,4,1,2) ) * C(11,2)', /* =    336.798.000.000.000 */
+			/* 1(11.112.23)3 */	'C(9,1) * ( pow(C(10,1),4) * pow(C(10,2),2) * pow(C(10,3),1) * P(7,4,2,1) ) * C(11,3)', /* =    378.897.750.000.000 */
+			
+			/* 2(11.112.33)1 */	'C(9,2) * ( pow(C(10,1),4) * pow(C(10,2),1) * pow(C(10,3),2) * P(7,4,1,2) ) * C(11,1)', /* =    269.438.400.000.000 */
+			/* 2(11.111.33)2 */	'C(9,2) * ( pow(C(10,1),5)                  * pow(C(10,3),2) * P(7,5,2)   ) * C(11,2)', /* =     59.875.200.000.000 */
+			/* 2(11.111.23)3 */	'C(9,2) * ( pow(C(10,1),5) * pow(C(10,2),1) * pow(C(10,3),1) * P(7,5,1,1) ) * C(11,3)', /* =    134.719.200.000.000 */
+			
+			/* 3(11.112.23)1 */	'C(9,3) * ( pow(C(10,1),4) * pow(C(10,2),2) * pow(C(10,3),1) * P(7,4,2,1) ) * C(11,1)', /* =    235.758.600.000.000 */
+			/* 3(11.111.23)2 */	'C(9,3) * ( pow(C(10,1),5) * pow(C(10,2),1) * pow(C(10,3),1) * P(7,5,1,1) ) * C(11,2)', /* =    104.781.600.000.000 */
+			/* 3(11.111.22)3 */	'C(9,3) * ( pow(C(10,1),5) * pow(C(10,2),2)                  * P(7,5,2)   ) * C(11,3)', /* =     58.939.650.000.000 */
+		
+		// 111.111.333 - 603
+			/* 1(11.113.33)1 */ 'C(9,1) * ( pow(C(10,1),4)                  * pow(C(10,3),3) * P(7,4,3)   ) * C(11,1)', /* =     59.875.200.000.000 */
+			/* 1(11.111.33)3 */	'C(9,1) * ( pow(C(10,1),5)                  * pow(C(10,3),2) * P(7,5,2)   ) * C(11,3)', /* =     44.906.400.000.000 */
+			/* 3(11.111.33)1 */	'C(9,3) * ( pow(C(10,1),5)                  * pow(C(10,3),2) * P(7,5,2)   ) * C(11,1)', /* =     27.941.760.000.000 */
+			/* 3(11.111.13)3 */	'C(9,3) * ( pow(C(10,1),6)                  * pow(C(10,3),1) * P(7,6,1)   ) * C(11,3)' /* =      11.642.400.000.000 */
+	]
+	sumWrite(a)  /* = 13.005.491.477.343.750 ~ 13 milioni di miliardi! */
+
+	// Conteggio delle schede 111.111.333
+	var a = [
+		/* ___.___.333 */ 'P(9,3,6)',
+		/* ___._11     */ 'P(6,2,4)',
+		/* __1.1       */ 'P(4,2,2)',
+		/* 11          */ 'P(2,2)'
+	]
+	prodWrite(a) // = 7.560
+
+	var a = [
+		/* ___.___.333 */ 'P(9,3,6) * D(10,3)', /* = 10*9*8 */
+		/* ___._11     */ 'P(6,2,4) * D(10,2)', /* = 10*9 */
+		/* __1.1       */ 'P(4,2,2) * D(10,2)', /* = 10*9 */
+		/* 11          */ 'P(2,2)   * D(10,1)'  /* = 10 */
+	]
+	prodWrite(a) // = 440.899.200.000
+
+	
+	// Conteggio delle permutazioni di 7 posti di cui 5 pieni e 4 vuoti
+	sumWrite('P(9,5,4)') // = 126
+	
+	// Generazione delle permutazioni di 9 posti di cui 5 pieni e 4 vuoti
+	//for (var i=1, msp=new MSP([0,0,0,0,1,1,1,1,1]); msp.next(); i++) document.write(i, ': ', msp.get(), '<br>'); document.write('<br>');
+	
+	// Conteggio delle permutazioni centrali (7 posti) delle permutazioni di 9 posti di cui 5 pieni e 4 vuoti
+	var a = [
+		/* 9999___ */ 'P(7,4,3)',
+		/* 99999__ */ 'P(7,5,2)',
+		/* 9999___ */ 'P(7,4,3)',
+		/* 999____ */ 'P(7,3,4)'
+	]
+	sumWrite(a) // = 126 
+	
+	
+	// Conteggio delle cinquine possibili, diviso 3 dovrebbe essere limite superiore per il numero delle cartelle dato che non dovrebbero essere presenti due cinquinie uguali
+	var a = [
+		/* 9(9999___)_ */ 	'9 * (pow(10,4) * P(7,4,3)) *  1',
+		/* _(99999__)_ */ 	'1 * (pow(10,5) * P(7,5,2)) *  1',
+		/* _(9999___)9 */ 	'1 * (pow(10,4) * P(7,4,3)) * 11',
+		/* 9(999____)9 */ 	'9 * (pow(10,3) * P(7,3,4)) * 11'
+	]
+	sumWrite(a) // = 12.565.000
+
+	var a = [
+		/* 9(999_)_ */ 	'3 * (pow(10,3) * P(4,3,1)) * 1',
+		/* _(9999)_ */ 	'1 * (pow(10,4) * P(4,4))   * 1',
+		/* _(_999)9 */ 	'1 * (pow(10,3) * P(4,3,1)) * 5',
+		/* 9(_99_)9 */ 	'3 * (pow(10,2) * P(4,2,2)) * 5'
+	]
+	sumWrite(a) // = 51.000
+
+	// Conteggio delle cinquine possibili ipotizzando sempre 10 numeri disponibili, di poco superiore al precedente
+	sumWrite('1 / (5/90 * 4/80 * 3/70 * 2/60 * 1/50)') // = 12.600.000
+</script>
+
+
+</body>
+</html>
