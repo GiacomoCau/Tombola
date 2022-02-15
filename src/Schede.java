@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.joining;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +31,8 @@ public class Schede {
 			//long tm = System.currentTimeMillis();
 			//write("Schede.txt");
 			read("Schede.txt");
-			//sum.forEach((k,v)-> System.out.println(k));
 			//System.out.println(System.currentTimeMillis()-tm);
+			//sum.forEach((k,v)-> System.out.println(k));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -40,9 +41,11 @@ public class Schede {
 	
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
+		//long tm = System.currentTimeMillis();
 		//System.out.println(schede.getString());
-		//for (int i=0; i<1000; i+=1) schede.getString();
+		//for (int i=0; i<10000; i+=1) schede.getString();
 		for (int i=0; i<1; i+=1) System.out.println(schede.getString() + "\n\n");
+		//System.out.println(System.currentTimeMillis()-tm);
 		System.out.println("finito!");
 	}
 
@@ -50,15 +53,12 @@ public class Schede {
 		return toString(get());
 	}
 	
-	//long tm;
-	
 	public int[][][] get() {
-		//long tm = System.currentTimeMillis();
 		int[] z = {9,10,10,10,10,10,10,10,11};
 		int[][][] t = new int[6][][];
 		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
 			int[] zmx = sub(z, s), zmn = sub(z, s*3);
-			sub(z, t[i] = clone(ge(zmx, 3) ? random(all) : random(sum, zmx, zmn)));
+			sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmx, zmn)));
 		}
 		//System.out.println(toString(z));
 		if (!number) return t;
@@ -72,7 +72,7 @@ public class Schede {
 				}
 			}
 		}
-		//System.out.println(this.tm +=(System.currentTimeMillis()-tm));
+		//System.out.println(System.currentTimeMillis()-tm);
 		return t;
 	}
 	
@@ -133,14 +133,14 @@ public class Schede {
 		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "|"));
 	}	
 	
-	private static int random(int max) {
+	private int random(int max) {
 		return (int)(max * Math.random());
 	}
-	private static int[][] random(int[][][] l) {
-		return l[random(l.length)];
+	private int[][] random() {
+		return all[random(all.length)];
 	}
 	/*
-	private static int[][] random(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	private int[][] random(int[] mx, int[] mn) {
 		Sum[] fsum = sum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
 		int[] size = stream(fsum).mapToInt(k-> sum.get(k).length).toArray();
 		for (int idx=random(stream(size).sum()), i=0; i<size.length; idx-=size[i], i+=1) {
@@ -149,7 +149,7 @@ public class Schede {
 		throw new RuntimeException();
 	}
 	*/
-	private static int[][] random(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	private int[][] random(int[] mx, int[] mn) {
 		Entry<Sum,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
 		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
 		for (var e: fsum) {
@@ -160,7 +160,7 @@ public class Schede {
 		throw new RuntimeException();
 	}
 	/*
-	private static int[][] random3(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	private int[][] random3(int[] mx, int[] mn) {
 		record SumLength (Sum sum, int length) {}
 		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
 		int idx = random(stream(suml).mapToInt(s->s.length).sum());
@@ -170,7 +170,7 @@ public class Schede {
 		}
 		throw new RuntimeException();
 	}
-	private static int[][] random4(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	private int[][] random4(int[] mx, int[] mn) {
 		record SumLength (Sum sum, int length) {
 			public SumLength(Entry<Sum,int[][][]> e) { this(e.getKey(), e.getValue().length); }
 		}
@@ -182,7 +182,7 @@ public class Schede {
 		}
 		throw new RuntimeException();
 	}
-	private static int[][] random5(Map<Sum,int[][][]> sum, int[] mx, int[] mn) {
+	private int[][] random5(int[] mx, int[] mn) {
 		Map<Sum,Integer> fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
 		int idx = random(fsum.values().stream().mapToInt(i->i).sum());
 		for (var e: fsum.entrySet()) {
@@ -195,7 +195,13 @@ public class Schede {
 	
 	@SuppressWarnings("unused")
 	private static void write(String fn) throws Exception {
-		ProcessBuilder pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [ 3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
+		ProcessBuilder pb = schede();
+		pb.redirectOutput(new File(fn));
+		pb.start().waitFor();
+	}
+
+	private static ProcessBuilder schede() {
+		ProcessBuilder pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
 		var env = pb.environment();
 		env.put("NODE_DISABLE_COLORS", "1");
 		env.put("NODE_SKIP_PLATFORM_CHECK", "1");
@@ -205,13 +211,12 @@ public class Schede {
 		//env.forEach((k,v)->System.out.println(k + "=" + v));
 		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
-		pb.redirectOutput(new File(fn));
-		pb.start().waitFor();
+		return pb;
 	}
 	
 	private static void read(String fn) throws Exception {
 		try (
-			var br = new BufferedReader(new FileReader(fn));
+			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
 		) {
 			var a = new ArrayList<int[][]>();
 			for (String line; (line = br.readLine()) != null; ) {
