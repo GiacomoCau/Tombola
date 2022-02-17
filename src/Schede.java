@@ -5,9 +5,14 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +28,7 @@ public class Schede {
 	private static boolean order = true;
 		
 	private static int[][][] all;
-	private static Map<Sum,int[][][]> sum = new TreeMap<>();
+	private static Map<Key,int[][][]> sum = new TreeMap<>();
 	private static List<Integer>[] numbers;
 	
 	static {
@@ -32,7 +37,12 @@ public class Schede {
 			//write("Schede.txt");
 			read("Schede.txt");
 			//System.out.println(System.currentTimeMillis()-tm);
+			//System.out.println(size());
+			//row.forEach((k,v)-> System.out.println(k));
+			//System.out.println(row.size() + " " + size(row)); System.out.println();
 			//sum.forEach((k,v)-> System.out.println(k));
+			//System.out.println(sum.size() + " " + size(sum)); System.out.println();
+			//System.out.println(size(row, sum)); System.out.println();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -150,7 +160,7 @@ public class Schede {
 	}
 	*/
 	private int[][] random(int[] mx, int[] mn) {
-		Entry<Sum,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
+		Entry<Key,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
 		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
 		for (var e: fsum) {
 			int length = e.getValue().length;
@@ -218,23 +228,33 @@ public class Schede {
 		try (
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
 		) {
-			var a = new ArrayList<int[][]>();
+			var all = new ArrayList<int[][]>();
+			Map<Key, int[]> row = new TreeMap<>();
+			//Map<Key, int[][]> card = new TreeMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = Integer.parseInt(line.substring(0, line.indexOf(")")));
 				int[][] m = new int[3][];
-				for (int i=0; i<m.length; i+=1) m[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
-				a.add(m);
+				for (int i=0; i<m.length; i+=1) {
+					//m[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
+					m[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k->k.a);
+				}
+				all.add(m);
+				//all.add(card.computeIfAbsent(new Key(stream(m).flatMapToInt(Arrays::stream).toArray()), k->m));
 			}
-			all = a.toArray(int[][][]::new);
-			a.stream().collect(groupingBy(Sum::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
+			Schede.all = all.toArray(int[][][]::new);
+			all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
 		}
 	}
 	
-	static class Sum implements Comparable<Sum> {
+	static class Key implements Comparable<Key>, Serializable {
+		private static final long serialVersionUID = 1L;
 		private int[] a;
 		
-		Sum(int[][] m) {
+		Key(int[] a) {
+			this.a = a;
+		}
+		Key(int[][] m) {
 			a = new int[m[0].length];
 			for (int i=0; i<a.length; i+=1) for (int j=0; j<m.length; j+=1) a[i] += m[j][i];
 		}
@@ -247,12 +267,12 @@ public class Schede {
 		@Override
 		public boolean equals(Object other) {
 			if (this == other) return true;
-			if (!(other instanceof Sum)) return false;
-			return Arrays.equals(a, ((Sum) other).a);
+			if (!(other instanceof Key)) return false;
+			return Arrays.equals(a, ((Key) other).a);
 		}
 		
 		@Override
-		public int compareTo(Sum other) {
+		public int compareTo(Key other) {
 			if (this == other) return 0;
 			return Arrays.compare(a, other.a);
 			//if (Arrays.equals(this.a, other.a)) return 0;
@@ -263,5 +283,27 @@ public class Schede {
 		public String toString() {
 			return Schede.toString(a);
 		}
+	}
+	
+	public static int size(Object ... objects) throws IOException {
+		try (
+			ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+			ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
+		) {
+			objectStream.writeObject(objects);
+			return byteArrayStream.size();
+		}
+	}
+	private static long size() {
+		var rt = Runtime.getRuntime();
+		rt.gc();
+		return rt.totalMemory() - rt.freeMemory();
+		//return binarySize(rt.totalMemory() - rt.freeMemory());
+	}
+	public static String binarySize(long size) {
+		if (size <= 0) return "0";
+		int groups = (int) (Math.log10(size) / Math.log10(1024));
+		final String[] units = new String[] { "b", "Kb", "Mb", "Gb", "Tb", "Pb" };
+		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, groups)) + "  " + units[groups];
 	}
 }
