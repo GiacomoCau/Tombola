@@ -5,14 +5,10 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +23,7 @@ public class Schede {
 	private static boolean shuffle = true;
 	private static boolean order = true;
 		
+	private static Map<Key, int[]> row;
 	private static int[][][] all;
 	private static Map<Key,int[][][]> sum = new TreeMap<>();
 	private static List<Integer>[] numbers;
@@ -35,7 +32,8 @@ public class Schede {
 		try {
 			//long tm = System.currentTimeMillis();
 			//write("Schede.txt");
-			read("Schede.txt");
+			//read("Schede.txt");
+			init(); 
 			//System.out.println(System.currentTimeMillis()-tm);
 			//System.out.println(size());
 			//row.forEach((k,v)-> System.out.println(k));
@@ -117,8 +115,8 @@ public class Schede {
 	}
 	
 	private int[] sub(int[] z, int n) {
-		int[] s = Arrays.copyOf(z, z.length); for (int i=0; i<s.length; i+=1) s[i] -= n;
-		return s;
+		z = z.clone(); for (int i=0; i<z.length; i+=1) z[i] -= n;
+		return z;
 	}
 	private void sub(int[] z, int[][] m) {
 		for (int i=0; i<z.length; i+=1) for (int j=0; j<m.length; j+=1) z[i] -= m[j][i];
@@ -224,6 +222,7 @@ public class Schede {
 		return pb;
 	}
 	
+	@SuppressWarnings("unused")
 	private static void read(String fn) throws Exception {
 		try (
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
@@ -245,6 +244,75 @@ public class Schede {
 			Schede.all = all.toArray(int[][][]::new);
 			all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
 		}
+	}
+	
+	private static void init() {
+		row = new TreeMap<>();
+		var all = M(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		Schede.all = all.toArray(int[][][]::new);
+		all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
+		row = null;
+	}
+	
+	private static List<int[][]> M(int nr, int tr, int[] tc) {
+		// nr: numero righe per scheda
+		// tr: totale per riga 
+		// tc[]: totali per colonna
+		return M(nr, tr, tc, new ArrayList<>());
+	}
+	private static List<int[][]> M(int nr, int tr, int[] tc, List<int[]> m) {
+		if (m.size() == nr)
+			return list(m.stream().toArray(int[][]::new));
+		else {
+			List<int[][]> list = new ArrayList<>();
+			for (int[] r: R(tr, tc, m.size()<nr-1 ? null : gt0(m))) {
+				list.addAll( M(nr, tr, sub(tc, r), add(m, r)) );
+			}
+			return list;
+		}
+	}
+	
+	private static <T> List<T> list(T r) {
+		var l = new ArrayList<T>();
+		l.add(r);
+		return l;
+	}
+	private static <T> List<T> add(List<T> l, T t) {
+		l = new ArrayList<T>(l);
+		l.add(t);
+		return l;
+	}
+	private static boolean[] gt0(List<int[]> m) { // colonne di m maggiori di zero
+		var r = new boolean[m.get(0).length];
+		for (var v: m) for (var i=0; i<v.length; i+=1) r[i] |= v[i] > 0;
+		return r;
+	}
+	private static int[] sub(int[] v, int[] v2) {
+		v = v.clone(); for (int i=0; i<v.length; i+=1) v[i] -= v2[i]; return v;
+	}
+	
+	private static List<int[]> R(int tr, int[] tc, boolean[] gt0) {
+		// tr: totale per riga
+		// tc[]: totali per colonna
+		// gt0[]: colonne maggiori di zero
+		return R(0, tr, tc, gt0, new ArrayList<Integer>());
+	}
+	private static List<int[]> R(int i, int tr, int[] tc, boolean[] gt0, List<Integer> r) {
+		if (i == tc.length) { // i ~ r.length
+			//return list(r.stream().mapToInt(Integer::intValue).toArray());
+			int[] m = r.stream().mapToInt(Integer::intValue).toArray();
+			return list(row.computeIfAbsent(new Key(m), k->m));
+		}
+		else {
+			List<int[]> list = new ArrayList<>();
+			for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
+				list.addAll( R(i+1, tr-n, tc, gt0, add(r, n)) );
+			}
+			return list;
+		}
+	}
+	private static int toint(boolean b) {
+		return b ? 1 : 0;
 	}
 	
 	static class Key implements Comparable<Key>, Serializable {
@@ -275,35 +343,11 @@ public class Schede {
 		public int compareTo(Key other) {
 			if (this == other) return 0;
 			return Arrays.compare(a, other.a);
-			//if (Arrays.equals(this.a, other.a)) return 0;
-			//return ge(this.a, other.a) ? 1 : -1;
 		}
 		
 		@Override
 		public String toString() {
 			return Schede.toString(a);
 		}
-	}
-	
-	public static int size(Object ... objects) throws IOException {
-		try (
-			ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-			ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
-		) {
-			objectStream.writeObject(objects);
-			return byteArrayStream.size();
-		}
-	}
-	private static long size() {
-		var rt = Runtime.getRuntime();
-		rt.gc();
-		return rt.totalMemory() - rt.freeMemory();
-		//return binarySize(rt.totalMemory() - rt.freeMemory());
-	}
-	public static String binarySize(long size) {
-		if (size <= 0) return "0";
-		int groups = (int) (Math.log10(size) / Math.log10(1024));
-		final String[] units = new String[] { "b", "Kb", "Mb", "Gb", "Tb", "Pb" };
-		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, groups)) + "  " + units[groups];
-	}
+	}	
 }
