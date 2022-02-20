@@ -52,11 +52,30 @@ public class Schede {
 		//long tm = System.currentTimeMillis();
 		//System.out.println(schede.getString());
 		//for (int i=0; i<10000; i+=1) schede.getString();
-		for (int i=0; i<1; i+=1) System.out.println(schede.getString() + "\n\n");
+		//for (int i=0; i<1; i+=1) System.out.println("\n" + schede.getString() + "\n");
 		//System.out.println(System.currentTimeMillis()-tm);
+		println(schede, 6, 2);
 		System.out.println("finito!");
 	}
 
+	private static void println(Schede schede, int m, int n) {
+		String[][] p = new String[m][];
+		for (int i=0; i<m; i+=1) p[i] = schede.getString().split("\n");
+		for (int i=0; i<n; i+=1) System.out.println("\n" + merge("\n", "   ", p) + "\n");
+	}
+	
+	private static String merge(String s1, String s2, String[] ... ss) {
+		int length = ss[0].length;
+		String[] r = new String[length];
+		for (int i=0; i<length; i+=1) {
+			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : s2) + ss[j][i]; r[i] = s;
+		}		
+		return String.join(s1, r);
+	}
+
+	public String getBox() {
+		return toBox(get());
+	}
 	public String getString() {
 		return toString(get());
 	}
@@ -138,8 +157,22 @@ public class Schede {
 		return stream(s).map(r-> toString(r)).collect(joining("\n"));
 	}	
 	private static String toString(int[] r) {
-		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "|"));
+		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "Ё"));
+	}
+	
+	private static String toBox(int[][][] t) {
+		return stream(t).map(s-> toBox(s)).collect(joining("\n"));
 	}	
+	private static String toBox(int[][] s) {
+		String r = "зддбддбддбддбддбддбддбддбдд©\n";
+		for (int i=0; true; i+=1) {
+			r += "Ё" + toString(s[i]) + "Ё\n";
+			if (i==2) break;
+			r+= "цддеддеддеддеддеддеддеддедд╢\n";
+		}
+		r += "юддаддаддаддаддаддаддаддадды\n";
+		return r;
+	}
 	
 	private int random(int max) {
 		return (int)(max * Math.random());
