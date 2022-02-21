@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 public class Schede {
 
@@ -50,22 +51,26 @@ public class Schede {
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
 		//long tm = System.currentTimeMillis();
-		//System.out.println(schede.getString());
-		//for (int i=0; i<10000; i+=1) schede.getString();
-		//for (int i=0; i<1; i+=1) System.out.println("\n" + schede.getString() + "\n");
+		//for (int i=0; i<10000; i+=1) schede.get();
 		//System.out.println(System.currentTimeMillis()-tm);
-		println(schede, 6, 2);
+		//System.out.println("\n" + schede.compact() + "\n");
+		//System.out.println("\n" + schede.boxed() + "\n");
+		//for (int i=0; i<4; i+=1) System.out.println(schede.boxed(2,3));
+		println(schede, Schede::compact, 3, 2);
+		//println(schede, s-> boxed(s,3,2), 2, 2);
 		System.out.println("finito!");
 	}
 
-	private static void println(Schede schede, int m, int n) {
+	public static void println(Schede schede, Function<int[][][],String> f, int m, int n) {
 		String[][] p = new String[m][];
-		for (int i=0; i<m; i+=1) p[i] = schede.getString().split("\n");
-		for (int i=0; i<n; i+=1) System.out.println("\n" + merge("\n", "   ", p) + "\n");
+		for (int i=0; i<m; i+=1) p[i] = f.apply(schede.get()).split("\n");
+		for (int i=0; i<n; i+=1) System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
 	}
 	
 	private static String merge(String s1, String s2, String[] ... ss) {
+		if (ss.length < 2) throw new IllegalArgumentException();
 		int length = ss[0].length;
+		for (int i=1; i<ss.length; i+=1) if (ss[i].length != length) throw new IllegalArgumentException(); 
 		String[] r = new String[length];
 		for (int i=0; i<length; i+=1) {
 			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : s2) + ss[j][i]; r[i] = s;
@@ -73,11 +78,14 @@ public class Schede {
 		return String.join(s1, r);
 	}
 
-	public String getBox() {
-		return toBox(get());
+	public String boxed() {
+		return boxed(get());
 	}
-	public String getString() {
-		return toString(get());
+	public String boxed(int r, int c) {
+		return boxed(get(), r, c);
+	}
+	public String compact() {
+		return compact(get());
 	}
 	
 	public int[][][] get() {
@@ -103,7 +111,7 @@ public class Schede {
 		return t;
 	}
 	
-	private int[][] clone (int[][] m) {
+	private int[][] clone(int[][] m) {
 		return stream(m).map(int[]::clone).toArray(int[][]::new);
 	}
 
@@ -145,28 +153,38 @@ public class Schede {
 		for (int i=0; i<v.length; i+=1) if (v[i] < n) return false;
 		return true;
 	}
-	private static boolean ge(int[] v, int[] v2) {
+	private boolean ge(int[] v, int[] v2) {
 		for (int i=0; i<v.length; i+=1) if (v[i] < v2[i]) return false;
 		return true;
 	}
 
-	private static String toString(int[][][] t) {
-		return stream(t).map(s-> toString(s)).collect(joining("\n\n"));
+	public static String compact(int[][][] t) {
+		return stream(t).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
-	private static String toString(int[][] s) {
-		return stream(s).map(r-> toString(r)).collect(joining("\n"));
+	private static String compact(int[][] s) {
+		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
-	private static String toString(int[] r) {
+	private static String compact(int[] r) {
 		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "³"));
 	}
 	
-	private static String toBox(int[][][] t) {
-		return stream(t).map(s-> toBox(s)).collect(joining("\n"));
-	}	
-	private static String toBox(int[][] s) {
+	public static String boxed(int[][][] t) {
+		return stream(t).map(s-> boxed(s)).collect(joining("\n"));
+	}
+	public static String boxed(int[][][] t, int r, int c) {
+		if (r * c != t.length) throw new IllegalArgumentException();
+		String s = "";
+		for (int z=0, i=0; i<r; i+=1) {
+			String[][] p = new String[c][];
+			for (int j=0; j<c; j+=1) p[j]= boxed(t[z++]).split("\n");
+			s += "\n" + merge("\n", " ".repeat(7), p) + "\n";
+		}	
+		return s;
+	}
+	private static String boxed(int[][] s) {
 		String r = "ÚÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄ¿\n";
 		for (int i=0; true; i+=1) {
-			r += "³" + toString(s[i]) + "³\n";
+			r += "³" + compact(s[i]) + "³\n";
 			if (i==2) break;
 			r+= "ÃÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄ´\n";
 		}
@@ -380,7 +398,7 @@ public class Schede {
 		
 		@Override
 		public String toString() {
-			return Schede.toString(a);
+			return Schede.compact(a);
 		}
 	}	
 }
