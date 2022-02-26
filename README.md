@@ -7,8 +7,8 @@ I numeri a disposizione per formare le cartelle sono 90 (da 1 a 90)
 	<ul style="list-style-type:none">
 		<li>ogni cartella con 15 numeri	disposti in 3 righe e 9 colonne.
 		<ul style="list-style-type:none">
-			<li> ogni riga deve contenere 5 numeri (di decine differenti) e 4 spazi
-			<li> ogni colonna deve contenere da 1 a 3 numeri (per decina)
+			<li>ogni riga deve contenere 5 numeri (di decine differenti) e 4 spazi
+			<li>ogni colonna deve contenere da 1 a 3 numeri (per decina)
 			<ul style="list-style-type:none">
 				<li>la 1ª tra 1 a 9
 				<li>la 2ª tra 10 a 19
@@ -16,6 +16,7 @@ I numeri a disposizione per formare le cartelle sono 90 (da 1 a 90)
 				<li>l'8ª  tra 70 a 79
 				<li>la 9ª tra 80 a 90
 			</ul>
+			<li>in ogni colonna i numeri devono essere in ordine crescente
 		</ul>
 	</ul>
 </ul>
