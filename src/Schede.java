@@ -312,15 +312,14 @@ public class Schede {
 		return M(nr, tr, tc, new ArrayList<>());
 	}
 	private static List<int[][]> M(int nr, int tr, int[] tc, List<int[]> m) {
-		if (m.size() == nr)
+		if (m.size() == nr) {
 			return list(m.stream().toArray(int[][]::new));
-		else {
-			List<int[][]> list = new ArrayList<>();
-			for (int[] r: R(tr, tc, m.size()<nr-1 ? null : gt0(m))) {
-				list.addAll( M(nr, tr, sub(tc, r), add(m, r)) );
-			}
-			return list;
 		}
+		List<int[][]> list = new ArrayList<>();
+		for (int[] r: R(tr, tc, m.size()<nr-1 ? null : gt0(m))) {
+			list.addAll( M(nr, tr, sub(tc, r), add(m, r)) );
+		}
+		return list;
 	}
 	
 	private static <T> List<T> list(T r) {
@@ -350,17 +349,13 @@ public class Schede {
 	}
 	private static List<int[]> R(int i, int tr, int[] tc, boolean[] gt0, List<Integer> r) {
 		if (i == tc.length) { // i ~ r.length
-			//return list(r.stream().mapToInt(Integer::intValue).toArray());
-			int[] m = r.stream().mapToInt(Integer::intValue).toArray();
-			return list(row.computeIfAbsent(new Key(m), k->m));
+			return list(row.computeIfAbsent(new Key(r.stream().mapToInt(Integer::intValue).toArray()), k->k.a));
 		}
-		else {
-			List<int[]> list = new ArrayList<>();
-			for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
-				list.addAll( R(i+1, tr-n, tc, gt0, add(r, n)) );
-			}
-			return list;
+		List<int[]> list = new ArrayList<>();
+		for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
+			list.addAll( R(i+1, tr-n, tc, gt0, add(r, n)) );
 		}
+		return list;
 	}
 	private static int toint(boolean b) {
 		return b ? 1 : 0;
