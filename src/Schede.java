@@ -1,3 +1,4 @@
+import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.Comparator.naturalOrder;
@@ -8,23 +9,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-public class Schede {
+public class Schede extends Core {
 
 	private static boolean number = true;
 	private static boolean clone = false;
 	private static boolean shuffle = true;
 	private static boolean order = true;
 		
-	private static Map<Key, int[]> row;
 	private static int[][][] all;
 	private static Map<Key,int[][][]> sum = new TreeMap<>();
 	private static List<Integer>[] numbers;
@@ -55,9 +53,10 @@ public class Schede {
 		//System.out.println(System.currentTimeMillis()-tm);
 		//System.out.println("\n" + schede.compact() + "\n");
 		//System.out.println("\n" + schede.boxed() + "\n");
-		//for (int i=0; i<4; i+=1) System.out.println(schede.boxed(2,3));
-		println(schede, Schede::compact, 3, 2);
-		//println(schede, s-> boxed(s,3,2), 2, 2);
+		System.out.println("\n" + schede.boxed(2, 3) + "\n");
+		//for (int i=0; i<4; i+=1) System.out.println(schede.boxed(2, 3));
+		//println(schede, Schede::compact, 3, 2);
+		//println(schede, s-> boxed(s, 3, 2), 2, 2);
 		System.out.println("finito!");
 	}
 
@@ -93,9 +92,8 @@ public class Schede {
 		int[][][] t = new int[6][][];
 		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
 			int[] zmx = sub(z, s), zmn = sub(z, s*3);
-			sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmx, zmn)));
+			z = sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmx, zmn)));
 		}
-		//System.out.println(toString(z));
 		if (!number) return t;
 		var ns = numbers();
 		for (int[][] s: t) {
@@ -107,7 +105,6 @@ public class Schede {
 				}
 			}
 		}
-		//System.out.println(System.currentTimeMillis()-tm);
 		return t;
 	}
 	
@@ -141,14 +138,6 @@ public class Schede {
 		return n;
 	}
 	
-	private int[] sub(int[] z, int n) {
-		z = z.clone(); for (int i=0; i<z.length; i+=1) z[i] -= n;
-		return z;
-	}
-	private void sub(int[] z, int[][] m) {
-		for (int i=0; i<z.length; i+=1) for (int j=0; j<m.length; j+=1) z[i] -= m[j][i];
-	}
-	
 	private boolean ge(int[] v, int n) {
 		for (int i=0; i<v.length; i+=1) if (v[i] < n) return false;
 		return true;
@@ -161,11 +150,11 @@ public class Schede {
 	public static String compact(int[][][] t) {
 		return stream(t).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
-	private static String compact(int[][] s) {
+	public static String compact(int[][] s) {
 		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
-	private static String compact(int[] r) {
-		return stream(r).mapToObj(i-> !number ? ""+i : i==0 ? "  " : i<10 ? " "+i : ""+i).collect(joining(!number ? "," : "³"));
+	public static String compact(int[] r) {
+		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : "%2d".formatted(i)).collect(joining(!number ? "," : "|"));
 	}
 	
 	public static String boxed(int[][][] t) {
@@ -181,15 +170,19 @@ public class Schede {
 		}	
 		return s;
 	}
-	private static String boxed(int[][] s) {
-		String r = "ÚÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄÂÄÄ¿\n";
+	public static String boxed(int[][] s) {
+		String r = "", l = "Ä".repeat(2); 
+		r += "Ú"+ (l + "Â").repeat(8) + l + "¿\n";
 		for (int i=0; true; i+=1) {
-			r += "³" + compact(s[i]) + "³\n";
+			r += "³" + boxed(s[i]) + "³\n";
 			if (i==2) break;
-			r+= "ÃÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄÅÄÄ´\n";
+			r+= "Ã" + (l + "Å").repeat(8) + l + "´\n";
 		}
-		r += "ÀÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÁÄÄÙ\n";
+		r += "À" + (l + "Á").repeat(8) + l + "Ù\n";
 		return r;
+	}
+	public static String boxed(int[] r) {
+		return stream(r).mapToObj(i-> i==0 ? "  " : "%2d".formatted(i)).collect(joining("³"));
 	}
 	
 	private int random(int max) {
@@ -268,8 +261,8 @@ public class Schede {
 		env.put("Path", nodeDir + ";" + env.get("Path")); 
 		env.put("NODE_PATH", nodeDir + "\\node_module");
 		//env.forEach((k,v)->System.out.println(k + "=" + v));
-		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectError(INHERIT);
+		pb.redirectInput(INHERIT);
 		return pb;
 	}
 	
@@ -284,13 +277,13 @@ public class Schede {
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = Integer.parseInt(line.substring(0, line.indexOf(")")));
-				int[][] m = new int[3][];
-				for (int i=0; i<m.length; i+=1) {
-					//m[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
-					m[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k->k.a);
+				int[][] c = new int[3][];
+				for (int i=0; i<c.length; i+=1) {
+					//c[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
+					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k->k.a);
 				}
-				all.add(m);
-				//all.add(card.computeIfAbsent(new Key(stream(m).flatMapToInt(Arrays::stream).toArray()), k->m));
+				all.add(c);
+				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k->c));
 			}
 			Schede.all = all.toArray(int[][][]::new);
 			all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
@@ -299,101 +292,9 @@ public class Schede {
 	
 	private static void init() {
 		row = new TreeMap<>();
-		var all = M(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		var all = C(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		row = null;
 		Schede.all = all.toArray(int[][][]::new);
 		all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
-		row = null;
 	}
-	
-	private static List<int[][]> M(int nr, int tr, int[] tc) {
-		// nr: numero righe per scheda
-		// tr: totale per riga 
-		// tc[]: totali per colonna
-		return M(nr, tr, tc, new ArrayList<>());
-	}
-	private static List<int[][]> M(int nr, int tr, int[] tc, List<int[]> m) {
-		if (m.size() == nr) {
-			return list(m.stream().toArray(int[][]::new));
-		}
-		List<int[][]> list = new ArrayList<>();
-		for (int[] r: R(tr, tc, m.size()<nr-1 ? null : gt0(m))) {
-			list.addAll( M(nr, tr, sub(tc, r), add(m, r)) );
-		}
-		return list;
-	}
-	
-	private static <T> List<T> list(T r) {
-		var l = new ArrayList<T>();
-		l.add(r);
-		return l;
-	}
-	private static <T> List<T> add(List<T> l, T t) {
-		l = new ArrayList<T>(l);
-		l.add(t);
-		return l;
-	}
-	private static boolean[] gt0(List<int[]> m) { // colonne di m maggiori di zero
-		var r = new boolean[m.get(0).length];
-		for (var v: m) for (var i=0; i<v.length; i+=1) r[i] |= v[i] > 0;
-		return r;
-	}
-	private static int[] sub(int[] v, int[] v2) {
-		v = v.clone(); for (int i=0; i<v.length; i+=1) v[i] -= v2[i]; return v;
-	}
-	
-	private static List<int[]> R(int tr, int[] tc, boolean[] gt0) {
-		// tr: totale per riga
-		// tc[]: totali per colonna
-		// gt0[]: colonne maggiori di zero
-		return R(0, tr, tc, gt0, new ArrayList<Integer>());
-	}
-	private static List<int[]> R(int i, int tr, int[] tc, boolean[] gt0, List<Integer> r) {
-		if (i == tc.length) { // i ~ r.length
-			return list(row.computeIfAbsent(new Key(r.stream().mapToInt(Integer::intValue).toArray()), k->k.a));
-		}
-		List<int[]> list = new ArrayList<>();
-		for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
-			list.addAll( R(i+1, tr-n, tc, gt0, add(r, n)) );
-		}
-		return list;
-	}
-	private static int toint(boolean b) {
-		return b ? 1 : 0;
-	}
-	
-	static class Key implements Comparable<Key>, Serializable {
-		private static final long serialVersionUID = 1L;
-		private int[] a;
-		
-		Key(int[] a) {
-			this.a = a;
-		}
-		Key(int[][] m) {
-			a = new int[m[0].length];
-			for (int i=0; i<a.length; i+=1) for (int j=0; j<m.length; j+=1) a[i] += m[j][i];
-		}
-		
-		@Override
-		public int hashCode() { 
-			return Arrays.hashCode(a);
-		}
-		
-		@Override
-		public boolean equals(Object other) {
-			if (this == other) return true;
-			if (!(other instanceof Key)) return false;
-			return Arrays.equals(a, ((Key) other).a);
-		}
-		
-		@Override
-		public int compareTo(Key other) {
-			if (this == other) return 0;
-			return Arrays.compare(a, other.a);
-		}
-		
-		@Override
-		public String toString() {
-			return Schede.compact(a);
-		}
-	}	
 }
