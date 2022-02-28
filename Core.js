@@ -1,5 +1,5 @@
 	
-	if (typeof module != 'undefined') module.exports = { R, M, T }
+	if (typeof module != 'undefined') module.exports = { R, C, T }
 	
 	function R(tr, tc, sc) {
 		// tr: totale per riga
@@ -29,18 +29,18 @@
 		*/
 	}
 	
-	function M(nr, tr, tc) {
+	function C(nr, tr, tc) {
 		// nr: numero righe per scheda
 		// tr: totale per riga
 		// tc[]: totali per colonna
 		//if (nr*tr != tc.reduce((a,b)=>a+b)) console.log('T: totali riga != totali colonna')
-		return M(tc, [])
+		return C(tc, [])
 		
-		function* M(tc, m) {
+		function* C(tc, m) {
 			if (m.length == nr)
 				yield m
 			else for (var r of R(tr, tc, m.length<nr-1 ? [] : sumc(m))) {
-				yield* M(subr(tc, r), m.concat([r]))
+				yield* C(subr(tc, r), m.concat([r]))
 			}
 			function sumc(m) { // somma le colonne di m
 				var r=[]; for (var v of m) for (var i=0; i<v.length; i+=1) r[i]=(r[i]||0)+v[i]; return r
@@ -63,7 +63,7 @@
 		function* T(tc, t) {
 			if (t.length == ns)
 				yield p.num(t)
-			else for (var m of M(nr, tr, subn(tc, ns-1-t.length))) {
+			else for (var m of C(nr, tr, subn(tc, ns-1-t.length))) {
 				yield* T(subm(tc, m), t.concat([m]))
 			}	
 			function subn(tc, n) { // clona tc[] sottranedo agli elementi n
