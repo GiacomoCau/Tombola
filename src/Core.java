@@ -43,7 +43,7 @@ public class Core {
 	static Map<Key, int[]> row = new TreeMap<>();
 
 	public static List<int[]> R(int tr, int[] tc, boolean[] gt0) {
-		return R(0, tr, tc, gt0, new ArrayList<Integer>());
+		return R(0, tr, tc, gt0, new ArrayList<>());
 	}
 	private static List<int[]> R(int i, int tr, int[] tc, boolean[] gt0, List<Integer> r) {
 		if (i == tc.length) {
@@ -132,11 +132,11 @@ public class Core {
 		for (var v: m) for (var i=0; i<v.length; i+=1) r[i] |= v[i] > 0;
 		return r;
 	}
-	private static boolean[] gt0(boolean[] b, int[] v) { // colonne di m maggiori di zero
+	private static boolean[] gt0(boolean[] b, int[] v) { // b or elementi di v maggiori di zero
 		/*b.clone();*/ for (var i=0; i<v.length; i+=1) b[i] |= v[i] > 0;
 		return b;
 	}
-	private static int[] sum(int[] s, int[] v) { // colonne di m maggiori di zero
+	private static int[] sum(int[] s, int[] v) { // somma di s e v
 		s = s.clone(); for (var i=0; i<v.length; i+=1) s[i] += v[i];
 		return s;
 	}
@@ -187,7 +187,7 @@ public class Core {
 	static int[] sub(int[] v, int n) { // clona v[] sottranedo agli elementi n
 		v=v.clone(); for (var i=0; i<v.length; i+=1) v[i]-=n; return v;
 	}
-	static int[] sub(int[] v, int[] v2) { // clona v[] sottranedo agli elementi n
+	static int[] sub(int[] v, int[] v2) { // clona v[] sottranedo agli elementi v2
 		v=v.clone(); for (var i=0; i<v.length; i+=1) v[i]-=v2[i]; return v;
 	}
 	static int[] sub(int[] v, int[][] m) { // clona v[] sottranedo agli elementi le colonne di m[,]
