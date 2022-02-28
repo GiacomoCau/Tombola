@@ -20,13 +20,13 @@ public class Core {
 		//int i=1; for (var v: R(3, new int[] {1,1,1,1,1,1}, new boolean[] {true,true,true,true,true,true})) System.out.println(i++ + ") " + compact(v)); // 20
 		
 		//System.out.println( Cn(3, 5, new int[] {3,3,3,3,3,3}) ); // 210
-		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c)); // 210
+		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c) + "\n"); // 210
 		
 		//System.out.println( Cn(3, 5, new int[] {3,3,3,3,3,3,3,3,3}) ); // 735.210
-		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c)); // 735.210
+		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c) + "\n"); // 735.210
 		
 		//System.out.println( Tn(2, 2, 3, new int[] {3,2,2,2,3}) ); // 72
-		//int i=1; for (var t: T(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t)); // 72
+		//int i=1; for (var t: T(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t) + "\n"); // 72
 		
 		//System.out.println( Tn(3, 3, 4, new int[] {6,6,6,6,6,6}) ); // 73.113.840
 		//System.out.println( Tn(6, 3, 5, new int[] {9,10,10,10,10,10,10,10,11}) ); // > 4.062.363.048 < 735.210^4
