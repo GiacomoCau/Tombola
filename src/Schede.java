@@ -68,10 +68,10 @@ public class Schede extends Core {
 	
 	private static String merge(String s1, String s2, String[] ... ss) {
 		if (ss.length < 2) throw new IllegalArgumentException();
-		int length = ss[0].length;
-		for (int i=1; i<ss.length; i+=1) if (ss[i].length != length) throw new IllegalArgumentException(); 
-		String[] r = new String[length];
-		for (int i=0; i<length; i+=1) {
+		int len = ss[0].length;
+		for (int i=1; i<ss.length; i+=1) if (ss[i].length != len) throw new IllegalArgumentException(); 
+		String[] r = new String[len];
+		for (int i=0; i<len; i+=1) {
 			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : s2) + ss[j][i]; r[i] = s;
 		}		
 		return String.join(s1, r);
@@ -272,19 +272,19 @@ public class Schede extends Core {
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
 		) {
 			var all = new ArrayList<int[][]>();
-			Map<Key, int[]> row = new TreeMap<>();
+			row = new TreeMap<>();
 			//Map<Key, int[][]> card = new TreeMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = Integer.parseInt(line.substring(0, line.indexOf(")")));
 				int[][] c = new int[3][];
 				for (int i=0; i<c.length; i+=1) {
-					//c[i] = stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray();
-					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k->k.a);
+					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a);
 				}
 				all.add(c);
 				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k->c));
 			}
+			row = null;
 			Schede.all = all.toArray(int[][][]::new);
 			all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
 		}
