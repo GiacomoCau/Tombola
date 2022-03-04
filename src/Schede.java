@@ -47,20 +47,60 @@ public class Schede extends Core {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		var schede = new Schede();
+		//var schede = new Schede();
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<10000; i+=1) schede.get();
 		//System.out.println(System.currentTimeMillis()-tm);
 		//System.out.println("\n" + schede.compact() + "\n");
 		//System.out.println("\n" + schede.boxed() + "\n");
-		System.out.println("\n" + schede.boxed(2, 3) + "\n");
+		//System.out.println("\n" + schede.boxed(2, 3) + "\n");
 		//for (int i=0; i<4; i+=1) System.out.println(schede.boxed(2, 3));
-		//println(schede, Schede::compact, 3, 2);
-		//println(schede, s-> boxed(s, 3, 2), 2, 2);
+		//printTavole(Schede::compact, 3, 2);
+		//printTavole(t-> boxed(t, 3, 2), 2, 2);
+		//printTavole(t-> boxed(t, 2, 3), 4);
+		printSchede(Schede::boxed, 8, 3);
+		
 		System.out.println("finito!");
 	}
 
-	public static void println(Schede schede, Function<int[][][],String> f, int m, int n) {
+
+	public static void printSchede(Function<int[][],String> f, int n) {
+		Schede schede = new Schede();
+		int[][][] t = schede.get();
+		for (int z=0, i=0; i<n; i+=1) {
+			System.out.println("\n" + f.apply(t[z++]) + "\n");
+			if (z < t.length) continue;
+			z=0; t=schede.get();			
+		}
+	}
+	public static void printSchede(Function<int[][],String> f, int r, int c) {
+		if (c == 1) {
+			printSchede(f, r);
+			return;
+		}	
+		Schede schede = new Schede();
+		int[][][] t = schede.get();
+		for (int z=0, i=0; i<r; i+=1) {
+			String[][] p = new String[c][];
+			for (int j=0; j<c; j+=1) {
+				p[j]= f.apply(t[z++]).split("\n");
+				if (z < t.length) continue;
+				z=0; t=schede.get();
+			}
+			System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
+		}	
+	}
+	
+	public static void printTavole(Function<int[][][],String> f, int n) {
+		Schede schede = new Schede();
+		for (int i=0; i<n; i+=1) System.out.println("\n" + f.apply(schede.get()) + "\n");
+	}
+	public static void printTavole(Function<int[][][],String> f, int m, int n) {
+		if (n == 1) { 
+			printTavole(f, m);
+			return;
+		}
+		Schede schede = new Schede();
 		String[][] p = new String[m][];
 		for (int i=0; i<m; i+=1) p[i] = f.apply(schede.get()).split("\n");
 		for (int i=0; i<n; i+=1) System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
