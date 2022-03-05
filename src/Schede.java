@@ -63,7 +63,6 @@ public class Schede extends Core {
 		System.out.println("finito!");
 	}
 
-
 	public static void printSchede(Function<int[][],String> f, int n) {
 		Schede schede = new Schede();
 		int[][][] t = schede.get();
@@ -83,11 +82,11 @@ public class Schede extends Core {
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) {
-				p[j]= f.apply(t[z++]).split("\n");
+				p[j] = f.apply(t[z++]).split("\n");
 				if (z < t.length) continue;
 				t=schede.get(); z=0;
 			}
-			System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
+			System.out.println(merge(p));
 		}	
 	}
 	
@@ -103,9 +102,12 @@ public class Schede extends Core {
 		Schede schede = new Schede();
 		String[][] p = new String[m][];
 		for (int i=0; i<m; i+=1) p[i] = f.apply(schede.get()).split("\n");
-		for (int i=0; i<n; i+=1) System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
+		for (int i=0; i<n; i+=1) System.out.println(merge(p));
 	}
 	
+	private static String merge(String[] ... ss) {
+		return "\n" + merge("\n", "       ", ss) + "\n";
+	}
 	private static String merge(String s1, String s2, String[] ... ss) {
 		if (ss.length < 2) throw new IllegalArgumentException();
 		int len = ss[0].length;
@@ -117,14 +119,15 @@ public class Schede extends Core {
 		return String.join(s1, r);
 	}
 
+	public String compact() {
+		return compact(get());
+	}
+	
 	public String boxed() {
 		return boxed(get());
 	}
 	public String boxed(int r, int c) {
 		return boxed(get(), r, c);
-	}
-	public String compact() {
-		return compact(get());
 	}
 	
 	public int[][][] get() {
@@ -169,7 +172,6 @@ public class Schede extends Core {
 		for (int i=0; i<numbers.length; i+=1) clone[i] = new ArrayList(numbers[i]);
 		return clone;
 	}
-
 	private List<Integer> numbers(List<Integer> nsj, int[][] s, int j) {
 		if (!shuffle) return nsj;
 		var n = new ArrayList();
@@ -197,18 +199,18 @@ public class Schede extends Core {
 		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : "%2d".formatted(i)).collect(joining(!number ? "," : "|"));
 	}
 	
-	public static String boxed(int[][][] t) {
-		return stream(t).map(s-> boxed(s)).collect(joining("\n"));
-	}
 	public static String boxed(int[][][] t, int r, int c) {
 		if (r * c != t.length) throw new IllegalArgumentException();
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) p[j]= boxed(t[z++]).split("\n");
-			s += "\n" + merge("\n", " ".repeat(7), p) + "\n";
+			s += merge(p);
 		}	
 		return s;
+	}
+	public static String boxed(int[][][] t) {
+		return stream(t).map(s-> boxed(s)).collect(joining("\n"));
 	}
 	public static String boxed(int[][] s) {
 		String r = "", l = "Ä".repeat(2); 
