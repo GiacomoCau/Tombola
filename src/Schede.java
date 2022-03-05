@@ -49,7 +49,7 @@ public class Schede extends Core {
 	public static void main(String[] args) throws Exception {
 		//var schede = new Schede();
 		//long tm = System.currentTimeMillis();
-		//for (int i=0; i<10000; i+=1) schede.get();
+		//for (int i=0; i<100000; i+=1) schede.get();
 		//System.out.println(System.currentTimeMillis()-tm);
 		//System.out.println("\n" + schede.compact() + "\n");
 		//System.out.println("\n" + schede.boxed() + "\n");
