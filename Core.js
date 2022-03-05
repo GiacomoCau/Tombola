@@ -1,6 +1,7 @@
 	
-	if (typeof module != 'undefined') module.exports = { R, C, T }
+	if (typeof module != 'undefined') module.exports = { R, S, T }
 	
+	// Righe
 	function R(tr, tc, sc) {
 		// tr: totale per riga
 		// tc[]: totali per colonna
@@ -29,18 +30,19 @@
 		*/
 	}
 	
-	function C(nr, tr, tc) {
+	// Schede
+	function S(nr, tr, tc) {
 		// nr: numero righe per scheda
 		// tr: totale per riga
 		// tc[]: totali per colonna
 		//if (nr*tr != tc.reduce((a,b)=>a+b)) console.log('T: totali riga != totali colonna')
-		return C(tc, [])
+		return S(tc, [])
 		
-		function* C(tc, m) {
-			if (m.length == nr)
-				yield m
-			else for (var r of R(tr, tc, m.length<nr-1 ? [] : sumc(m))) {
-				yield* C(subr(tc, r), m.concat([r]))
+		function* S(tc, s) {
+			if (s.length == nr)
+				yield s
+			else for (var r of R(tr, tc, s.length<nr-1 ? [] : sumc(s))) {
+				yield* S(subr(tc, r), s.concat([r]))
 			}
 			function sumc(m) { // somma le colonne di m
 				var r=[]; for (var v of m) for (var i=0; i<v.length; i+=1) r[i]=(r[i]||0)+v[i]; return r
@@ -51,6 +53,7 @@
 		}
 	}
 	
+	// Tavole
 	function T(ns, nr, tr, tc) {
 		// ns: numero schede
 		// nr: numero righe per scheda
@@ -63,8 +66,8 @@
 		function* T(tc, t) {
 			if (t.length == ns)
 				yield p.num(t)
-			else for (var m of C(nr, tr, subn(tc, ns-1-t.length))) {
-				yield* T(subm(tc, m), t.concat([m]))
+			else for (var s of S(nr, tr, subn(tc, ns-1-t.length))) {
+				yield* T(subm(tc, s), t.concat([s]))
 			}	
 			function subn(tc, n) { // clona tc[] sottranedo agli elementi n
 				tc=tc.slice(0); for (var i=0; i<tc.length; i+=1) tc[i]-=n; return tc

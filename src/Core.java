@@ -19,11 +19,11 @@ public class Core {
 		//System.out.println( Rn(3, new int[] {1,1,1,1,1,1}, new boolean[] {true,true,true,true,true,true}) ); // 20
 		//int i=1; for (var v: R(3, new int[] {1,1,1,1,1,1}, new boolean[] {true,true,true,true,true,true})) System.out.println(i++ + ") " + compact(v)); // 20
 		
-		//System.out.println( Cn(3, 5, new int[] {3,3,3,3,3,3}) ); // 210
-		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c) + "\n"); // 210
+		//System.out.println( Sn(3, 5, new int[] {3,3,3,3,3,3}) ); // 210
+		//int i=1; for (var s: S(3, 5, new int[] {3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(s) + "\n"); // 210
 		
-		//System.out.println( Cn(3, 5, new int[] {3,3,3,3,3,3,3,3,3}) ); // 735.210
-		//int i=1; for (var c: C(3, 5, new int[] {3,3,3,3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(c) + "\n"); // 735.210
+		//System.out.println( Sn(3, 5, new int[] {3,3,3,3,3,3,3,3,3}) ); // 735.210
+		//int i=1; for (var s: S(3, 5, new int[] {3,3,3,3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(s) + "\n"); // 735.210
 		
 		//System.out.println( Tn(2, 2, 3, new int[] {3,2,2,2,3}) ); // 72
 		//int i=1; for (var t: T(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t) + "\n"); // 72
@@ -35,7 +35,7 @@ public class Core {
 	}
 	
 	
-	// Rows
+	// Righe
 	// tr: totale per riga
 	// tc[]: totali per colonna
 	// gt0[]: colonne maggiori di zero
@@ -43,27 +43,27 @@ public class Core {
 	static Map<Key, int[]> row = new TreeMap<>();
 
 	public static List<int[]> R(int tr, int[] tc, boolean[] gt0) {
-		return R(0, tr, tc, gt0, new ArrayList<>());
+		return R(tr, tc, gt0, 0, new ArrayList<>());
 	}
-	private static List<int[]> R(int i, int tr, int[] tc, boolean[] gt0, List<Integer> r) {
-		if (i == tc.length) {
+	private static List<int[]> R(int tr, int[] tc, boolean[] gt0, int ci, List<Integer> r) {
+		if (ci == tc.length) {
 			return list(row.computeIfAbsent(new Key(r.stream().mapToInt(Integer::intValue).toArray()), k-> k.a));
 		}
-		List<int[]> list = new ArrayList<>();
-		for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
-			list.addAll( R(i+1, tr-n, tc, gt0, add(r, n)) );
+		List<int[]> rl = new ArrayList<>();
+		for (int n=toint(tr>=tc.length-ci || gt0!=null && !gt0[ci]), e=toint(tr!=0 && tc[ci]!=0); n<=e; n+=1) {
+			rl.addAll( R(tr-n, tc, gt0, ci+1, add(r, n)) );
 		}
-		return list;
+		return rl;
 	}
 	
 	public static long Rn(int tr, int[] tc, boolean[] gt0) {
-		return Rn(0, tr, tc, gt0);
+		return Rn(tr, tc, gt0, 0);
 	}
-	private static long Rn(int i, int tr, int[] tc, boolean[] gt0) {
-		if (i == tc.length)	return 1;
+	private static long Rn(int tr, int[] tc, boolean[] gt0, int ci) {
+		if (ci == tc.length) return 1;
 		long rn = 0;
-		for (int n=toint(tr>=tc.length-i || gt0!=null && !gt0[i]), e=toint(tr!=0 && tc[i]!=0); n<=e; n+=1) {
-			rn += Rn(i+1, tr-n, tc, gt0);
+		for (int n=toint(tr>=tc.length-ci || gt0!=null && !gt0[ci]), e=toint(tr!=0 && tc[ci]!=0); n<=e; n+=1) {
+			rn += Rn(tr-n, tc, gt0, ci+1);
 		}
 		return rn;
 	}
@@ -83,48 +83,47 @@ public class Core {
 	}
 	
 	
-	// Cards
+	// Schede
 	// nr: numero righe per scheda
 	// tr: totale per riga 
 	// tc[]: totali per colonna
 	
-	public static List<int[][]> C(int nr, int tr, int[] tc) {
-		return C(nr, tr, tc, new ArrayList<>());
+	public static List<int[][]> S(int nr, int tr, int[] tc) {
+		return S(nr, tr, tc, new ArrayList<>());
 	}
-	private static List<int[][]> C(int nr, int tr, int[] tc, List<int[]> c) {
-		if (c.size() == nr) {
-			return list(c.stream().toArray(int[][]::new));
+	private static List<int[][]> S(int nr, int tr, int[] tc, List<int[]> s) {
+		if (s.size() == nr) {
+			return list(s.stream().toArray(int[][]::new));
 		}
-		List<int[][]> list = new ArrayList<>();
-		for (int[] r: R(tr, tc, c.size()<nr-1 ? null : gt0(c))) {
-			list.addAll( C(nr, tr, sub(tc, r), add(c, r)) );
+		List<int[][]> sl = new ArrayList<>();
+		for (int[] r: R(tr, tc, s.size()<nr-1 ? null : gt0(s))) {
+			sl.addAll( S(nr, tr, sub(tc, r), add(s, r)) );
 		}
-		return list;
+		return sl;
 	}
 
-	public static List<int[]> Cs(int nr, int tr, int[] tc) {
-		return Cs(nr, tr, tc, 0, new int[tc.length]);
+	public static List<int[]> Ss(int nr, int tr, int[] tc) {
+		return Ss(nr, tr, tc, 0, new int[tc.length]);
 	}
-	private static List<int[]> Cs(int nr, int tr, int[] tc, int ml, int[] s) {
-		if (ml == nr) return list(s);
-		List<int[]> list = new ArrayList<>();
-		for (int[] r: R(tr, tc, ml<nr-1 ? null : gt0(new boolean[s.length],s))) {
-			list.addAll( Cs(nr, tr, sub(tc, r), ml+1, sum(s, r)) );
+	private static List<int[]> Ss(int nr, int tr, int[] tc, int ss, int[] s) {
+		if (ss == nr) return list(s);
+		List<int[]> sl = new ArrayList<>();
+		for (int[] r: R(tr, tc, ss<nr-1 ? null : gt0(new boolean[s.length], s))) {
+			sl.addAll( Ss(nr, tr, sub(tc, r), ss+1, sum(s, r)) );
 		}
-		return list;
+		return sl;
 	}
 
-	public static long Cn(int nr, int tr, int[] tc) {
-		// tc = min(tc, 3);
-		return Cn(nr, tr, tc, new boolean[tc.length], 0);
+	public static long Sn(int nr, int tr, int[] tc) {
+		return Sn(nr, tr, tc, 0, new boolean[tc.length]);
 	}
-	private static long Cn(int nr, int tr, int[] tc, boolean[] b, int ml) {
-		if (ml == nr) return 1;
-		long mn = 0;
-		for (int[] r: R(tr, tc, ml<nr-1 ? null : b)) {
-			mn += Cn(nr, tr, sub(tc, r), gt0(b.clone(), r), ml+1);
+	private static long Sn(int nr, int tr, int[] tc, int ss, boolean[] b) {
+		if (ss == nr) return 1;
+		long sn = 0;
+		for (int[] r: R(tr, tc, ss<nr-1 ? null : b)) {
+			sn += Sn(nr, tr, sub(tc, r), ss+1, gt0(b.clone(), r));
 		}
-		return mn;
+		return sn;
 	}
 	
 	private static boolean[] gt0(List<int[]> m) { // colonne di m maggiori di zero
@@ -142,7 +141,7 @@ public class Core {
 	}
 	
 	
-	// Tables
+	// Tavole
 	// ns: numero schede
 	// nr: numero righe per scheda
 	// tr: totale per riga
@@ -156,11 +155,11 @@ public class Core {
 		if (t.size() == ns) {
 			return list(t.stream().toArray(int[][][]::new));
 		}
-		List<int[][][]> list = new ArrayList<>();
-		for (int[][] c: C(nr, tr, sub(tc, ns-1-t.size()))) {
-			list.addAll( T(ns, nr, tr, sub(tc, c), add(t, c)));
+		List<int[][][]> tl = new ArrayList<>();
+		for (int[][] s: S(nr, tr, sub(tc, ns-1-t.size()))) {
+			tl.addAll( T(ns, nr, tr, sub(tc, s), add(t, s)));
 		}
-		return list;
+		return tl;
 	}
 	
 	
@@ -170,14 +169,12 @@ public class Core {
 		if (ns*nr*tr != stream(tc).sum()) throw new  IllegalArgumentException();
 		return Tn(ns, nr, tr, tc, 0);	
 	}	
-	private static long Tn(int ns, int nr, int tr, int[] tc, int tl) {
-		if (tl == ns) return 1;
+	private static long Tn(int ns, int nr, int tr, int[] tc, int ts) {
+		if (ts == ns) return 1;
 		long tn = 0;
-		//for (int[][] s: C(nr, tr, sub(tc, ns-1-tl))) {
-		//	tn += Tn(ns, nr, tr, sub(tc, s), tl+1);
-		for (int[] s: Cs(nr, tr, sub(tc, ns-1-tl))) {
-			tn += Tn(ns, nr, tr, sub(tc, s), tl+1);
-			if (tn <= tmax) continue;
+		for (int[] s: Ss(nr, tr, sub(tc, ns-1-ts))) {
+			tn += Tn(ns, nr, tr, sub(tc, s), ts+1);
+			if (tmax > 0 && tn <= tmax) continue;
 			System.out.println(tn);
 			do tmax += inc;	while (tn > tmax); 
 		}
@@ -222,20 +219,17 @@ public class Core {
 		public int hashCode() { 
 			return Arrays.hashCode(a);
 		}
-		
 		@Override
 		public boolean equals(Object other) {
 			if (this == other) return true;
 			if (!(other instanceof Key)) return false;
 			return Arrays.equals(a, ((Key) other).a);
 		}
-		
 		@Override
 		public int compareTo(Key other) {
 			if (this == other) return 0;
 			return Arrays.compare(a, other.a);
 		}
-		
 		@Override
 		public String toString() {
 			return Core.compact(a);

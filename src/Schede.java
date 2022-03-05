@@ -70,7 +70,7 @@ public class Schede extends Core {
 		for (int z=0, i=0; i<n; i+=1) {
 			System.out.println("\n" + f.apply(t[z++]) + "\n");
 			if (z < t.length) continue;
-			z=0; t=schede.get();			
+			t=schede.get(); z=0;			
 		}
 	}
 	public static void printSchede(Function<int[][],String> f, int r, int c) {
@@ -85,7 +85,7 @@ public class Schede extends Core {
 			for (int j=0; j<c; j+=1) {
 				p[j]= f.apply(t[z++]).split("\n");
 				if (z < t.length) continue;
-				z=0; t=schede.get();
+				t=schede.get(); z=0;
 			}
 			System.out.println("\n" + merge("\n", " ".repeat(7), p) + "\n");
 		}	
@@ -131,8 +131,8 @@ public class Schede extends Core {
 		int[] z = {9,10,10,10,10,10,10,10,11};
 		int[][][] t = new int[6][][];
 		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
-			int[] zmx = sub(z, s), zmn = sub(z, s*3);
-			z = sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmx, zmn)));
+			int[] zmn = sub(z, s*3), zmx = sub(z, s);
+			z = sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
 		}
 		if (!number) return t;
 		var ns = numbers();
@@ -186,7 +186,7 @@ public class Schede extends Core {
 		for (int i=0; i<v.length; i+=1) if (v[i] < v2[i]) return false;
 		return true;
 	}
-
+	
 	public static String compact(int[][][] t) {
 		return stream(t).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
@@ -241,8 +241,8 @@ public class Schede extends Core {
 		throw new RuntimeException();
 	}
 	*/
-	private int[][] random(int[] mx, int[] mn) {
-		Entry<Key,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).toArray(Entry[]::new);
+	private int[][] random(int[] mn, int[] mx) {
+		Entry<Key,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
 		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
 		for (var e: fsum) {
 			int length = e.getValue().length;
@@ -332,7 +332,7 @@ public class Schede extends Core {
 	
 	private static void init() {
 		row = new TreeMap<>();
-		var all = C(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		var all = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
 		row = null;
 		Schede.all = all.toArray(int[][][]::new);
 		all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
