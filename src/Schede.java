@@ -46,35 +46,49 @@ public class Schede extends Core {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		//var schede = new Schede();
+		var schede = new Schede();
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<100000; i+=1) schede.get();
 		//System.out.println(System.currentTimeMillis()-tm);
-		//System.out.println("\n" + schede.compact() + "\n");
-		//System.out.println("\n" + schede.boxed() + "\n");
-		//System.out.println("\n" + schede.boxed(2, 3) + "\n");
-		//for (int i=0; i<4; i+=1) System.out.println(schede.boxed(2, 3));
-		//printTavole(Schede::compact, 3, 2);
-		//printTavole(t-> boxed(t, 3, 2), 2, 2);
-		//printTavole(t-> boxed(t, 2, 3), 4);
-		printSchede(Schede::boxed, 8, 3);
+		System.out.println("\n");
+		//System.out.println(schede.compact());
+		//System.out.println(schede.boxed());
+		//System.out.println(schede.boxed(2, 3));
+		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
+		//printTavole(2, 7, Schede::compact, 3, 2);
+		//printTavole(2, 7, t-> boxed(1, 5, t, 3, 2), 2, 2);
+		printTavole(2, t-> boxed(t, 2, 3), 12);
+		//printSchede(Schede::boxed, 8, 3);
 		
-		System.out.println("finito!");
+		System.out.println("\nfinito!");
 	}
 
 	public static void printSchede(Function<int[][],String> f, int n) {
+		printSchede(1, f, n);
+	}
+	public static void printSchede(int vs, Function<int[][],String> f, int n) {
+		printSchede("\n".repeat(vs), f, n);
+	}
+	public static void printSchede(String vs, Function<int[][],String> f, int n) {
 		Schede schede = new Schede();
 		int[][][] t = schede.get();
 		for (int z=0, i=0; i<n; i+=1) {
-			System.out.println("\n" + f.apply(t[z++]) + "\n");
+			System.out.println((i==0 ? "" : vs) + f.apply(t[z++]));
 			if (z < t.length) continue;
 			t=schede.get(); z=0;			
 		}
 	}
 	public static void printSchede(Function<int[][],String> f, int r, int c) {
+		printSchede(1, 7, f, r, c);
+	}
+	public static void printSchede(int vs, int os, Function<int[][],String> f, int r, int c) {
+		printSchede("\n".repeat(vs), " ".repeat(os), f, r, c);
+	}
+	public static void printSchede(String vs, String os, Function<int[][],String> f, int r, int c) {
 		if (c == 1) {
-			printSchede(f, r);
+			printSchede(vs, f, r);
 			return;
 		}	
 		Schede schede = new Schede();
@@ -86,37 +100,46 @@ public class Schede extends Core {
 				if (z < t.length) continue;
 				t=schede.get(); z=0;
 			}
-			System.out.println(merge(p));
+			System.out.println((i==0 ? "" : vs) + merge(os, p));
 		}	
 	}
 	
 	public static void printTavole(Function<int[][][],String> f, int n) {
+		printTavole(2, f, n);
+	}
+	public static void printTavole(int vs, Function<int[][][],String> f, int n) {
+		printTavole("\n".repeat(vs), f, n);
+	}
+	public static void printTavole(String vs, Function<int[][][],String> f, int n) {
 		Schede schede = new Schede();
-		for (int i=0; i<n; i+=1) System.out.println("\n" + f.apply(schede.get()) + "\n");
+		for (int i=0; i<n; i+=1) System.out.println((i==0?"":vs) + f.apply(schede.get()));
 	}
 	public static void printTavole(Function<int[][][],String> f, int m, int n) {
+		printTavole(1, 7, f, m, n);
+	}
+	public static void printTavole(int vs, int os, Function<int[][][],String> f, int m, int n) {
+		printTavole("\n".repeat(vs), " ".repeat(os), f, m, n);
+	}
+	public static void printTavole(String vs, String os, Function<int[][][],String> f, int m, int n) {
 		if (n == 1) { 
-			printTavole(f, m);
+			printTavole(vs, f, m);
 			return;
 		}
 		Schede schede = new Schede();
 		String[][] p = new String[m][];
 		for (int i=0; i<m; i+=1) p[i] = f.apply(schede.get()).split("\n");
-		for (int i=0; i<n; i+=1) System.out.println(merge(p));
+		for (int i=0; i<n; i+=1) System.out.println((i==0 ? "" : vs) + merge(os, p));
 	}
 	
-	private static String merge(String[] ... ss) {
-		return "\n" + merge("\n", "       ", ss) + "\n";
-	}
-	private static String merge(String s1, String s2, String[] ... ss) {
+	private static String merge(String os, String[] ... ss) {
 		if (ss.length < 2) throw new IllegalArgumentException();
 		int len = ss[0].length;
 		for (int i=1; i<ss.length; i+=1) if (ss[i].length != len) throw new IllegalArgumentException(); 
 		String[] r = new String[len];
 		for (int i=0; i<len; i+=1) {
-			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : s2) + ss[j][i]; r[i] = s;
+			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : os) + ss[j][i]; r[i] = s;
 		}		
-		return String.join(s1, r);
+		return String.join("\n", r);
 	}
 
 	public String compact() {
@@ -200,17 +223,27 @@ public class Schede extends Core {
 	}
 	
 	public static String boxed(int[][][] t, int r, int c) {
+		return boxed(2, 7, t, r, c); 
+	}
+	public static String boxed(int vs, int os, int[][][] t, int r, int c) {
+		return boxed("\n".repeat(vs), " ".repeat(os), t, r, c);
+	}
+	public static String boxed(String vs, String os, int[][][] t, int r, int c) {
 		if (r * c != t.length) throw new IllegalArgumentException();
+		if (c == 1) return boxed(vs, t);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) p[j]= boxed(t[z++]).split("\n");
-			s += merge(p);
+			s += (s.length()==0 ? "" : vs) + merge(os, p);
 		}	
 		return s;
 	}
 	public static String boxed(int[][][] t) {
 		return stream(t).map(s-> boxed(s)).collect(joining("\n"));
+	}
+	public static String boxed(String vs, int[][][] t) {
+		return stream(t).map(s-> boxed(s)).collect(joining(vs));
 	}
 	public static String boxed(int[][] s) {
 		String r = "", l = "Ä".repeat(2); 
