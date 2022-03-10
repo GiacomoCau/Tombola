@@ -57,21 +57,21 @@ public class Schede extends Core {
 		//System.out.println(schede.boxed());
 		//System.out.println(schede.boxed(2, 3));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
-		//printFogli(2, 7, Schede::compact, 3, 2);
-		//printFogli(2, 7, f-> boxed(1, 5, f, 3, 2), 2, 2);
-		printFogli(2, f-> boxed(f, 2, 3), 12);
-		//printSchede(Schede::boxed, 8, 3);
+		//printFogli(2, 3, Schede::compact, 2, 7);
+		//printFogli(3, 2, f-> boxed(2,3, f, 1, 5), 2, 7);
+		//printFogli(12, f-> boxed(2, 3, f), 2);
+		printSchede(3, 6, Schede::compact);
 		
 		System.out.println("\nfinito!");
 	}
 
-	public static void printSchede(Function<int[][],String> fn, int n) {
-		printSchede(1, fn, n);
+	public static void printSchede(int n, Function<int[][],String> fn) {
+		printSchede(n, fn, 1);
 	}
-	public static void printSchede(int vs, Function<int[][],String> fn, int n) {
-		printSchede("\n".repeat(vs), fn, n);
+	public static void printSchede(int n, Function<int[][],String> fn, int vs) {
+		printSchede(n, fn, "\n".repeat(vs));
 	}
-	public static void printSchede(String vs, Function<int[][],String> fn, int n) {
+	public static void printSchede(int n, Function<int[][],String> fn, String vs) {
 		Schede schede = new Schede();
 		int[][][] f = schede.getFoglio();
 		for (int z=0, i=0; i<n; i+=1) {
@@ -80,15 +80,16 @@ public class Schede extends Core {
 			f=schede.getFoglio(); z=0;			
 		}
 	}
-	public static void printSchede(Function<int[][],String> fn, int r, int c) {
-		printSchede(1, 7, fn, r, c);
+	
+	public static void printSchede(int r, int c, Function<int[][],String> fn) {
+		printSchede(r, c, fn, 1, 7);
 	}
-	public static void printSchede(int vs, int os, Function<int[][],String> fn, int r, int c) {
-		printSchede("\n".repeat(vs), " ".repeat(os), fn, r, c);
+	public static void printSchede(int r, int c, Function<int[][],String> fn, int vs, int os) {
+		printSchede(r, c, fn, "\n".repeat(vs), " ".repeat(os));
 	}
-	public static void printSchede(String vs, String os, Function<int[][],String> fn, int r, int c) {
+	public static void printSchede(int r, int c, Function<int[][],String> fn, String vs, String os) {
 		if (c == 1) {
-			printSchede(vs, fn, r);
+			printSchede(r, fn, vs);
 			return;
 		}	
 		Schede schede = new Schede();
@@ -104,31 +105,32 @@ public class Schede extends Core {
 		}	
 	}
 	
-	public static void printFogli(Function<int[][][],String> fn, int n) {
-		printFogli(2, fn, n);
+	public static void printFogli(int n, Function<int[][][],String> fn) {
+		printFogli(n, fn, 2);
 	}
-	public static void printFogli(int vs, Function<int[][][],String> fn, int n) {
-		printFogli("\n".repeat(vs), fn, n);
+	public static void printFogli(int n, Function<int[][][],String> fn, int vs) {
+		printFogli(n, fn, "\n".repeat(vs));
 	}
-	public static void printFogli(String vs, Function<int[][][],String> fn, int n) {
+	public static void printFogli(int n, Function<int[][][],String> fn, String vs) {
 		Schede schede = new Schede();
 		for (int i=0; i<n; i+=1) System.out.println((i==0?"":vs) + fn.apply(schede.getFoglio()));
 	}
-	public static void printFogli(Function<int[][][],String> fn, int m, int n) {
-		printFogli(1, 7, fn, m, n);
+	
+	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
+		printFogli(m, n, fn, 1, 7);
 	}
-	public static void printFogli(int vs, int os, Function<int[][][],String> fn, int m, int n) {
-		printFogli("\n".repeat(vs), " ".repeat(os), fn, m, n);
+	public static void printFogli(int m, int n, Function<int[][][],String> fn, int vs, int os) {
+		printFogli(m, n, fn, "\n".repeat(vs), " ".repeat(os));
 	}
-	public static void printFogli(String vs, String os, Function<int[][][],String> fn, int m, int n) {
+	public static void printFogli(int m, int n, Function<int[][][],String> fn, String vs, String os) {
 		if (n == 1) { 
-			printFogli(vs, fn, m);
+			printFogli(m, fn, vs);
 			return;
 		}
 		Schede schede = new Schede();
-		String[][] p = new String[m][];
-		for (int i=0; i<m; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
-		for (int i=0; i<n; i+=1) System.out.println((i==0 ? "" : vs) + merge(os, p));
+		String[][] p = new String[n][];
+		for (int i=0; i<n; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
+		for (int i=0; i<m; i+=1) System.out.println((i==0 ? "" : vs) + merge(os, p));
 	}
 	
 	private static String merge(String os, String[] ... ss) {
@@ -150,7 +152,7 @@ public class Schede extends Core {
 		return boxed(getFoglio());
 	}
 	public String boxed(int r, int c) {
-		return boxed(getFoglio(), r, c);
+		return boxed(r, c, getFoglio());
 	}
 	
 	public int[][][] getFoglio() {
@@ -222,15 +224,15 @@ public class Schede extends Core {
 		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : "%2d".formatted(i)).collect(joining(!number ? "," : "|"));
 	}
 	
-	public static String boxed(int[][][] f, int r, int c) {
-		return boxed(2, 7, f, r, c); 
+	public static String boxed(int r, int c, int[][][] f) {
+		return boxed(r, c, f, 2, 7); 
 	}
-	public static String boxed(int vs, int os, int[][][] f, int r, int c) {
-		return boxed("\n".repeat(vs), " ".repeat(os), f, r, c);
+	public static String boxed(int r, int c, int[][][] f, int vs, int os) {
+		return boxed(r, c, f, "\n".repeat(vs), " ".repeat(os));
 	}
-	public static String boxed(String vs, String os, int[][][] f, int r, int c) {
+	public static String boxed(int r, int c, int[][][] f, String vs, String os) {
 		if (r * c != f.length) throw new IllegalArgumentException();
-		if (c == 1) return boxed(vs, f);
+		if (c == 1) return boxed(f, vs);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
@@ -239,12 +241,17 @@ public class Schede extends Core {
 		}	
 		return s;
 	}
+	
 	public static String boxed(int[][][] f) {
-		return stream(f).map(s-> boxed(s)).collect(joining("\n"));
+		return boxed(f, 1);
 	}
-	public static String boxed(String vs, int[][][] f) {
+	public static String boxed(int[][][] f, int vs) {
+		return boxed(f, "\n".repeat(vs));
+	}
+	public static String boxed(int[][][] f, String vs) {
 		return stream(f).map(s-> boxed(s)).collect(joining(vs));
 	}
+	
 	public static String boxed(int[][] s) {
 		String r = "", l = "Ä".repeat(2); 
 		r += "Ú"+ (l + "Â").repeat(8) + l + "¿\n";
