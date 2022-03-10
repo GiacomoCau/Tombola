@@ -10,11 +10,11 @@ I numeri a disposizione per formare le cartelle sono 90 (da 1 a 90)
 			<li>ogni riga deve contenere 5 numeri (di decine differenti) e 4 spazi
 			<li>ogni colonna deve contenere da 1 a 3 numeri (per decina)
 			<ul style="list-style-type:none">
-				<li>la 1ª tra 1 a 9
-				<li>la 2ª tra 10 a 19
+				<li>la 1Âª tra 1 a 9
+				<li>la 2Âª tra 10 a 19
 				<li>...
-				<li>l'8ª  tra 70 a 79
-				<li>la 9ª tra 80 a 90
+				<li>l'8Âª  tra 70 a 79
+				<li>la 9Âª tra 80 a 90
 			</ul>
 			<li>in ogni colonna i numeri devono essere in ordine crescente
 		</ul>
@@ -24,11 +24,11 @@ I numeri a disposizione per formare le cartelle sono 90 (da 1 a 90)
 <ul style="list-style-type:none;padding-left:0px">
 <li>Complessivamente per le 6 cartelle
 	<ul style="list-style-type:none">
-		<li>la 1ª colonna deve contenere i numeri da 1 a 9, 9 numeri e 9 spazi
- 		<li>la 2ª colonna deve contenere i numeri da 10 a 19, 10 numeri ed 8 spazi
+		<li>la 1Âª colonna deve contenere i numeri da 1 a 9, 9 numeri e 9 spazi
+ 		<li>la 2Âª colonna deve contenere i numeri da 10 a 19, 10 numeri ed 8 spazi
  		<li>...
-		<li>l'8ª colonna deve contenere i numeri da 70 a 79, 10 numeri ed 8 spazi
-		<li>la 9ª colonna deve contenere i numeri da 80 a 90, 11 numeri e 7 spazi
+		<li>l'8Âª colonna deve contenere i numeri da 70 a 79, 10 numeri ed 8 spazi
+		<li>la 9Âª colonna deve contenere i numeri da 80 a 90, 11 numeri e 7 spazi
 	</ul>
 </ul>
 
@@ -43,9 +43,9 @@ le cartelle sono raggruppabili in 4 tipologie
 <ul style="list-style-type:none;padding-left:0px">
 <li>Verticalmente abbiamo invece
 	<ul style="list-style-type:none">
-		<li>2 tipologie per la 1ª colonna
-		<li>3 tipologie per le colonne dalla 2ª all'8ª
-		<li>3 tipologie per la 9ª colonna
+		<li>2 tipologie per la 1Âª colonna
+		<li>3 tipologie per le colonne dalla 2Âª all'8Âª
+		<li>3 tipologie per la 9Âª colonna
 	</ul>
 </ul>
 
@@ -64,15 +64,15 @@ Dato che i numeri in ogni decina sono limitati
 le combinazioni delle tipologie per le 6 cartelle
 sono a loro volta limitate
 
-	      1ª 2ª 3ª 4ª 5ª 6ª 7ª 8ª 9ª
+	      1Âª 2Âª 3Âª 4Âª 5Âª 6Âª 7Âª 8Âª 9Âª
 	      a2 b3 b3 b1 b1 b1 b1 b1 c1  
 	       :  :  :  :  :  :  :  :  :
-	1ª d:  1  1  1  2  2  2  2  2  2 = 15
-	2ª d:  1  1  1  2  2  2  2  2  2 = 15
-	3ª d:  1  1  1  2  2  2  2  2  2 = 15
-	4ª d:  2  1  1  1  2  2  2  2  2 = 15
-	5ª b:  2  3  3  1  1  1  1  1  2 = 15
-	6ª b:  2  3  3  2  1  1  1  1  1 = 15
+	1Âª d:  1  1  1  2  2  2  2  2  2 = 15
+	2Âª d:  1  1  1  2  2  2  2  2  2 = 15
+	3Âª d:  1  1  1  2  2  2  2  2  2 = 15
+	4Âª d:  2  1  1  1  2  2  2  2  2 = 15
+	5Âª b:  2  3  3  1  1  1  1  1  2 = 15
+	6Âª b:  2  3  3  2  1  1  1  1  1 = 15
 	      == == == == == == == == ==
 	       9 10 10 10 10 10 10 10 11  
 

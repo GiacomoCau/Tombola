@@ -48,19 +48,19 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		//var schede = new Schede();
+		var schede = new Schede();
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<100000; i+=1) schede.getFoglio();
 		//System.out.println(System.currentTimeMillis()-tm);
 		//System.out.println("\n");
 		//System.out.println(schede.compact());
 		//System.out.println(schede.boxed());
-		//System.out.println(schede.boxed(2, 3));
+		System.out.println(schede.boxed(2, 3));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
 		//printFogli(2, 3, Schede::compact, 2, 7);
 		//printFogli(3, 2, f-> boxed(2,3, f, 1, 5), 2, 7);
 		//printFogli(12, f-> boxed(2, 3, f), 2);
-		printSchede(3, 6, Schede::compact);
+		//printSchede(3, 6, Schede::compact);
 		
 		System.out.println("\nfinito!");
 	}
@@ -253,18 +253,18 @@ public class Schede extends Core {
 	}
 	
 	public static String boxed(int[][] s) {
-		String r = "", l = "Ä".repeat(2); 
-		r += "Ú"+ (l + "Â").repeat(8) + l + "¿\n";
+		String r = "", l = "â”€".repeat(2); 
+		r += "â”Œ"+ (l + "â”¬").repeat(8) + l + "â”\n";
 		for (int i=0; true; i+=1) {
-			r += "³" + boxed(s[i]) + "³\n";
+			r += "â”‚" + boxed(s[i]) + "â”‚\n";
 			if (i==2) break;
-			r+= "Ã" + (l + "Å").repeat(8) + l + "´\n";
+			r+= "â”œ" + (l + "â”¼").repeat(8) + l + "â”¤\n";
 		}
-		r += "À" + (l + "Á").repeat(8) + l + "Ù\n";
+		r += "â””" + (l + "â”´").repeat(8) + l + "â”˜\n";
 		return r;
 	}
 	public static String boxed(int[] r) {
-		return stream(r).mapToObj(i-> i==0 ? "  " : "%2d".formatted(i)).collect(joining("³"));
+		return stream(r).mapToObj(i-> i==0 ? "  " : "%2d".formatted(i)).collect(joining("â”‚"));
 	}
 	
 	private int random(int max) {
