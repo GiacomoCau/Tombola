@@ -1,6 +1,6 @@
 	console.log(new Date() /*.getTime()*/)
 	
-	let { R, S, T } = require('./Core.js')
+	let { R, S, F } = require('./Core.js')
 	
 	if (process.argv[2]) eval(process.argv[2])
 	
@@ -52,40 +52,41 @@
 	//writeAll( S(3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // 735.210
 	//writeAll( S(3, 5, [10,10,10,10,10,10,10,10,10]) ) // 735.210
 
-	//writeAll( T(2, 2, 3, [3,2,2,2,3]) ) // 72
-	//writeAll( T(2, 3, 4, [3,4,4,4,4,5]) ) // 36.288
-	//writeAll( T(2, 3, 4, [4,4,4,4,4,4]) ) // 67.950
-	//writeAll( T(3, 3, 4, [6,6,6,6,6,6]) ) // 73.113.840
-	//writeAll( T(6, 3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // > 4.062.363.048 < 735.210^4
-	//writeAll( T(6, 3, 5, [10,10,10,10,10,10,10,10,10]) )
+	//writeAll( F(2, 2, 3, [3,2,2,2,3]) ) // 72
+	//writeAll( F(1, 3, 5, [3,3,3,3,3,3]) ) // 210
+	//writeAll( F(2, 3, 4, [3,4,4,4,4,5]) ) // 36.288
+	//writeAll( F(2, 3, 4, [4,4,4,4,4,4]) ) // 67.950
+	//writeAll( F(3, 3, 4, [6,6,6,6,6,6]) ) // 73.113.840
+	//writeAll( F(6, 3, 5, [ 9,10,10,10,10,10,10,10,11]) ) // > 4.062.363.048 < 735.210^4
+	//writeAll( F(6, 3, 5, [10,10,10,10,10,10,10,10,10]) )
 	
 	
-	function writeAll(ts) {
+	function writeAll(fs) {
 		var i=0, tm=new Date().getTime(), inc=5000, lim=inc
-		for (var t of ts) {
+		for (var f of fs) {
 			i+=1
 			//console.log(i + ')')
-			writeT(i, t)
+			writeF(i, f)
 			//if (i==100) break
 			if (i > lim) lim += (console.log(lim, '('+(new Date().getTime()-tm)/1000+')'), inc) // logging
 		}
 		console.log('Totale: ' + i)
 	}
 	
-	function writeT(i, t) {
-		if (Array.isArray(t)) {
-			if (!Array.isArray(t[0])) {
-				console.log(i + ')', t.join(''))
+	function writeF(i, f) {
+		if (Array.isArray(f)) {
+			if (!Array.isArray(f[0])) {
+				console.log(i + ')', f.join(''))
 			}
 			else {
 				console.log(i + ')')
-				if (!Array.isArray(t[0][0])) {
-					for (var r of t) console.log(r.join(''))
+				if (!Array.isArray(f[0][0])) {
+					for (var r of f) console.log(r.join(''))
 				}
 				else {
-					for (var m of t) {
+					for (var s of f) {
 						//for (var r of m) console.log(r.join(' '))
-						for (var r of m) console.log(r.map(n=>!n?'  ':(' '+n).substr(-2)).join('|'))
+						for (var r of s) console.log(r.map(n=>!n?'  ':(' '+n).substr(-2)).join('|'))
 						console.log()
 					}
 				} 

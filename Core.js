@@ -1,5 +1,5 @@
 	
-	if (typeof module != 'undefined') module.exports = { R, S, T }
+	if (typeof module != 'undefined') module.exports = { R, S, F }
 	
 	// Righe
 	function R(tr, tc, sc) {
@@ -53,21 +53,21 @@
 		}
 	}
 	
-	// Tavole
-	function T(ns, nr, tr, tc) {
+	// Fogli
+	function F(ns, nr, tr, tc) {
 		// ns: numero schede
 		// nr: numero righe per scheda
 		// tr: totale per riga
 		// tc[]: totali per colonna
 		if (ns*nr*tr != tc.reduce((a,b)=>a+b)) console.log('T: totali riga != totali colonna')
 		var p = new P(tc)
-		return T(tc, [])
+		return F(tc, [])
 		
-		function* T(tc, t) {
-			if (t.length == ns)
-				yield p.num(t)
-			else for (var s of S(nr, tr, subn(tc, ns-1-t.length))) {
-				yield* T(subm(tc, s), t.concat([s]))
+		function* F(tc, f) {
+			if (f.length == ns)
+				yield p.num(f)
+			else for (var s of S(nr, tr, subn(tc, ns-1-f.length))) {
+				yield* F(subm(tc, s), f.concat([s]))
 			}	
 			function subn(tc, n) { // clona tc[] sottranedo agli elementi n
 				tc=tc.slice(0); for (var i=0; i<tc.length; i+=1) tc[i]-=n; return tc
@@ -90,10 +90,10 @@
 	
 	function P(tc) {
 		var n = new N(tc)
-		this.num = t => {
+		this.num = f => {
 			var nn = n.get()
-			t = t.map(m => m.map(r => r.slice()))
-			for (var s of t) {
+			f = f.map(m => m.map(r => r.slice()))
+			for (var s of f) {
 				for (var i=0; i<s[0].length; i+=1) {
 					if (shuffle) {
 						for (var v=[], j=0; j<s.length; j+=1) if (s[j][i]) v.push(nn[i].shift())
@@ -102,7 +102,7 @@
 					for (var j=0; j<s.length; j+=1) if (s[j][i]) s[j][i] = (shuffle?v:nn[i]).shift()
 				}
 			}
-			return t
+			return f
 		}
 	}
 	

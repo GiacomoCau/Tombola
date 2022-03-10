@@ -141,25 +141,25 @@ public class Core {
 	}
 	
 	
-	// Tavole
+	// Fogli
 	// ns: numero schede
 	// nr: numero righe per scheda
 	// tr: totale per riga
 	// tc[]: totali per colonna
 	
-	public static List<int[][][]> T(int ns, int nr, int tr, int[] tc) {
+	public static List<int[][][]> F(int ns, int nr, int tr, int[] tc) {
 		if (ns*nr*tr != stream(tc).sum()) throw new  IllegalArgumentException();
-		return T(ns, nr, tr, tc, new ArrayList<>());	
+		return F(ns, nr, tr, tc, new ArrayList<>());	
 	}
-	private static List<int[][][]> T(int ns, int nr, int tr, int[] tc, List<int[][]> t) {
-		if (t.size() == ns) {
-			return list(t.stream().toArray(int[][][]::new));
+	private static List<int[][][]> F(int ns, int nr, int tr, int[] tc, List<int[][]> f) {
+		if (f.size() == ns) {
+			return list(f.stream().toArray(int[][][]::new));
 		}
-		List<int[][][]> tl = new ArrayList<>();
-		for (int[][] s: S(nr, tr, sub(tc, ns-1-t.size()))) {
-			tl.addAll( T(ns, nr, tr, sub(tc, s), add(t, s)));
+		List<int[][][]> fl = new ArrayList<>();
+		for (int[][] s: S(nr, tr, sub(tc, ns-1-f.size()))) {
+			fl.addAll( F(ns, nr, tr, sub(tc, s), add(f, s)));
 		}
-		return tl;
+		return fl;
 	}
 	
 	

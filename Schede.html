@@ -14,28 +14,28 @@
 	
 	//writeAll( R(3, 4, [1,1,3,1,1,3]) ) // 6
 	//writeAll( S(3, 5, [3,3,3,3,3,3]) ) // 210
-	//writeAll( T(2, 2, 3, [3,2,2,2,3]) ) // 72
-	//writeAll( T(1, 3, 5, [3,3,3,3,3]) ) // 1
-	//writeAll( T(1, 3, 4, [3,3,3,3,3,3]) ) // 2640
-	//writeAll( T(1, 3, 5, [3,3,3,3,3,3]) ) // 210
-	//writeAll( T(6, 3, 5, [ 9,10,10,10,10,10,10,10,11 ]) ) > 4.062.363.048 < 735.210^4
+	//writeAll( F(2, 2, 3, [3,2,2,2,3]) ) // 72
+	//writeAll( F(1, 3, 5, [3,3,3,3,3]) ) // 1
+	//writeAll( F(1, 3, 4, [3,3,3,3,3,3]) ) // 2640
+	//writeAll( F(1, 3, 5, [3,3,3,3,3,3]) ) // 210
+	//writeAll( F(6, 3, 5, [ 9,10,10,10,10,10,10,10,11 ]) ) > 4.062.363.048 < 735.210^4
 	
-	function writeAll(t) {
+	function writeAll(f) {
 		var tm=new Date().getTime(), inc=3000, lim=inc
-		//if (t instanceof ((function*() {yield* undefined}).constructor)) {
-		//if (t == '[object Generator]') {
+		//if (f instanceof ((function*() {yield* undefined}).constructor)) {
+		//if (f == '[object Generator]') {
 		if (true)
 			setTimeout(writeAll, 0, 1)
 		else
-			document.write(t, '!<br>')			
+			document.write(f, '!<br>')			
 			
 		function writeAll(i) {
-			var nt = t.next()
-			if (nt.done) {
+			var nf = f.next()
+			if (nf.done) {
 				document.write('<br style="clear:left">', 'Totale: ', i-1)
 			}
 			else {
-				writeT(i, nt.value)
+				writeF(i, nf.value)
 				//if (i%12==0) document.write('<br style="clear:left">')
 				if (i > lim) lim += (document.write(lim, ' ('+(new Date().getTime()-tm)/1000+')', '<br>'), inc) // logging
 				setTimeout(writeAll, 0, i+1)
@@ -43,21 +43,21 @@
 		}
 	}
 	
-	function writeT(i, t) {
-		if (Array.isArray(t)) {
-			if (!Array.isArray(t[0])) {
-				document.write(i, ') ', t, '<br>')
+	function writeF(i, f) {
+		if (Array.isArray(f)) {
+			if (!Array.isArray(f[0])) {
+				document.write(i, ') ', f, '<br>')
 			}
 			else {
 				document.write('<div style="float:left; margin-right:10px; margin-bottom:10px; font-family:Consolas; font-size:9pt;">')
 				document.write(i, ') <br>')
-				if (!Array.isArray(t[0][0])) {
-					for (var r of t) document.write(r, '<br>')
+				if (!Array.isArray(f[0][0])) {
+					for (var r of f) document.write(r, '<br>')
 				}
 				else {
-					for (var m of t) {
+					for (var s of f) {
 						//for (var r of m) document.write(r, '<br>')
-						for (var r of m) document.write(r.map(n=>!n?'  ':(' '+n).substr(-2)).join('|').replaceAll(' ','&nbsp;'), '<br>')
+						for (var r of s) document.write(r.map(n=>!n?'  ':(' '+n).substr(-2)).join('|').replaceAll(' ','&nbsp;'), '<br>')
 						document.write('<br>')
 					}
 				} 

@@ -23,8 +23,8 @@ public class Schede extends Core {
 	private static boolean shuffle = true;
 	private static boolean order = true;
 		
-	private static int[][][] all;
-	private static Map<Key,int[][][]> sum = new TreeMap<>();
+	private static int[][][] schede;
+	private static Map<Key,int[][][]> schedeBySum = new TreeMap<>();
 	private static List<Integer>[] numbers;
 	
 	static {
@@ -37,9 +37,9 @@ public class Schede extends Core {
 			//System.out.println(size());
 			//row.forEach((k,v)-> System.out.println(k));
 			//System.out.println(row.size() + " " + size(row)); System.out.println();
-			//sum.forEach((k,v)-> System.out.println(k));
-			//System.out.println(sum.size() + " " + size(sum)); System.out.println();
-			//System.out.println(size(row, sum)); System.out.println();
+			//schedeBySum.forEach((k,v)-> System.out.println(k));
+			//System.out.println(schedeBySum.size() + " " + size(schedeBySum)); System.out.println();
+			//System.out.println(size(row, schedeBySum)); System.out.println();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -48,86 +48,86 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		var schede = new Schede();
+		//var schede = new Schede();
 		//long tm = System.currentTimeMillis();
-		//for (int i=0; i<100000; i+=1) schede.get();
+		//for (int i=0; i<100000; i+=1) schede.getFoglio();
 		//System.out.println(System.currentTimeMillis()-tm);
-		System.out.println("\n");
+		//System.out.println("\n");
 		//System.out.println(schede.compact());
 		//System.out.println(schede.boxed());
 		//System.out.println(schede.boxed(2, 3));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
-		//printTavole(2, 7, Schede::compact, 3, 2);
-		//printTavole(2, 7, t-> boxed(1, 5, t, 3, 2), 2, 2);
-		printTavole(2, t-> boxed(t, 2, 3), 12);
+		//printFogli(2, 7, Schede::compact, 3, 2);
+		//printFogli(2, 7, f-> boxed(1, 5, f, 3, 2), 2, 2);
+		printFogli(2, f-> boxed(f, 2, 3), 12);
 		//printSchede(Schede::boxed, 8, 3);
 		
 		System.out.println("\nfinito!");
 	}
 
-	public static void printSchede(Function<int[][],String> f, int n) {
-		printSchede(1, f, n);
+	public static void printSchede(Function<int[][],String> fn, int n) {
+		printSchede(1, fn, n);
 	}
-	public static void printSchede(int vs, Function<int[][],String> f, int n) {
-		printSchede("\n".repeat(vs), f, n);
+	public static void printSchede(int vs, Function<int[][],String> fn, int n) {
+		printSchede("\n".repeat(vs), fn, n);
 	}
-	public static void printSchede(String vs, Function<int[][],String> f, int n) {
+	public static void printSchede(String vs, Function<int[][],String> fn, int n) {
 		Schede schede = new Schede();
-		int[][][] t = schede.get();
+		int[][][] f = schede.getFoglio();
 		for (int z=0, i=0; i<n; i+=1) {
-			System.out.println((i==0 ? "" : vs) + f.apply(t[z++]));
-			if (z < t.length) continue;
-			t=schede.get(); z=0;			
+			System.out.println((i==0 ? "" : vs) + fn.apply(f[z++]));
+			if (z < f.length) continue;
+			f=schede.getFoglio(); z=0;			
 		}
 	}
-	public static void printSchede(Function<int[][],String> f, int r, int c) {
-		printSchede(1, 7, f, r, c);
+	public static void printSchede(Function<int[][],String> fn, int r, int c) {
+		printSchede(1, 7, fn, r, c);
 	}
-	public static void printSchede(int vs, int os, Function<int[][],String> f, int r, int c) {
-		printSchede("\n".repeat(vs), " ".repeat(os), f, r, c);
+	public static void printSchede(int vs, int os, Function<int[][],String> fn, int r, int c) {
+		printSchede("\n".repeat(vs), " ".repeat(os), fn, r, c);
 	}
-	public static void printSchede(String vs, String os, Function<int[][],String> f, int r, int c) {
+	public static void printSchede(String vs, String os, Function<int[][],String> fn, int r, int c) {
 		if (c == 1) {
-			printSchede(vs, f, r);
+			printSchede(vs, fn, r);
 			return;
 		}	
 		Schede schede = new Schede();
-		int[][][] t = schede.get();
+		int[][][] f = schede.getFoglio();
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) {
-				p[j] = f.apply(t[z++]).split("\n");
-				if (z < t.length) continue;
-				t=schede.get(); z=0;
+				p[j] = fn.apply(f[z++]).split("\n");
+				if (z < f.length) continue;
+				f=schede.getFoglio(); z=0;
 			}
 			System.out.println((i==0 ? "" : vs) + merge(os, p));
 		}	
 	}
 	
-	public static void printTavole(Function<int[][][],String> f, int n) {
-		printTavole(2, f, n);
+	public static void printFogli(Function<int[][][],String> fn, int n) {
+		printFogli(2, fn, n);
 	}
-	public static void printTavole(int vs, Function<int[][][],String> f, int n) {
-		printTavole("\n".repeat(vs), f, n);
+	public static void printFogli(int vs, Function<int[][][],String> fn, int n) {
+		printFogli("\n".repeat(vs), fn, n);
 	}
-	public static void printTavole(String vs, Function<int[][][],String> f, int n) {
+	public static void printFogli(String vs, Function<int[][][],String> fn, int n) {
 		Schede schede = new Schede();
-		for (int i=0; i<n; i+=1) System.out.println((i==0?"":vs) + f.apply(schede.get()));
+		for (int i=0; i<n; i+=1) System.out.println((i==0?"":vs) + fn.apply(schede.getFoglio()));
 	}
-	public static void printTavole(Function<int[][][],String> f, int m, int n) {
-		printTavole(1, 7, f, m, n);
+	public static void printFogli(Function<int[][][],String> fn, int m, int n) {
+		printFogli(1, 7, fn, m, n);
 	}
-	public static void printTavole(int vs, int os, Function<int[][][],String> f, int m, int n) {
-		printTavole("\n".repeat(vs), " ".repeat(os), f, m, n);
+	public static void printFogli(int vs, int os, Function<int[][][],String> fn, int m, int n) {
+		printFogli("\n".repeat(vs), " ".repeat(os), fn, m, n);
 	}
-	public static void printTavole(String vs, String os, Function<int[][][],String> f, int m, int n) {
+	public static void printFogli(String vs, String os, Function<int[][][],String> fn, int m, int n) {
 		if (n == 1) { 
-			printTavole(vs, f, m);
+			printFogli(vs, fn, m);
 			return;
 		}
 		Schede schede = new Schede();
 		String[][] p = new String[m][];
-		for (int i=0; i<m; i+=1) p[i] = f.apply(schede.get()).split("\n");
+		for (int i=0; i<m; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
 		for (int i=0; i<n; i+=1) System.out.println((i==0 ? "" : vs) + merge(os, p));
 	}
 	
@@ -143,26 +143,26 @@ public class Schede extends Core {
 	}
 
 	public String compact() {
-		return compact(get());
+		return compact(getFoglio());
 	}
 	
 	public String boxed() {
-		return boxed(get());
+		return boxed(getFoglio());
 	}
 	public String boxed(int r, int c) {
-		return boxed(get(), r, c);
+		return boxed(getFoglio(), r, c);
 	}
 	
-	public int[][][] get() {
+	public int[][][] getFoglio() {
 		int[] z = {9,10,10,10,10,10,10,10,11};
-		int[][][] t = new int[6][][];
-		for (int s=t.length-1, i=0; i<t.length; s-=1, i+=1) {
+		int[][][] f = new int[6][][];
+		for (int s=f.length-1, i=0; i<f.length; s-=1, i+=1) {
 			int[] zmn = sub(z, s*3), zmx = sub(z, s);
-			z = sub(z, t[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
+			z = sub(z, f[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
 		}
-		if (!number) return t;
+		if (!number) return f;
 		var ns = numbers();
-		for (int[][] s: t) {
+		for (int[][] s: f) {
 			for (int j=0, ej=s[0].length; j<ej; j+=1) {
 				List<Integer> n = numbers(ns[j], s, j);
 				for (int i=0, ei=s.length; i<ei; i+=1) {
@@ -171,7 +171,7 @@ public class Schede extends Core {
 				}
 			}
 		}
-		return t;
+		return f;
 	}
 	
 	private int[][] clone(int[][] m) {
@@ -212,8 +212,8 @@ public class Schede extends Core {
 		return true;
 	}
 	
-	public static String compact(int[][][] t) {
-		return stream(t).map(s-> compact(s)).collect(joining("\n\n"));
+	public static String compact(int[][][] f) {
+		return stream(f).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
 	public static String compact(int[][] s) {
 		return stream(s).map(r-> compact(r)).collect(joining("\n"));
@@ -222,28 +222,28 @@ public class Schede extends Core {
 		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : "%2d".formatted(i)).collect(joining(!number ? "," : "|"));
 	}
 	
-	public static String boxed(int[][][] t, int r, int c) {
-		return boxed(2, 7, t, r, c); 
+	public static String boxed(int[][][] f, int r, int c) {
+		return boxed(2, 7, f, r, c); 
 	}
-	public static String boxed(int vs, int os, int[][][] t, int r, int c) {
-		return boxed("\n".repeat(vs), " ".repeat(os), t, r, c);
+	public static String boxed(int vs, int os, int[][][] f, int r, int c) {
+		return boxed("\n".repeat(vs), " ".repeat(os), f, r, c);
 	}
-	public static String boxed(String vs, String os, int[][][] t, int r, int c) {
-		if (r * c != t.length) throw new IllegalArgumentException();
-		if (c == 1) return boxed(vs, t);
+	public static String boxed(String vs, String os, int[][][] f, int r, int c) {
+		if (r * c != f.length) throw new IllegalArgumentException();
+		if (c == 1) return boxed(vs, f);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
-			for (int j=0; j<c; j+=1) p[j]= boxed(t[z++]).split("\n");
+			for (int j=0; j<c; j+=1) p[j]= boxed(f[z++]).split("\n");
 			s += (s.length()==0 ? "" : vs) + merge(os, p);
 		}	
 		return s;
 	}
-	public static String boxed(int[][][] t) {
-		return stream(t).map(s-> boxed(s)).collect(joining("\n"));
+	public static String boxed(int[][][] f) {
+		return stream(f).map(s-> boxed(s)).collect(joining("\n"));
 	}
-	public static String boxed(String vs, int[][][] t) {
-		return stream(t).map(s-> boxed(s)).collect(joining(vs));
+	public static String boxed(String vs, int[][][] f) {
+		return stream(f).map(s-> boxed(s)).collect(joining(vs));
 	}
 	public static String boxed(int[][] s) {
 		String r = "", l = "Ä".repeat(2); 
@@ -264,56 +264,56 @@ public class Schede extends Core {
 		return (int)(max * Math.random());
 	}
 	private int[][] random() {
-		return all[random(all.length)];
+		return schede[random(schede.length)];
 	}
 	/*
-	private int[][] random(int[] mx, int[] mn) {
-		Sum[] fsum = sum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
-		int[] size = stream(fsum).mapToInt(k-> sum.get(k).length).toArray();
+	private int[][] random0(int[] mx, int[] mn) {
+		Sum[] fsum = schedeBySum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
+		int[] size = stream(fsum).mapToInt(k-> schedeBySum.get(k).length).toArray();
 		for (int idx=random(stream(size).sum()), i=0; i<size.length; idx-=size[i], i+=1) {
-			if (idx < size[i]) return sum.get(fsum[i])[idx];
+			if (idx < size[i]) return schedeBySum.get(fsum[i])[idx];
 		}
 		throw new RuntimeException();
 	}
 	*/
 	private int[][] random(int[] mn, int[] mx) {
-		Entry<Key,int[][][]>[] fsum = sum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
+		Entry<Key,int[][][]>[] fsum = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
 		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
 		for (var e: fsum) {
 			int length = e.getValue().length;
-			if (idx < length) return sum.get(e.getKey())[idx];
+			if (idx < length) return schedeBySum.get(e.getKey())[idx];
 			idx -= length;
 		}
 		throw new RuntimeException();
 	}
 	/*
 	private int[][] random3(int[] mx, int[] mn) {
-		record SumLength (Sum sum, int length) {}
-		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
+		record SumLength (Key sum, int length) {}
+		SumLength[] suml = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
 		int idx = random(stream(suml).mapToInt(s->s.length).sum());
 		for (var e: suml) {
-			if (idx < e.length) return sum.get(e.sum)[idx];
+			if (idx < e.length) return schedeBySum.get(e.sum)[idx];
 			idx -= e.length;
 		}
 		throw new RuntimeException();
 	}
 	private int[][] random4(int[] mx, int[] mn) {
-		record SumLength (Sum sum, int length) {
-			public SumLength(Entry<Sum,int[][][]> e) { this(e.getKey(), e.getValue().length); }
+		record SumLength (Key sum, int length) {
+			public SumLength(Entry<Key,int[][][]> e) { this(e.getKey(), e.getValue().length); }
 		}
-		SumLength[] suml = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(SumLength::new).toArray(SumLength[]::new);
+		SumLength[] suml = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(SumLength::new).toArray(SumLength[]::new);
 		int idx = random(stream(suml).mapToInt(s->s.length).sum());
 		for (var e: suml) {
-			if (idx < e.length) return sum.get(e.sum)[idx];
+			if (idx < e.length) return schedeBySum.get(e.sum)[idx];
 			idx -= e.length;
 		}
 		throw new RuntimeException();
 	}
 	private int[][] random5(int[] mx, int[] mn) {
-		Map<Sum,Integer> fsum = sum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
+		Map<Key,Integer> fsum = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
 		int idx = random(fsum.values().stream().mapToInt(i->i).sum());
 		for (var e: fsum.entrySet()) {
-			if (idx < e.getValue()) return sum.get(e.getKey())[idx];
+			if (idx < e.getValue()) return schedeBySum.get(e.getKey())[idx];
 			idx -= e.getValue();
 		}
 		throw new RuntimeException();
@@ -346,7 +346,7 @@ public class Schede extends Core {
 		try (
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
 		) {
-			var all = new ArrayList<int[][]>();
+			var schede = new ArrayList<int[][]>();
 			row = new TreeMap<>();
 			//Map<Key, int[][]> card = new TreeMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
@@ -356,20 +356,20 @@ public class Schede extends Core {
 				for (int i=0; i<c.length; i+=1) {
 					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a);
 				}
-				all.add(c);
+				schede.add(c);
 				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k->c));
 			}
 			row = null;
-			Schede.all = all.toArray(int[][][]::new);
-			all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
+			schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
+			Schede.schede = schede.toArray(int[][][]::new);
 		}
 	}
 	
 	private static void init() {
 		row = new TreeMap<>();
-		var all = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		var schede = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
 		row = null;
-		Schede.all = all.toArray(int[][][]::new);
-		all.stream().collect(groupingBy(Key::new)).forEach((k,v)-> sum.put(k, v.toArray(int[][][]::new)));
+		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
+		Schede.schede = schede.toArray(int[][][]::new);
 	}
 }
