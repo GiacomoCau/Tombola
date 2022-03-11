@@ -25,11 +25,11 @@ public class Core {
 		//System.out.println( Sn(3, 5, new int[] {3,3,3,3,3,3,3,3,3}) ); // 735.210
 		//int i=1; for (var s: S(3, 5, new int[] {3,3,3,3,3,3,3,3,3})) System.out.println(i++ + ")\n" + compact(s) + "\n"); // 735.210
 		
-		//System.out.println( Tn(2, 2, 3, new int[] {3,2,2,2,3}) ); // 72
-		//int i=1; for (var t: T(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t) + "\n"); // 72
+		//System.out.println( Fn(2, 2, 3, new int[] {3,2,2,2,3}) ); // 72
+		//int i=1; for (var t: F(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t) + "\n"); // 72
 		
-		//System.out.println( Tn(3, 3, 4, new int[] {6,6,6,6,6,6}) ); // 73.113.840
-		//System.out.println( Tn(6, 3, 5, new int[] {9,10,10,10,10,10,10,10,11}) ); // > 4.062.363.048 < 735.210^4
+		//System.out.println( Fn(3, 3, 4, new int[] {6,6,6,6,6,6}) ); // 73.113.840
+		//System.out.println( Fn(6, 3, 5, new int[] {9,10,10,10,10,10,10,10,11}) ); // > 4.062.363.048 < 735.210^4
 		
 		System.out.println("finito!");
 	}
@@ -165,15 +165,15 @@ public class Core {
 	
 	private static long inc=1000000, tmax=inc;
 
-	public static long Tn(int ns, int nr, int tr, int[] tc) {
+	public static long Fn(int ns, int nr, int tr, int[] tc) {
 		if (ns*nr*tr != stream(tc).sum()) throw new  IllegalArgumentException();
-		return Tn(ns, nr, tr, tc, 0);	
+		return Fn(ns, nr, tr, tc, 0);	
 	}	
-	private static long Tn(int ns, int nr, int tr, int[] tc, int ts) {
+	private static long Fn(int ns, int nr, int tr, int[] tc, int ts) {
 		if (ts == ns) return 1;
 		long tn = 0;
 		for (int[] s: Ss(nr, tr, sub(tc, ns-1-ts))) {
-			tn += Tn(ns, nr, tr, sub(tc, s), ts+1);
+			tn += Fn(ns, nr, tr, sub(tc, s), ts+1);
 			if (tmax > 0 && tn <= tmax) continue;
 			System.out.println(tn);
 			do tmax += inc;	while (tn > tmax); 
