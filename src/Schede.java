@@ -49,17 +49,20 @@ public class Schede extends Core {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
+		
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<100000; i+=1) schede.getFoglio();
 		//System.out.println(System.currentTimeMillis()-tm);
+		
 		//System.out.println("\n");
 		//System.out.println(schede.compact());
 		//System.out.println(schede.boxed());
-		System.out.println(schede.boxed(2, 3));
+		//System.out.println(schede.boxed(3, 2));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
+		
 		//printFogli(2, 3, Schede::compact, 2, 7);
-		//printFogli(3, 2, f-> boxed(2,3, f, 1, 5), 2, 7);
-		//printFogli(12, f-> boxed(2, 3, f), 2);
+		//printFogli(3, 2, f-> boxed(2, 3, f, 1, 5), 2, 7);
+		printFogli(12, f-> boxed(3, 2, f), 2);
 		//printSchede(3, 6, Schede::compact);
 		
 		System.out.println("\nfinito!");
