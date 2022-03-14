@@ -1,4 +1,6 @@
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.out;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.Comparator.naturalOrder;
@@ -29,17 +31,18 @@ public class Schede extends Core {
 	
 	static {
 		try {
-			//long tm = System.currentTimeMillis();
+			//long tm = currentTimeMillis();
 			//write("Schede.txt");
 			//read("Schede.txt");
 			init(); 
-			//System.out.println(System.currentTimeMillis()-tm);
-			//System.out.println(size());
-			//row.forEach((k,v)-> System.out.println(k));
-			//System.out.println(row.size() + " " + size(row)); System.out.println();
-			//schedeBySum.forEach((k,v)-> System.out.println(k));
-			//System.out.println(schedeBySum.size() + " " + size(schedeBySum)); System.out.println();
-			//System.out.println(size(row, schedeBySum)); System.out.println();
+			//out.println(currentTimeMillis()-tm);
+			
+			//out.println(size());
+			//row.forEach((k,v)-> out.println(k));
+			//out.println(row.size() + " " + size(row)); out.println();
+			//schedeBySum.forEach((k,v)-> out.println(k));
+			//out.println(schedeBySum.size() + " " + size(schedeBySum)); out.println();
+			//out.println(size(row, schedeBySum)); out.println();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -68,7 +71,7 @@ public class Schede extends Core {
 		//printFogli(8, f-> boxed(2, 3, f), fmt(1, 4, 0)); // word portrait normal consolas 9
 		//printFogli(8, f-> boxed(3, 2, f), fmt(1)); // word landscape narrow consolas 19 
 		
-		System.out.println("\nfinito!");
+		out.println("\nfinito!");
 	}
 	
 	/*
@@ -112,7 +115,7 @@ public class Schede extends Core {
 		Schede schede = new Schede();
 		int[][][] f = schede.getFoglio();
 		for (int z=0, i=0; i<n; i+=1) {
-			System.out.println(ft.vs(i) + fn.apply(f[z++]));
+			out.println(ft.vs(i) + fn.apply(f[z++]));
 			if (z < f.length) continue;
 			f=schede.getFoglio(); z=0;			
 		}
@@ -135,7 +138,7 @@ public class Schede extends Core {
 				if (z < f.length) continue;
 				f=schede.getFoglio(); z=0;
 			}
-			System.out.println(ft.vs(i) + merge(ft.os, p));
+			out.println(ft.vs(i) + merge(ft.os, p));
 		}	
 	}
 	
@@ -144,7 +147,7 @@ public class Schede extends Core {
 	}
 	public static void printFogli(int n, Function<int[][][],String> fn, Fmt ft) {
 		Schede schede = new Schede();
-		for (int i=0; i<n; i+=1) System.out.println(ft.vs(i) + fn.apply(schede.getFoglio()));
+		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(schede.getFoglio()));
 	}
 	
 	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
@@ -158,7 +161,7 @@ public class Schede extends Core {
 		Schede schede = new Schede();
 		String[][] p = new String[n][];
 		for (int i=0; i<n; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
-		for (int i=0; i<m; i+=1) System.out.println(ft.vs(i) + merge(ft.os, p));
+		for (int i=0; i<m; i+=1) out.println(ft.vs(i) + merge(ft.os, p));
 	}
 	
 	private static String merge(String os, String[] ... ss) {
