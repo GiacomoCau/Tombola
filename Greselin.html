@@ -31,6 +31,7 @@
 		for (var r=[], i=0, e=c.length; i<e; i+=1) r[i]=c[i]-a[i]; return r
 	}
 	
+	/*
 	function Mn(mx, r, c) {
 		if (sum(r) != sum(c)) return
 		return Mn(r, c)
@@ -38,11 +39,20 @@
 		function Mn(r, c) {
 			if (r.length == 2) {
 				if (c.length == 2) {
-					return min(r[0],c[0])+1 - max(0,r[0]-c[1])
+					for (var n=0, a00=max(0,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
+						var a01 = r[0] - a00
+						if (a01 < 0 || a01 > mx) break
+						var a10 = c[0] - a00
+						if (a10 < 0 || a10 > mx) break
+						var a11 = r[1] - a10 // = c[1]-a10
+						if (a11 < 0 || a11 > mx) break
+	 					n += 1
+					}
+					return n
 				}
-				for (var n=0, a00=max(0,r[0]-sum1(mx, c)); ; a00+=1) {
+				for (var n=0, a00=max(0,r[0]-sum1(mx, c)); a00<mx; a00+=1) {
 					var a10 = c[0]-a00
-					if (a10 < 0 || a10 > mx) break
+					if (a10 < 0 || a10 > mx) continue
 					n += Mn( [r[0]-a00, r[1]-a10], shift1(c) ) 
 				}
 				return n
@@ -52,6 +62,7 @@
 			return n
 		}
 	}
+	*/
 	
 	function R(mx, r, c) {
 		var r1 = sum1(mx, r)
@@ -60,17 +71,14 @@
 		function R(r0, c) {
 			if (c.length == 2) {
 				for (var v=[], a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
-					//if (a0 > mx) break
 					var a1 = r0-a0
-					if (a1 < 0 || a1 > mx) break
+					if (a1 < 0 || a1 > mx) continue
 					v.push( [a0, a1] ) // aggiunge una nuova riga [a0,a1] in fondo a v
 				}
 				return v
 			}
 			for (var v=[], a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
-				//if (a0 > mx) break
 				var r0n = r0-a0
-				//if (r0n < 0 /*|| r0n > mx*/) break // non sembra necessario
 				var vs = R(r0n, shift1(c))
 				for (var i in vs) {
 					var vi = vs[i]
@@ -83,32 +91,28 @@
 	}
 	
 	function M(mx, r, c) {
-		var sr = sum(r), sc = sum(c)
-		if (sr != sc) return
-		var mxr = mx*c.length, mxc = mx*r.length
-		for (i=0; i<r.length; i+=1) if (r[i]> mxr) return 
-		for (i=0; i<c.length; i+=1) if (c[i]> mxc) return 
+		if (sum(r) != sum(c)) return
+		for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return 
+		for (var mxc=mx*r.length, i=0; i<c.length; i+=1) if (c[i]> mxc) return 
 		return M(r, c)
 		
 		function M(r, c) {
 			if (r.length == 2) {
 				if (c.length == 2) {
 					for (var m=[], a00=max(0,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
-						//if (a00 > mx) break
 						var a01 = r[0] - a00
 						if (a01 < 0 || a01 > mx) break
 						var a10 = c[0] - a00
 						if (a10 < 0 || a10 > mx) break
-						var a11 = r[1] - a10 // = c[1]-a10
+						var a11 = r[1] - a10 // = c[1] - a01
 						if (a11 < 0 || a11 > mx) break
 	 					m.push( [[a00, a01], [a10, a11]] ) // genera la matrice 2x2
 					}
 					return m
 				}
 				for (var m=[], a00=max(0,r[0]-sum1(mx, c)); a00<=mx; a00+=1) {
-					//if (a00 > mx) break
 					var a10 = c[0] - a00
-					if (a10 < 0 || a10 > mx) break
+					if (a10 < 0 || a10 > mx) continue
 					var ms = M( [r[0]-a00, r[1]-a10], shift1(c) )
 					for (var i in ms) {
 						var mi = ms[i]
@@ -119,7 +123,7 @@
 				}
 				return m
 			}
-			for (var m=[], v=R(mx, r,c), i=0, e=v.length; i<e; i+=1) {
+			for (var m=[], v=R(mx,r,c), i=0, e=v.length; i<e; i+=1) {
 				var vi = v[i]
 				var ms = M( shift1(r), subn(c, vi) )
 				for (var j in ms) {
@@ -131,21 +135,39 @@
 			return m
 		}
 	}
-	
-	function writeM(mx, r, c) {
-		var m = M(mx, r, c)
-		if (!m) 
-			document.write(m, '<br>')
-		else {
-			for (var i=0, ei=m.length; i<ei; i+=1) {
-				var mi=m[i], ok=check(mi, mx, r, c) 
-				//if (ok) continue
-				document.write('<div style="float:left; margin:10px">')
-				document.write(i+1, ' ', ok ? '' : 'errata!', '<br>')
-				document.write('-----', '<br>')
-				for (var j=0, ej=mi.length; j<ej; j+=1) document.write(mi[j], '<br>')
-				document.write('</div>')
+
+	function Mn(mx, r, c) {
+		if (sum(r) != sum(c)) return
+		for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return 
+		for (var mxc=mx*r.length, i=0; i<c.length; i+=1) if (c[i]> mxc) return 
+		return Mn(r, c)
+		
+		function Mn(r, c) {
+			if (r.length == 2) {
+				if (c.length == 2) {
+					for (var n=0, a00=max(0,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
+						var a01 = r[0] - a00
+						if (a01 < 0 || a01 > mx) break
+						var a10 = c[0] - a00
+						if (a10 < 0 || a10 > mx) break
+						var a11 = r[1] - a10 // = c[1] - a01
+						if (a11 < 0 || a11 > mx) break
+	 					n += 1
+					}
+					return n
+				}
+				for (var n=0, a00=max(0,r[0]-sum1(mx, c)); a00<=mx; a00+=1) {
+					var a10 = c[0] - a00
+					if (a10 < 0 || a10 > mx) continue
+					n += Mn( [r[0]-a00, r[1]-a10], shift1(c) )
+				}
+				return n
 			}
+			for (var n=0, v=R(mx,r,c), i=0, e=v.length; i<e; i+=1) {
+				var vi = v[i]
+				n += Mn( shift1(r), subn(c, vi) )
+			}
+			return n
 		}
 	}
 
@@ -167,21 +189,63 @@
 		return true
 	}
 	
-	//document.write( Mn([3,1,3], [3,2,2]), '<br>','<br>' )
-	//writeM(3, [3,1,3], [3,2,2] ) // 19
-	writeM(2, [3,1,3], [3,2,2] ) // 13
-
-	//writeM( [4,3,3], [3,1,4,2] )
 	
-	//document.write( Mn(3, [3,1,3], [3,2,2]), '<br>' )
-	//writeM(2, [6,6], [3,4,5] )
-	//writeM(2, [6,6,6,6], [3,4,4,4,4,5] )
-	//writeM(2, [6,6,6,6,6,6], [3,4,4,4,4,4,4,4,5] )
+	function writeM(mx, r, c) {
+		var m = M(mx, r, c)
+		if (!m) 
+			document.write(m, '<br>')
+		else {
+			for (var i=0, ei=m.length; i<ei; i+=1) {
+				var mi=m[i], ok=check(mi, mx, r, c) 
+				//if (ok) continue
+				document.write('<div style="float:left; margin:10px">')
+				document.write(i+1, ' ', ok ? '' : 'errata!', '<br>')
+				document.write('-----', '<br>')
+				for (var j=0, ej=mi.length; j<ej; j+=1) document.write(mi[j], '<br>')
+				document.write('</div>')
+			}
+		}
+	}
 	
-	//writeM(2, [4,4], [4,4] ) 
-	//writeM(2, [4,3], [3,4] ) 
-	//writeM(2, [3,2,1], [2,2,2] ) 
-	//writeM(2, [2,2,2], [2,2,2] ) 
+	function writeMn(mx, r, c) {
+		document.write( Mn(mx, r, c), '<br>','<br>' )
+	}
+	
+	function writeRn(mx, r, c) {
+		document.write( R(mx, r, c).length, '<br>','<br>' )
+	}
+	
+	writeMn( 3, [3,1,3], [3,2,2] )
+	writeM( 3, [3,1,3], [3,2,2] ) // 19
+	
+	//document.write('<br style="clear:both"><br>')
+	
+	//writeMn( 2, [3,1,3], [3,2,2] )
+	//writeM( 2, [3,1,3], [3,2,2] ) // 15
+	
+	//writeM( 1, [4,3,3], [3,1,4,2] ) // undefined
+	//writeM( 2, [4,3,3], [3,1,4,2] ) // 55
+	//writeM( 3, [4,3,3], [3,1,4,2] ) // 117
+	//writeM( 4, [4,3,3], [3,1,4,2] ) // 123
+	
+	//writeM( 2, [6,6], [3,4,5] ) // undefined
+	
+	//writeMn( 2, [6,6,6,6], [3,4,4,4,4,5] )
+	//writeM( 2, [6,6,6,6], [3,4,4,4,4,5] ) // 325.157
+	
+	//writeRn(2, [6,6,6,6], [3,4,4,4,4,5] )
+	//writeRn(2, [6,6,6,6,6,6], [3,4,4,4,4,4,4,4,5] )
+	
+	//writeMn( 2,[6,6,6,6,6,6], [3,4,4,4,4,4,4,4,5] )
+	//writeM( 2, [6,6,6,6,6,6], [3,4,4,4,4,4,4,4,5] )
+	
+	//writeMn( 1, [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5], [9,10,10,10,10,10,10,10,11] )
+	//writeM( 1, [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5], [9,10,10,10,10,10,10,10,11] )
+	
+	//writeM( 2, [4,4], [4,4] ) 
+	//writeM( 2, [4,3], [3,4] ) 
+	//writeM( 2, [3,2,1], [2,2,2] ) 
+	//writeM( 2, [2,2,2], [2,2,2] ) 
 	
 </script>
 
