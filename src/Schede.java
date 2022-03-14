@@ -60,39 +60,70 @@ public class Schede extends Core {
 		//System.out.println(schede.boxed(3, 2));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
 		
-		//printFogli(2, 3, Schede::compact, 2, 7);
-		//printFogli(3, 2, f-> boxed(2, 3, f, 1, 5), 2, 7);
-		printFogli(12, f-> boxed(3, 2, f), 2);
+		//printFogli(2, 3, Schede::compact, fmt(2, 7));
+		//printFogli(3, 2, f-> boxed(2, 3, f, fmt(1, 5)), fmt(2, 7));
+		printFogli(12, f-> boxed(3, 2, f), fmt(2));
 		//printSchede(3, 6, Schede::compact);
+		
+		//printFogli(8, f-> boxed(2, 3, f), fmt(1, 4, 0)); // word portrait normal consolas 9
+		//printFogli(8, f-> boxed(3, 2, f), fmt(1)); // word landscape narrow consolas 19 
 		
 		System.out.println("\nfinito!");
 	}
+	
+	/*
+	public static class Fmt {
+		int pb; String os, vs, ps;
+		public Fmt(int vs) {
+			this.vs = "\n".repeat(vs);
+		}
+		public Fmt(int vs, int os) {
+			this(vs);
+			this.os = " ".repeat(os);
+		}
+		public Fmt(int vs, int pb, int ps) {
+			this(vs, 0, pb, ps);
+		}
+		public Fmt(int vs, int os, int pb, int ps) {
+			this(vs, os);
+			this.pb = pb;
+			this.ps = "\n".repeat(ps);
+		}
+		public String vs(int i) {
+			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
+		}
+	}
+	*/
+	public record Fmt(String vs, String os, int pb, String ps) {
+		public String vs(int i) {
+			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
+		}		
+	};
+	public static Fmt fmt(int vs) { return fmt(vs, 0, 0, 0); }; 
+	public static Fmt fmt(int vs, int os) { return fmt(vs, os, 0, 0); }; 
+	public static Fmt fmt(int vs, int pb, int ps) { return fmt(vs, 0, pb, ps); }; 
+	public static Fmt fmt(int vs, int os, int pb, int ps) { return new Fmt("\n".repeat(vs), " ".repeat(os), pb, "\n".repeat(ps)); }; 
+
 
 	public static void printSchede(int n, Function<int[][],String> fn) {
-		printSchede(n, fn, 1);
+		printSchede(n, fn, fmt(1));
 	}
-	public static void printSchede(int n, Function<int[][],String> fn, int vs) {
-		printSchede(n, fn, "\n".repeat(vs));
-	}
-	public static void printSchede(int n, Function<int[][],String> fn, String vs) {
+	public static void printSchede(int n, Function<int[][],String> fn, Fmt ft) {
 		Schede schede = new Schede();
 		int[][][] f = schede.getFoglio();
 		for (int z=0, i=0; i<n; i+=1) {
-			System.out.println((i==0 ? "" : vs) + fn.apply(f[z++]));
+			System.out.println(ft.vs(i) + fn.apply(f[z++]));
 			if (z < f.length) continue;
 			f=schede.getFoglio(); z=0;			
 		}
 	}
 	
 	public static void printSchede(int r, int c, Function<int[][],String> fn) {
-		printSchede(r, c, fn, 1, 7);
+		printSchede(r, c, fn, fmt(1, 7));
 	}
-	public static void printSchede(int r, int c, Function<int[][],String> fn, int vs, int os) {
-		printSchede(r, c, fn, "\n".repeat(vs), " ".repeat(os));
-	}
-	public static void printSchede(int r, int c, Function<int[][],String> fn, String vs, String os) {
+	public static void printSchede(int r, int c, Function<int[][],String> fn, Fmt ft) {
 		if (c == 1) {
-			printSchede(r, fn, vs);
+			printSchede(r, fn, ft);
 			return;
 		}	
 		Schede schede = new Schede();
@@ -104,36 +135,30 @@ public class Schede extends Core {
 				if (z < f.length) continue;
 				f=schede.getFoglio(); z=0;
 			}
-			System.out.println((i==0 ? "" : vs) + merge(os, p));
+			System.out.println(ft.vs(i) + merge(ft.os, p));
 		}	
 	}
 	
 	public static void printFogli(int n, Function<int[][][],String> fn) {
-		printFogli(n, fn, 2);
+		printFogli(n, fn, fmt(2));
 	}
-	public static void printFogli(int n, Function<int[][][],String> fn, int vs) {
-		printFogli(n, fn, "\n".repeat(vs));
-	}
-	public static void printFogli(int n, Function<int[][][],String> fn, String vs) {
+	public static void printFogli(int n, Function<int[][][],String> fn, Fmt ft) {
 		Schede schede = new Schede();
-		for (int i=0; i<n; i+=1) System.out.println((i==0?"":vs) + fn.apply(schede.getFoglio()));
+		for (int i=0; i<n; i+=1) System.out.println(ft.vs(i) + fn.apply(schede.getFoglio()));
 	}
 	
 	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
-		printFogli(m, n, fn, 1, 7);
+		printFogli(m, n, fn, fmt(1, 7));
 	}
-	public static void printFogli(int m, int n, Function<int[][][],String> fn, int vs, int os) {
-		printFogli(m, n, fn, "\n".repeat(vs), " ".repeat(os));
-	}
-	public static void printFogli(int m, int n, Function<int[][][],String> fn, String vs, String os) {
+	public static void printFogli(int m, int n, Function<int[][][],String> fn, Fmt ft) {
 		if (n == 1) { 
-			printFogli(m, fn, vs);
+			printFogli(m, fn, ft);
 			return;
 		}
 		Schede schede = new Schede();
 		String[][] p = new String[n][];
 		for (int i=0; i<n; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
-		for (int i=0; i<m; i+=1) System.out.println((i==0 ? "" : vs) + merge(os, p));
+		for (int i=0; i<m; i+=1) System.out.println(ft.vs(i) + merge(ft.os, p));
 	}
 	
 	private static String merge(String os, String[] ... ss) {
@@ -228,31 +253,25 @@ public class Schede extends Core {
 	}
 	
 	public static String boxed(int r, int c, int[][][] f) {
-		return boxed(r, c, f, 2, 7); 
+		return boxed(r, c, f, fmt(2, 7)); 
 	}
-	public static String boxed(int r, int c, int[][][] f, int vs, int os) {
-		return boxed(r, c, f, "\n".repeat(vs), " ".repeat(os));
-	}
-	public static String boxed(int r, int c, int[][][] f, String vs, String os) {
+	public static String boxed(int r, int c, int[][][] f, Fmt ft) {
 		if (r * c != f.length) throw new IllegalArgumentException();
-		if (c == 1) return boxed(f, vs);
+		if (c == 1) return boxed(f, ft);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) p[j]= boxed(f[z++]).split("\n");
-			s += (s.length()==0 ? "" : vs) + merge(os, p);
+			s += ft.vs(i) + merge(ft.os, p);
 		}	
 		return s;
 	}
 	
 	public static String boxed(int[][][] f) {
-		return boxed(f, 1);
+		return boxed(f, fmt(1));
 	}
-	public static String boxed(int[][][] f, int vs) {
-		return boxed(f, "\n".repeat(vs));
-	}
-	public static String boxed(int[][][] f, String vs) {
-		return stream(f).map(s-> boxed(s)).collect(joining(vs));
+	public static String boxed(int[][][] f, Fmt ft) {
+		return stream(f).map(s-> boxed(s)).collect(joining(ft.vs));
 	}
 	
 	public static String boxed(int[][] s) {
