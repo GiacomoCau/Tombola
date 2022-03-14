@@ -70,9 +70,9 @@
 		
 		function R(r0, c) {
 			if (c.length == 2) {
-				for (var v=[], a0=max(0/*,r0-mx,c[0]-r1*/); a0<=mx; a0+=1) {
+				for (var v=[], a0=max(0,r0-mx,c[0]-r1); a0<=mx; a0+=1) {
 					var a1 = r0-a0
-					if (a1 < 0 || a1 > mx) continue // break
+					if (a1 < 0 || a1 > mx) break
 					v.push( [a0, a1] ) // aggiunge una nuova riga [a0,a1] in fondo a v
 				}
 				return v
@@ -99,20 +99,20 @@
 		function M(r, c) {
 			if (r.length == 2) {
 				if (c.length == 2) {
-					for (var m=[], a00=max(0/*,c[0]-mx,r[0]-sum1(mx,c)*/); a00<=mx ; a00+=1) {
+					for (var m=[], a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
 						var a01 = r[0] - a00
-						if (a01 < 0 || a01 > mx) continue // break
+						if (a01 < 0 || a01 > mx) break
 						var a10 = c[0] - a00
-						if (a10 < 0 || a10 > mx) continue // break
+						if (a10 < 0 || a10 > mx) break
 						var a11 = r[1] - a10 // = c[1] - a01
-						if (a11 < 0 || a11 > mx) continue //break
+						if (a11 < 0 || a11 > mx) break
 	 					m.push( [[a00, a01], [a10, a11]] ) // genera la matrice 2x2
 					}
 					return m
 				}
-				for (var m=[], a00=max(0/*,c[0]-mx,r[0]-sum1(mx, c)*/); a00<=mx; a00+=1) {
+				for (var m=[], a00=max(0,c[0]-mx,r[0]-sum1(mx, c)); a00<=mx; a00+=1) {
 					var a10 = c[0] - a00
-					if (a10 < 0 || a10 > mx) continue // break
+					if (a10 < 0 || a10 > mx) break
 					var ms = M( [r[0]-a00, r[1]-a10], shift1(c) )
 					for (var i in ms) {
 						var mi = ms[i]
@@ -145,20 +145,20 @@
 		function Mn(r, c) {
 			if (r.length == 2) {
 				if (c.length == 2) {
-					for (var n=0, a00=max(0/*,c[0]-mx,r[0]-sum1(mx,c)*/); a00<=mx ; a00+=1) {
+					for (var n=0, a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
 						var a01 = r[0] - a00
-						if (a01 < 0 || a01 > mx) continue // break
+						if (a01 < 0 || a01 > mx) break
 						var a10 = c[0] - a00
-						if (a10 < 0 || a10 > mx) continue // break
+						if (a10 < 0 || a10 > mx) break
 						var a11 = r[1] - a10 // = c[1] - a01
-						if (a11 < 0 || a11 > mx) continue // break
+						if (a11 < 0 || a11 > mx) break
 	 					n += 1
 					}
 					return n
 				}
-				for (var n=0, a00=max(0/*,c[0]-mx,r[0]-sum1(mx, c)*/); a00<=mx; a00+=1) {
+				for (var n=0, a00=max(0,c[0]-mx,r[0]-sum1(mx, c)); a00<=mx; a00+=1) {
 					var a10 = c[0] - a00
-					if (a10 < 0 || a10 > mx) continue // break
+					if (a10 < 0 || a10 > mx) break
 					n += Mn( [r[0]-a00, r[1]-a10], shift1(c) )
 				}
 				return n
@@ -197,20 +197,11 @@
 			for (var i=0, ei=m.length; i<ei; i+=1) {
 				var mi=m[i], ok=check(mi, mx, r, c) 
 				//if (ok) continue
-				/*
 				document.write('<div style="float:left; margin:10px">')
 				document.write(i+1, ' ', ok ? '' : 'errata!', '<br>')
 				document.write('-----', '<br>')
 				for (var j=0, ej=mi.length; j<ej; j+=1) document.write(mi[j], '<br>')
 				document.write('</div>')
-				*/
-				var s ='<div style="float:left; margin:10px">'
-				s += (i+1) + ' ' + (ok ? '' : 'errata!') + '<br>-----<br>'
-				for (var j=0, ej=mi.length; j<ej; j+=1) s += mi[j]+'<br>'
-				s +='</div>'
-				document.write(s)
-				//document.body.append(s)
-				//document.body.insertAdjacentHTML('beforeEnd', s)
 			}
 		}
 	}
