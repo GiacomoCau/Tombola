@@ -2,9 +2,9 @@
 
 <html>
 <head>
-	<title>Greselin 12</title>
+	<title>Greselin 13b</title>
 	<meta charset="windows-1252">
-	<xmeta http-equiv="Content-Type" content="text/html; charset=windows-1252">	
+	<xmeta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 </head>
 
 <body style="font-family:Courier New; font-size:9pt">
@@ -12,31 +12,33 @@
 <script src="Greselin.js"></script>
 <script>
 
-	if (!String.prototype.repeat) { // per Explorer
-		String.prototype.repeat = function(n) {
-			for (var s=''; n--; ) s += this
-			return s
-		}
-	}
-	
 	function writeM(mx, r, c) {
 		var m = M(mx, r, c)
 		if (!m) 
 			document.write(m, '<br>')
 		else {
-			for (var i=0, ei=m.length; i<ei; i+=1) {
-				var mi=m[i], ok=check(mi, mx, r, c) 
+			//writeMiAll(/*m, mx, r, c,*/ 1)
+			setTimeout(writeMiAll, 0, /*m, mx, r, c,*/ 1)
+		}
+		function writeMiAll(/*m, mx, r, c,*/ i) {
+			var nm = m.next()
+			if (nm.done) return
+			var mi = nm.value //, ok = check(mi, mx, r, c) 
+			writeMi(i, mi, check(mi, mx, r, c))
+			setTimeout(writeMiAll, 0, /*m, mx, r, c,*/ i+1)
+			function writeMi(i, m, ok) {
 				//if (ok) continue
-				document.write('<span style="float:left; margin-right:10px; margin-bottom:10px">')
-				document.write(i+1, ' ', ok ? '' : 'errata!', '<br>')
-				document.write('-'.repeat(mi[0].length*2-1), '<br>')
-				for (var j=0, ej=mi.length; j<ej; j+=1) document.write(mi[j], '<br>')
-				document.write('</span>')
+				for (var s ='', j=0, ej=m.length; j<ej; j+=1) s += m[j] + '<br>'
+				document.body.innerHTML +=
+					 '<div style="float:left; margin-right:10px; margin-bottom:10px">'
+					 	+ i + ' ' + (ok ? '' : 'errata!')
+					 	+ '<br>' + '-'.repeat(mi[0].length*2-1)
+					 	+ '<br>' + s
+					 + '</div>'
 			}
-			document.write('<br style="clear:left">')
 		}
 	}
-
+	
 	function writeMn(mx, r, c) {
 		document.write( Mn(mx, r, c), '<br>','<br>' )
 	}
