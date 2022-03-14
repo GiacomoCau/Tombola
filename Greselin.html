@@ -2,7 +2,7 @@
 
 <html>
 <head>
-	<title>Greselin 13b</title>
+	<title>Greselin 14</title>
 	<meta charset="windows-1252">
 	<xmeta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 </head>
@@ -17,15 +17,15 @@
 		if (!m) 
 			document.write(m, '<br>')
 		else {
-			//writeMiAll(/*m, mx, r, c,*/ 1)
-			setTimeout(writeMiAll, 0, /*m, mx, r, c,*/ 1)
+			//writeMiAll(1)
+			setTimeout(writeMiAll, 0, 1)
 		}
-		function writeMiAll(/*m, mx, r, c,*/ i) {
+		function writeMiAll(i) {
 			var nm = m.next()
 			if (nm.done) return
 			var mi = nm.value //, ok = check(mi, mx, r, c) 
 			writeMi(i, mi, check(mi, mx, r, c))
-			setTimeout(writeMiAll, 0, /*m, mx, r, c,*/ i+1)
+			setTimeout(writeMiAll, 0, i+1)
 			function writeMi(i, m, ok) {
 				//if (ok) continue
 				for (var s ='', j=0, ej=m.length; j<ej; j+=1) s += m[j] + '<br>'

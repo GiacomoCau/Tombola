@@ -21,43 +21,47 @@ function subn(c, a) { // crea un vettore con la differenza fra i corrispondenti 
 	for (var r=[], i=0, e=c.length; i<e; i+=1) r[i]=c[i]-a[i]; return r
 }
 
+// mx: massimo valore della cella
+// r: totali di riga
+// c: totali di colonna
+
 function R(mx, r, c) {
 	var r1 = sum1(mx, r)
-	return R(r[0], c, [])
+	return Rn(r[0], c, [])
 	
-	function* R(r0, c, v) {
-		if (c.length == 2) {
+	function* Rn(r0, c, v) {
+		if (c.length == 2) { // 2 colonne
 			for (var a0=max(0,r0-mx,c[0]-r1); a0<=mx; a0+=1) {
 				var a1 = r0-a0
 				if (a1 < 0) break
-				yield v.concat( a0, a1 ) // aggiunge [a0,a1] in fondo a v
+				yield v.concat( a0, a1 ) // aggiunge a0,a1 in fondo a v
 			}
+			return
 		}
-		else {
-			for (var a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
-				var r0n = r0-a0
-				yield* R(r0n, shift1(c), v.concat( a0 )) // aggiunge a0 in fondo a v
-			}
+		// piÃ¹ di 2 colonne
+		for (var a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
+			var a1 = r0-a0
+			if (a1 < 0) break
+			yield* Rn(a1, shift1(c), v.concat( a0 )) // aggiunge a0 in fondo a v
 		}
 	}
 }
 
 function M(mx, r, c) {
-	//console.log('M: ', mx, r, c) 
 	if (sum(r) != sum(c)) return
 	for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return 
 	for (var mxc=mx*r.length, i=0; i<c.length; i+=1) if (c[i]> mxc) return 
-	return M(r, c, [])
+	return Mn(r, c, [])
 	
-	function* M(r, c, m) {
+	function* Mn(r, c, m) {
 		if (r.length == 2) { // 2 righe
-			yield* M2(r, c, m, [], [])
+			yield* M2(r, c, m, [], []) // aggiunge le ultime 2 righe ad m
+			return
 		}
-		else { // più di 2 righe
-			for (var v=R(mx,r,c), vn=v.next(); !vn.done; vn=v.next()) {
-				var vi = vn.value
-				yield* M( shift1(r), subn(c, vi), m.concat( [vi] ) )
-			}
+		// piÃ¹ di 2 righe
+		for (var v=R(mx,r,c), vn=v.next(); !vn.done; vn=v.next()) {
+			var vi = vn.value
+			yield* Mn( shift1(r), subn(c, vi), m.concat( [vi] ) ) // aggiunge la riga vi ad m
 		}
 		function* M2(r, c, m, r0, r1) {
 			if (c.length == 2) { // 2 righe, 2 colonne
@@ -68,56 +72,20 @@ function M(mx, r, c) {
 					if (a10 < 0) break
 					var a11 = r[1] - a10 // = c[1] - a10
 					if (a11 < 0 || a11 > mx) break
- 					yield m.concat( [r0.concat(a00, a01)], [r1.concat(a10, a11)] ) // aggiunge le ultime 2 colonne
+ 					yield m.concat( [r0.concat(a00, a01)], [r1.concat(a10, a11)] ) // aggiunge ad m le ultime 2 colonne alle ultime 2 righe
 				}
+				return
 			}
-			else { // 2 righe, più di 2 colonne
-				for (var a0=max(0,c[0]-mx,r[0]-sum1(mx, c)); a0<=mx; a0+=1) {
-					var a1 = c[0] - a0
-					if (a1 < 0) break
-					yield* M2( [r[0]-a0, r[1]-a1], shift1(c), m, r0.concat(a0), r1.concat(a1) ) // aggiunge una colonna
-				}
-			}
-		}
-	}
-}
-
-function Mn(mx, r, c) {
-	if (sum(r) != sum(c)) return
-	for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return
-	for (var mxc=mx*r.length, i=0; i<c.length; i+=1) if (c[i]> mxc) return
-	return Mn(r, c)
-	
-	function Mn(r, c) {
-		if (r.length == 2) {
-			if (c.length == 2) {
-				for (var n=0, a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
-					var a01 = r[0] - a00
-					if (a01 < 0) break
-					var a10 = c[0] - a00
-					if (a10 < 0) break
-					var a11 = r[1] - a10 // = c[1] - a01
-					if (a11 < 0 || a11 > mx) break
- 					n += 1
-				}
-				return n
-			}
-			for (var n=0, a0=max(0,c[0]-mx,r[0]-sum1(mx,c)); a0<=mx; a0+=1) {
+			// 2 righe, piÃ¹ di 2 colonne
+			for (var a0=max(0,c[0]-mx,r[0]-sum1(mx, c)); a0<=mx; a0+=1) {
 				var a1 = c[0] - a0
 				if (a1 < 0) break
-				n += Mn( [r[0]-a0, r[1]-a1], shift1(c) )
+				yield* M2( [r[0]-a0, r[1]-a1], shift1(c), m, r0.concat(a0), r1.concat(a1) ) // aggiunge una colonna alle ultime 2 righe
 			}
-			return n
 		}
-		for (var n=0, v=R(mx,r,c), nv=v.next(); !nv.done; nv=v.next()) {
-			var vi = nv.value
-			n += Mn( shift1(r), subn(c, vi) )
-		}
-		return n
 	}
 }
 
-// sostituisce la precendete, aggiunge logging
 function Mn(mx, r, c) {
 	if (sum(r) != sum(c)) return
 	for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return
@@ -152,7 +120,7 @@ function Mn(mx, r, c) {
 		for (var v=R(mx,r,c), nv=v.next(); !nv.done; nv=v.next()) {
 			var vi = nv.value
 			Mn( shift1(r), subn(c, vi) )
-			if (n > lim) lim += (writeN(lim), inc) // logging
+			if (n > lim) lim += writeN(lim), inc // logging
 		}
 	}
 }
