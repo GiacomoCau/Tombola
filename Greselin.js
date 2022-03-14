@@ -29,14 +29,14 @@ function R(mx, r, c) {
 			for (var v=[], a0=max(0,r0-mx,c[0]-r1); a0<=mx; a0+=1) {
 				var a1 = r0 - a0
 				if (a1 < 0) break
-				v.push( [a0, a1] ) // aggiunge una nuova riga [a0,a1] in fondo a v
+				v.push( [a0, a1] ) // aggiunge [a0, a1] in fondo alla riga v
 			}
 			return v
 		}
 		for (var v=[], a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
-			var r0n = r0 - a0
-			if (r0n < 0) break
-			var vs = R(r0n, shift1(c))
+			var a1 = r0 - a0 
+			if (a1 < 0) break
+			var vs = R(a1, shift1(c))
 			for (var i in vs) {
 				var vi = vs[i]
 				vi.unshift(a0) // aggiunge a0 in testa a vi
@@ -54,8 +54,8 @@ function M(mx, r, c) {
 	return M(r, c)
 	
 	function M(r, c) {
-		if (r.length == 2) {
-			if (c.length == 2) {
+		if (r.length == 2) { // 2 righe
+			if (c.length == 2) { // 2 righe, 2 colonne
 				for (var m=[], a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
 					var a01 = r[0] - a00
 					if (a01 < 0) break
@@ -67,19 +67,21 @@ function M(mx, r, c) {
 				}
 				return m
 			}
-			for (var m=[], a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
-				var a10 = c[0] - a00
-				if (a10 < 0) break
-				var ms = M( [r[0]-a00, r[1]-a10], shift1(c) )
+			// 2 righe, più di 2 colonne
+			for (var m=[], a0=max(0,c[0]-mx,r[0]-sum1(mx,c)); a0<=mx; a0+=1) {
+				var a1 = c[0] - a0
+				if (a1 < 0) break
+				var ms = M( [r[0]-a0, r[1]-a1], shift1(c) )
 				for (var i in ms) {
 					var mi = ms[i]
-					mi[0].unshift(a00) // aggiunge a00 in testa alla prima riga di mi
-					mi[1].unshift(a10) // aggiunge a10 in testa alla seconda riga di mi
+					mi[0].unshift(a0) // aggiunge a0 in testa alla prima riga di mi
+					mi[1].unshift(a1) // aggiunge a1 in testa alla seconda riga di mi
 					m.push(mi) // aggiunge mi in fondo a m
 				}
 			}
 			return m
 		}
+		// più di 2 righe
 		for (var m=[], v=R(mx,r,c), i=0, e=v.length; i<e; i+=1) {
 			var vi = v[i]
 			var ms = M( shift1(r), subn(c, vi) )
@@ -113,10 +115,10 @@ function Mn(mx, r, c) {
 				}
 				return n
 			}
-			for (var n=0, a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
-				var a10 = c[0] - a00
-				if (a10 < 0) break
-				n += Mn( [r[0]-a00, r[1]-a10], shift1(c) )
+			for (var n=0, a0=max(0,c[0]-mx,r[0]-sum1(mx,c)); a0<=mx; a0+=1) {
+				var a1 = c[0] - a0
+				if (a1 < 0) break
+				n += Mn( [r[0]-a0, r[1]-a1], shift1(c) )
 			}
 			return n
 		}
@@ -128,17 +130,18 @@ function Mn(mx, r, c) {
 	}
 }
 
+// sostituisce la precedente, aggiunge il logging
 function Mn(mx, r, c) {
 	if (sum(r) != sum(c)) return
 	for (var mxr=mx*c.length, i=0; i<r.length; i+=1) if (r[i]> mxr) return 
 	for (var mxc=mx*r.length, i=0; i<c.length; i+=1) if (c[i]> mxc) return 
-	var n=0, pn=0 // counting, logging
+	var n=0, inc=100000, lim=inc // counting, logging
 	Mn(r, c)
 	return n
 	
 	function Mn(r, c) {
-		if (r.length == 2) {
-			if (c.length == 2) {
+		if (r.length == 2) { // 2 righe
+			if (c.length == 2) { // 2 righe, 2 colonne
 				for (var a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
 					var a01 = r[0] - a00
 					if (a01 < 0) break
@@ -150,17 +153,19 @@ function Mn(mx, r, c) {
 				}
 				return
 			}
-			for (var a00=max(0,c[0]-mx,r[0]-sum1(mx,c)); a00<=mx; a00+=1) {
-				var a10 = c[0] - a00
-				if (a10 < 0) break
-				Mn( [r[0]-a00, r[1]-a10], shift1(c) )
+			// 2 righe, più di 2 colonne
+			for (var a0=max(0,c[0]-mx,r[0]-sum1(mx,c)); a0<=mx; a0+=1) {
+				var a1 = c[0] - a0
+				if (a1 < 0) break
+				Mn( [r[0]-a0, r[1]-a1], shift1(c) )
 			}
 			return
 		}
+		// più di 2 righe
 		for (var v=R(mx,r,c), i=0, e=v.length; i<e; i+=1) {
 			var vi = v[i]
 			Mn( shift1(r), subn(c, vi) )
-			if (pn <= n) { writeN(pn); pn+=100000 } // logging
+			if (n > lim) lim += (writeN(lim), inc) // logging
 		}
 	}
 }
@@ -183,8 +188,12 @@ function check(m, mx, r, c) {
 	return true
 }
 
-/* for node.js
-exports.M = M
-exports.Mn = Mn
-exports.check = check
-//*/ 
+// for node.js
+if (typeof exports != 'undefined') {
+	exports.M = M
+	exports.Mn = Mn
+	exports.check = check
+	function writeN(n) { // logging
+		console.log( '%d', n )
+	}
+}
