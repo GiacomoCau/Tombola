@@ -59,16 +59,16 @@
 		
 		function R(r0, c) {
 			if (c.length == 2) {
-				for (var v=[], a0=max(0,c[0]-r1); ; a0+=1) {
-					if (a0 > mx) break
+				for (var v=[], a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
+					//if (a0 > mx) break
 					var a1 = r0-a0
 					if (a1 < 0 || a1 > mx) break
 					v.push( [a0, a1] ) // aggiunge una nuova riga [a0,a1] in fondo a v
 				}
 				return v
 			}
-			for (var v=[], a0=max(0,c[0]-r1); ; a0+=1) {
-				if (a0 > mx) break
+			for (var v=[], a0=max(0,c[0]-r1); a0<=mx; a0+=1) {
+				//if (a0 > mx) break
 				var r0n = r0-a0
 				//if (r0n < 0 /*|| r0n > mx*/) break // non sembra necessario
 				var vs = R(r0n, shift1(c))
@@ -93,8 +93,8 @@
 		function M(r, c) {
 			if (r.length == 2) {
 				if (c.length == 2) {
-					for (var m=[], a00=max(0,r[0]-sum1(mx,c)); ; a00+=1) {
-						if (a00 > mx) break
+					for (var m=[], a00=max(0,r[0]-sum1(mx,c)); a00<=mx ; a00+=1) {
+						//if (a00 > mx) break
 						var a01 = r[0] - a00
 						if (a01 < 0 || a01 > mx) break
 						var a10 = c[0] - a00
@@ -105,9 +105,9 @@
 					}
 					return m
 				}
-				for (var m=[], a00=max(0,r[0]-sum1(mx, c)); ; a00+=1) {
-					if (a00 > mx) break
-					var a10 = c[0]-a00
+				for (var m=[], a00=max(0,r[0]-sum1(mx, c)); a00<=mx; a00+=1) {
+					//if (a00 > mx) break
+					var a10 = c[0] - a00
 					if (a10 < 0 || a10 > mx) break
 					var ms = M( [r[0]-a00, r[1]-a10], shift1(c) )
 					for (var i in ms) {
@@ -168,12 +168,14 @@
 	}
 	
 	//document.write( Mn([3,1,3], [3,2,2]), '<br>','<br>' )
-	//writeM(3, [3,1,3], [3,2,2] )
+	//writeM(3, [3,1,3], [3,2,2] ) // 19
+	writeM(2, [3,1,3], [3,2,2] ) // 13
+
 	//writeM( [4,3,3], [3,1,4,2] )
 	
 	//document.write( Mn(3, [3,1,3], [3,2,2]), '<br>' )
 	//writeM(2, [6,6], [3,4,5] )
-	writeM(2, [6,6,6,6], [3,4,4,4,4,5] )
+	//writeM(2, [6,6,6,6], [3,4,4,4,4,5] )
 	//writeM(2, [6,6,6,6,6,6], [3,4,4,4,4,4,4,4,5] )
 	
 	//writeM(2, [4,4], [4,4] ) 
