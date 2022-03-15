@@ -1,5 +1,4 @@
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
-import static java.lang.System.currentTimeMillis;
 import static java.lang.System.out;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
@@ -31,11 +30,11 @@ public class Schede extends Core {
 	
 	static {
 		try {
-			//long tm = currentTimeMillis();
+			//long tm = System.currentTimeMillis();
 			//write("Schede.txt");
 			//read("Schede.txt");
 			init(); 
-			//out.println(currentTimeMillis()-tm);
+			//out.println(System.currentTimeMillis()-tm);
 			
 			//out.println(size());
 			//row.forEach((k,v)-> out.println(k));
@@ -113,8 +112,7 @@ public class Schede extends Core {
 	}
 	public static void printSchede(int n, Function<int[][],String> fn, Fmt ft) {
 		Schede schede = new Schede();
-		int[][][] f = schede.getFoglio();
-		for (int z=0, i=0; i<n; i+=1) {
+		for (int f[][][]=schede.getFoglio(), z=0, i=0; i<n; i+=1) {
 			out.println(ft.vs(i) + fn.apply(f[z++]));
 			if (z < f.length) continue;
 			f=schede.getFoglio(); z=0;			
@@ -130,8 +128,7 @@ public class Schede extends Core {
 			return;
 		}	
 		Schede schede = new Schede();
-		int[][][] f = schede.getFoglio();
-		for (int z=0, i=0; i<r; i+=1) {
+		for (int f[][][]=schede.getFoglio(), z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) {
 				p[j] = fn.apply(f[z++]).split("\n");
@@ -170,7 +167,7 @@ public class Schede extends Core {
 		for (int i=1; i<ss.length; i+=1) if (ss[i].length != len) throw new IllegalArgumentException(); 
 		String[] r = new String[len];
 		for (int i=0; i<len; i+=1) {
-			String s = ""; for (int j=0; j<ss.length; j+=1) s += (s=="" ? "" : os) + ss[j][i]; r[i] = s;
+			String s = ""; for (int j=0; j<ss.length; j+=1) s += (j==0 ? "" : os) + ss[j][i]; r[i] = s;
 		}		
 		return String.join("\n", r);
 	}
@@ -354,12 +351,12 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	private static void write(String fn) throws Exception {
-		ProcessBuilder pb = schede();
+		ProcessBuilder pb = node();
 		pb.redirectOutput(new File(fn));
 		pb.start().waitFor();
 	}
 
-	private static ProcessBuilder schede() {
+	private static ProcessBuilder node() {
 		ProcessBuilder pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
 		var env = pb.environment();
 		env.put("NODE_DISABLE_COLORS", "1");
@@ -376,7 +373,7 @@ public class Schede extends Core {
 	@SuppressWarnings("unused")
 	private static void read(String fn) throws Exception {
 		try (
-			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(schede().start().getInputStream()))
+			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(node().start().getInputStream()))
 		) {
 			var schede = new ArrayList<int[][]>();
 			row = new TreeMap<>();
