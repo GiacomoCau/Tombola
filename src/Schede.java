@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,7 +71,30 @@ public class Schede extends Core {
 		//printFogli(8, f-> boxed(2, 3, f), fmt(1, 4, 0)); // word portrait normal consolas 9
 		//printFogli(8, f-> boxed(3, 2, f), fmt(1)); // word landscape narrow consolas 19 
 		
+		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
+		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
+		
 		out.println("\nfinito!");
+	}
+	
+	public static Iterator<int[][][]> fogli() {
+		return new Iterator<int[][][]>() {
+			private Schede schede = new Schede();
+			@Override public boolean hasNext() { return true; }
+			@Override public int[][][] next() { return schede.getFoglio(); }
+		};
+	}
+
+	public static Iterator<int[][]> schede() {
+		return new Iterator<int[][]>() {
+			private Schede schede = new Schede();			
+			@Override public boolean hasNext() { return true; }
+			private int i=0, f[][][]=schede.getFoglio();
+			@Override public int[][] next() {
+				if (i == f.length) { i=0; f=schede.getFoglio(); }
+				return f[i++];
+			}
+		};
 	}
 	
 	/*
@@ -111,12 +135,8 @@ public class Schede extends Core {
 		printSchede(n, fn, fmt(1));
 	}
 	public static void printSchede(int n, Function<int[][],String> fn, Fmt ft) {
-		Schede schede = new Schede();
-		for (int f[][][]=schede.getFoglio(), z=0, i=0; i<n; i+=1) {
-			out.println(ft.vs(i) + fn.apply(f[z++]));
-			if (z < f.length) continue;
-			f=schede.getFoglio(); z=0;			
-		}
+		var schede = schede();
+		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(schede.next()));
 	}
 	
 	public static void printSchede(int r, int c, Function<int[][],String> fn) {
@@ -127,14 +147,10 @@ public class Schede extends Core {
 			printSchede(r, fn, ft);
 			return;
 		}	
-		Schede schede = new Schede();
-		for (int f[][][]=schede.getFoglio(), z=0, i=0; i<r; i+=1) {
+		var schede = schede();
+		for (int i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
-			for (int j=0; j<c; j+=1) {
-				p[j] = fn.apply(f[z++]).split("\n");
-				if (z < f.length) continue;
-				f=schede.getFoglio(); z=0;
-			}
+			for (int j=0; j<c; j+=1) p[j] = fn.apply(schede.next()).split("\n");
 			out.println(ft.vs(i) + merge(ft.os, p));
 		}	
 	}
@@ -143,8 +159,8 @@ public class Schede extends Core {
 		printFogli(n, fn, fmt(2));
 	}
 	public static void printFogli(int n, Function<int[][][],String> fn, Fmt ft) {
-		Schede schede = new Schede();
-		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(schede.getFoglio()));
+		var fogli = fogli();
+		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(fogli.next()));
 	}
 	
 	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
@@ -155,9 +171,9 @@ public class Schede extends Core {
 			printFogli(m, fn, ft);
 			return;
 		}
-		Schede schede = new Schede();
+		var fogli = fogli();
 		String[][] p = new String[n][];
-		for (int i=0; i<n; i+=1) p[i] = fn.apply(schede.getFoglio()).split("\n");
+		for (int i=0; i<n; i+=1) p[i] = fn.apply(fogli.next()).split("\n");
 		for (int i=0; i<m; i+=1) out.println(ft.vs(i) + merge(ft.os, p));
 	}
 	
@@ -183,7 +199,7 @@ public class Schede extends Core {
 		return boxed(r, c, getFoglio());
 	}
 	
-	public int[][][] getFoglio() {
+	private int[][][] getFoglio() {
 		int[] z = {9,10,10,10,10,10,10,10,11};
 		int[][][] f = new int[6][][];
 		for (int s=f.length-1, i=0; i<f.length; s-=1, i+=1) {
