@@ -74,6 +74,9 @@ public class Schede extends Core {
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
 		
+		//for (var f: iterable(fogli())) out.println(boxed(f));
+		//for (var s: iterable(schede())) out.println(boxed(s));
+		
 		out.println("\nfinito!");
 	}
 	
@@ -94,6 +97,12 @@ public class Schede extends Core {
 				if (i == f.length) { i=0; f=schede.getFoglio(); }
 				return f[i++];
 			}
+		};
+	}
+	
+	public static <T> Iterable<T> iterable(Iterator<T> iterator) {
+		return new Iterable<T>() {
+			@Override public Iterator<T> iterator() { return iterator; }
 		};
 	}
 	
