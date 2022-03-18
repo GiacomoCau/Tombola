@@ -1,4 +1,5 @@
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
+import static java.lang.String.format;
 import static java.lang.System.out;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
@@ -143,47 +144,47 @@ public class Schede extends Core {
 	public static void printSchede(int n, Function<int[][],String> fn) {
 		printSchede(n, fn, fmt(1));
 	}
-	public static void printSchede(int n, Function<int[][],String> fn, Fmt ft) {
+	public static void printSchede(int n, Function<int[][],String> fn, Fmt fmt) {
 		var schede = schede();
-		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(schede.next()));
+		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(schede.next()));
 	}
 	
 	public static void printSchede(int r, int c, Function<int[][],String> fn) {
 		printSchede(r, c, fn, fmt(1, 7));
 	}
-	public static void printSchede(int r, int c, Function<int[][],String> fn, Fmt ft) {
+	public static void printSchede(int r, int c, Function<int[][],String> fn, Fmt fmt) {
 		if (c == 1) {
-			printSchede(r, fn, ft);
+			printSchede(r, fn, fmt);
 			return;
 		}	
 		var schede = schede();
 		for (int i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) p[j] = fn.apply(schede.next()).split("\n");
-			out.println(ft.vs(i) + merge(ft.os, p));
+			out.println(fmt.vs(i) + merge(fmt.os, p));
 		}	
 	}
 	
 	public static void printFogli(int n, Function<int[][][],String> fn) {
 		printFogli(n, fn, fmt(2));
 	}
-	public static void printFogli(int n, Function<int[][][],String> fn, Fmt ft) {
+	public static void printFogli(int n, Function<int[][][],String> fn, Fmt fmt) {
 		var fogli = fogli();
-		for (int i=0; i<n; i+=1) out.println(ft.vs(i) + fn.apply(fogli.next()));
+		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(fogli.next()));
 	}
 	
 	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
 		printFogli(m, n, fn, fmt(1, 7));
 	}
-	public static void printFogli(int m, int n, Function<int[][][],String> fn, Fmt ft) {
+	public static void printFogli(int m, int n, Function<int[][][],String> fn, Fmt fmt) {
 		if (n == 1) { 
-			printFogli(m, fn, ft);
+			printFogli(m, fn, fmt);
 			return;
 		}
 		var fogli = fogli();
 		String[][] p = new String[n][];
 		for (int i=0; i<n; i+=1) p[i] = fn.apply(fogli.next()).split("\n");
-		for (int i=0; i<m; i+=1) out.println(ft.vs(i) + merge(ft.os, p));
+		for (int i=0; i<m; i+=1) out.println(fmt.vs(i) + merge(fmt.os, p));
 	}
 	
 	private static String merge(String os, String[] ... ss) {
@@ -274,20 +275,20 @@ public class Schede extends Core {
 		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
 	public static String compact(int[] r) {
-		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : "%2d".formatted(i)).collect(joining(!number ? "," : "|"));
+		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : format("%2d",i)).collect(joining(!number ? "," : "|"));
 	}
 	
 	public static String boxed(int r, int c, int[][][] f) {
 		return boxed(r, c, f, fmt(2, 7)); 
 	}
-	public static String boxed(int r, int c, int[][][] f, Fmt ft) {
+	public static String boxed(int r, int c, int[][][] f, Fmt fmt) {
 		if (r * c != f.length) throw new IllegalArgumentException();
-		if (c == 1) return boxed(f, ft);
+		if (c == 1) return boxed(f, fmt);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
 			String[][] p = new String[c][];
 			for (int j=0; j<c; j+=1) p[j]= boxed(f[z++]).split("\n");
-			s += ft.vs(i) + merge(ft.os, p);
+			s += fmt.vs(i) + merge(fmt.os, p);
 		}	
 		return s;
 	}
@@ -295,8 +296,8 @@ public class Schede extends Core {
 	public static String boxed(int[][][] f) {
 		return boxed(f, fmt(1));
 	}
-	public static String boxed(int[][][] f, Fmt ft) {
-		return stream(f).map(s-> boxed(s)).collect(joining(ft.vs));
+	public static String boxed(int[][][] f, Fmt fmt) {
+		return stream(f).map(s-> boxed(s)).collect(joining(fmt.vs));
 	}
 	
 	public static String boxed(int[][] s) {
@@ -311,7 +312,7 @@ public class Schede extends Core {
 		return r;
 	}
 	public static String boxed(int[] r) {
-		return stream(r).mapToObj(i-> i==0 ? "  " : "%2d".formatted(i)).collect(joining("│"));
+		return stream(r).mapToObj(i-> i==0 ? "  " : format("%2d",i)).collect(joining("│"));
 	}
 	
 	private int random(int max) {
