@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -159,9 +160,9 @@ public class Schede extends Core {
 		}	
 		var schede = schede();
 		for (int i=0; i<r; i+=1) {
-			String[][] p = new String[c][];
-			for (int j=0; j<c; j+=1) p[j] = fn.apply(schede.next()).split("\n");
-			out.println(fmt.vs(i) + merge(fmt.os, p));
+			var	args = new String[c][];
+			for (int j=0; j<c; j+=1) args[j] = fn.apply(schede.next()).split("\n");
+			out.println(fmt.vs(i) + merge(fmt.os, args));
 		}	
 	}
 	
@@ -182,18 +183,20 @@ public class Schede extends Core {
 			return;
 		}
 		var fogli = fogli();
-		String[][] p = new String[n][];
-		for (int i=0; i<n; i+=1) p[i] = fn.apply(fogli.next()).split("\n");
-		for (int i=0; i<m; i+=1) out.println(fmt.vs(i) + merge(fmt.os, p));
+		for (int i=0; i<m; i+=1) {
+			var args = new String[n][];
+			for (int j=0; j<n; j+=1) args[j] = fn.apply(fogli.next()).split("\n");
+			out.println(fmt.vs(i) + merge(fmt.os, args));
+		}
 	}
 	
-	private static String merge(String os, String[] ... ss) {
-		if (ss.length < 2) throw new IllegalArgumentException();
-		int len = ss[0].length;
-		for (int i=1; i<ss.length; i+=1) if (ss[i].length != len) throw new IllegalArgumentException(); 
-		String[] r = new String[len];
+	private static String merge(String os, String[] ... args) {
+		if (args.length < 2) throw new IllegalArgumentException();
+		int len = args[0].length;
+		for (int i=1; i<args.length; i+=1) if (args[i].length != len) throw new IllegalArgumentException(); 
+		var r = new String[len];
 		for (int i=0; i<len; i+=1) {
-			String s = ""; for (int j=0; j<ss.length; j+=1) s += (j==0 ? "" : os) + ss[j][i]; r[i] = s;
+			String s = ""; for (int j=0; j<args.length; j+=1) s += (j==0 ? "" : os) + args[j][i]; r[i] = s;
 		}		
 		return String.join("\n", r);
 	}
@@ -211,7 +214,7 @@ public class Schede extends Core {
 	
 	private int[][][] getFoglio() {
 		int[] z = {9,10,10,10,10,10,10,10,11};
-		int[][][] f = new int[6][][];
+		var f = new int[6][][];
 		for (int s=f.length-1, i=0; i<f.length; s-=1, i+=1) {
 			int[] zmn = sub(z, s*3), zmx = sub(z, s);
 			z = sub(z, f[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
@@ -286,9 +289,9 @@ public class Schede extends Core {
 		if (c == 1) return boxed(f, fmt);
 		String s = "";
 		for (int z=0, i=0; i<r; i+=1) {
-			String[][] p = new String[c][];
-			for (int j=0; j<c; j+=1) p[j]= boxed(f[z++]).split("\n");
-			s += fmt.vs(i) + merge(fmt.os, p);
+			var args = new String[c][];
+			for (int j=0; j<c; j+=1) args[j]= boxed(f[z++]).split("\n");
+			s += fmt.vs(i) + merge(fmt.os, args);
 		}	
 		return s;
 	}
@@ -377,17 +380,17 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	private static void write(String fn) throws Exception {
-		ProcessBuilder pb = node();
+		var pb = node();
 		pb.redirectOutput(new File(fn));
 		pb.start().waitFor();
 	}
 
 	private static ProcessBuilder node() {
-		ProcessBuilder pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
+		var pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
 		var env = pb.environment();
 		env.put("NODE_DISABLE_COLORS", "1");
 		env.put("NODE_SKIP_PLATFORM_CHECK", "1");
-		String nodeDir = "D:\\Programmi\\Node-v13.14.0-win-x64";
+		var nodeDir = "D:\\Programmi\\Node-v13.14.0-win-x64";
 		env.put("Path", nodeDir + ";" + env.get("Path")); 
 		env.put("NODE_PATH", nodeDir + "\\node_module");
 		//env.forEach((k,v)->System.out.println(k + "=" + v));
@@ -402,12 +405,12 @@ public class Schede extends Core {
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(node().start().getInputStream()))
 		) {
 			var schede = new ArrayList<int[][]>();
-			row = new TreeMap<>();
+			row = new LinkedHashMap<>();
 			//Map<Key, int[][]> card = new TreeMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = Integer.parseInt(line.substring(0, line.indexOf(")")));
-				int[][] c = new int[3][];
+				var c = new int[3][];
 				for (int i=0; i<c.length; i+=1) {
 					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a);
 				}
@@ -421,7 +424,7 @@ public class Schede extends Core {
 	}
 	
 	private static void init() {
-		row = new TreeMap<>();
+		row = new LinkedHashMap<>();
 		var schede = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
 		row = null;
 		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
