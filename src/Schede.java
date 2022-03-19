@@ -63,15 +63,19 @@ public class Schede extends Core {
 		//System.out.println(schede.compact());
 		//System.out.println(schede.boxed());
 		//System.out.println(schede.boxed(3, 2));
+		//System.out.println(schede.boxed(3, 2, fmt(2, 7)));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
 		
-		//printFogli(2, 3, Schede::compact, fmt(2, 7));
-		//printFogli(3, 2, f-> boxed(2, 3, f, fmt(1, 5)), fmt(2, 7));
-		printFogli(12, f-> boxed(3, 2, f), fmt(2));
+		//printFogli(2, 3, Schede::compact);
+		//printFogli(2, 3, Schede::boxed);
+		//printFogli(2, 3, Schede::boxed, fmt(2, 7));
+		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)));
+		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)), fmt(2, 7));
+		printFogli(12, f-> boxed(f, 3, 2), fmt(2));
 		//printSchede(3, 6, Schede::compact);
 		
-		//printFogli(8, f-> boxed(2, 3, f), fmt(1, 4, 0)); // word portrait normal consolas 9
-		//printFogli(8, f-> boxed(3, 2, f), fmt(1)); // word landscape narrow consolas 19 
+		//printFogli(8, f-> boxed(f, 2, 3), fmt(1, 4, 0)); // word portrait normal consolas 9
+		//printFogli(8, f-> boxed(f, 3, 2), fmt(1)); // word landscape narrow consolas 19 
 		
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
@@ -146,50 +150,44 @@ public class Schede extends Core {
 		printSchede(n, fn, fmt(1));
 	}
 	public static void printSchede(int n, Function<int[][],String> fn, Fmt fmt) {
-		var schede = schede();
-		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(schede.next()));
+		print(n, schede(), fn, fmt);
 	}
 	
-	public static void printSchede(int r, int c, Function<int[][],String> fn) {
-		printSchede(r, c, fn, fmt(1, 7));
+	public static void printSchede(int n, int m, Function<int[][],String> fn) {
+		printSchede(n, m, fn, fmt(1, 7));
 	}
-	public static void printSchede(int r, int c, Function<int[][],String> fn, Fmt fmt) {
-		if (c == 1) {
-			printSchede(r, fn, fmt);
-			return;
-		}	
-		var schede = schede();
-		for (int i=0; i<r; i+=1) {
-			var	args = new String[c][];
-			for (int j=0; j<c; j+=1) args[j] = fn.apply(schede.next()).split("\n");
-			out.println(fmt.vs(i) + merge(fmt.os, args));
-		}	
+	public static void printSchede(int n, int m, Function<int[][],String> fn, Fmt fmt) {
+		print(n, m, schede(), fn, fmt);
 	}
 	
 	public static void printFogli(int n, Function<int[][][],String> fn) {
 		printFogli(n, fn, fmt(2));
 	}
 	public static void printFogli(int n, Function<int[][][],String> fn, Fmt fmt) {
-		var fogli = fogli();
-		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(fogli.next()));
+		print(n, fogli(), fn, fmt);
 	}
 	
-	public static void printFogli(int m, int n, Function<int[][][],String> fn) {
-		printFogli(m, n, fn, fmt(1, 7));
+	public static void printFogli(int n, int m, Function<int[][][],String> fn) {
+		printFogli(n, m, fn, fmt(2, 7));
 	}
-	public static void printFogli(int m, int n, Function<int[][][],String> fn, Fmt fmt) {
-		if (n == 1) { 
-			printFogli(m, fn, fmt);
+	public static void printFogli(int n, int m, Function<int[][][],String> fn, Fmt fmt) {
+		print(n, m, fogli(), fn, fmt);
+	}
+	
+	private static <T> void print(int n, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
+		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(iterator.next()));
+	}
+	private static <T> void print(int n, int m, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
+		if (m == 1) {
+			print(n, iterator, fn, fmt);
 			return;
-		}
-		var fogli = fogli();
-		for (int i=0; i<m; i+=1) {
-			var args = new String[n][];
-			for (int j=0; j<n; j+=1) args[j] = fn.apply(fogli.next()).split("\n");
+		}	
+		for (int i=0; i<n; i+=1) {
+			var	args = new String[m][];
+			for (int j=0; j<m; j+=1) args[j] = fn.apply(iterator.next()).split("\n");
 			out.println(fmt.vs(i) + merge(fmt.os, args));
-		}
+		}	
 	}
-	
 	private static String merge(String os, String[] ... args) {
 		if (args.length < 2) throw new IllegalArgumentException();
 		int len = args[0].length;
@@ -206,10 +204,16 @@ public class Schede extends Core {
 	}
 	
 	public String boxed() {
-		return boxed(getFoglio());
+		return boxed(fmt(1));
+	}
+	public String boxed(Fmt fmt) {
+		return boxed(getFoglio(), fmt);
 	}
 	public String boxed(int r, int c) {
-		return boxed(r, c, getFoglio());
+		return boxed(r, c, fmt(2, 7));
+	}
+	public String boxed(int r, int c, Fmt fmt) {
+		return boxed(getFoglio(), r, c, fmt);
 	}
 	
 	private int[][][] getFoglio() {
@@ -281,10 +285,17 @@ public class Schede extends Core {
 		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : format("%2d",i)).collect(joining(!number ? "," : "|"));
 	}
 	
-	public static String boxed(int r, int c, int[][][] f) {
-		return boxed(r, c, f, fmt(2, 7)); 
+	public static String boxed(int[][][] f) {
+		return boxed(f, fmt(1));
 	}
-	public static String boxed(int r, int c, int[][][] f, Fmt fmt) {
+	public static String boxed(int[][][] f, Fmt fmt) {
+		return stream(f).map(s-> boxed(s)).collect(joining(fmt.vs));
+	}
+	
+	public static String boxed(int[][][] f, int r, int c) {
+		return boxed(f, r, c, fmt(2, 7)); 
+	}
+	public static String boxed(int[][][] f, int r, int c, Fmt fmt) {
 		if (r * c != f.length) throw new IllegalArgumentException();
 		if (c == 1) return boxed(f, fmt);
 		String s = "";
@@ -294,13 +305,6 @@ public class Schede extends Core {
 			s += fmt.vs(i) + merge(fmt.os, args);
 		}	
 		return s;
-	}
-	
-	public static String boxed(int[][][] f) {
-		return boxed(f, fmt(1));
-	}
-	public static String boxed(int[][][] f, Fmt fmt) {
-		return stream(f).map(s-> boxed(s)).collect(joining(fmt.vs));
 	}
 	
 	public static String boxed(int[][] s) {
