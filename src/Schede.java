@@ -6,6 +6,7 @@ import static java.util.Collections.shuffle;
 import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,13 +59,13 @@ public class Schede extends Core {
 		
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<100000; i+=1) schede.getFoglio();
-		//System.out.println(System.currentTimeMillis()-tm);
+		//out.println(System.currentTimeMillis()-tm);
 		
-		//System.out.println("\n");
-		//System.out.println(schede.compact());
-		//System.out.println(schede.boxed());
-		//System.out.println(schede.boxed(3, 2));
-		//System.out.println(schede.boxed(3, 2, fmt(2, 7)));
+		out.println();
+		//out.println(schede.compact());
+		//out.println(schede.boxed());
+		out.println(schede.boxed(2, 3));
+		//out.println(schede.boxed(2, 3, fmt(2, 7)));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
 		
 		//printFogli(2, 3, Schede::compact);
@@ -71,8 +73,9 @@ public class Schede extends Core {
 		//printFogli(2, 3, Schede::boxed, fmt(2, 7));
 		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)));
 		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)), fmt(2, 7));
-		printFogli(12, f-> boxed(f, 3, 2), fmt(2));
+		//printFogli(12, f-> boxed(f, 3, 2), fmt(2));
 		//printSchede(3, 6, Schede::compact);
+		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3), fmt(2)); // ultraedit 2 pagine
 		
 		//printFogli(8, f-> boxed(f, 2, 3), fmt(1, 4, 0)); // word portrait normal consolas 9
 		//printFogli(8, f-> boxed(f, 3, 2), fmt(1)); // word landscape narrow consolas 19 
@@ -82,6 +85,12 @@ public class Schede extends Core {
 		
 		//for (var f: iterable(fogli())) out.println(boxed(f));
 		//for (var s: iterable(schede())) out.println(boxed(s));
+		
+		out.println();
+		//out.println(StreamSupport.stream(iterable(numeri()).spliterator(), false).map(i->""+i).collect(Collectors.joining(" "))); 
+		//for (var n: (Iterable<Integer>) ()-> numeri()) out.print(n + " "); out.println();
+		//for (var n: iterable(numeri())) out.print(n + " "); out.println();
+		numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
 		
 		out.println("\nfinito!");
 	}
@@ -106,10 +115,22 @@ public class Schede extends Core {
 		};
 	}
 	
+	public static Iterator<Integer> numeri() {
+		return new Iterator<Integer> () {
+			List<Integer> numeri = new LinkedList(); {range(1,91).forEach(numeri::add);}
+			//List<Integer> numeri = new LinkedList() {{range(1,91).forEach(this::add);}};
+			@Override public boolean hasNext() { return numeri.size() > 0; }
+			@Override public Integer next() { return numeri.remove((int)(numeri.size() * Math.random())); }
+		};
+	}
+	
 	public static <T> Iterable<T> iterable(Iterator<T> iterator) {
+		/*
 		return new Iterable<T>() {
 			@Override public Iterator<T> iterator() { return iterator; }
 		};
+		*/
+		return ()-> iterator;
 	}
 	
 	/*
