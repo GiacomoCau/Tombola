@@ -29,7 +29,7 @@ public class Core {
 		//int i=1; for (var t: F(2, 2, 3, new int[] {3,2,2,2,3})) System.out.println(i++ + ")\n" + compact(t) + "\n"); // 72
 		
 		//System.out.println( Fn(3, 3, 4, new int[] {6,6,6,6,6,6}) ); // 73.113.840
-		//System.out.println( Fn(6, 3, 5, new int[] {9,10,10,10,10,10,10,10,11}) ); // > 4.062.363.048 < 735.210^4 == 292.176.728.510.764.284.810.000
+		//System.out.println( Fn(6, 3, 5, new int[] {9,10,10,10,10,10,10,10,11}) ); // < 735.210^4 == 1,57931381000812636020908057121e+35
 		
 		System.out.println("finito!");
 	}
