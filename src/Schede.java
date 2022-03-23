@@ -1,3 +1,4 @@
+import static java.lang.Integer.parseInt;
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.lang.String.format;
 import static java.lang.System.out;
@@ -10,7 +11,9 @@ import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -90,7 +93,10 @@ public class Schede extends Core {
 		//out.println(StreamSupport.stream(iterable(numeri()).spliterator(), false).map(i->""+i).collect(Collectors.joining(" "))); 
 		//for (var n: (Iterable<Integer>) ()-> numeri()) out.print(n + " "); out.println();
 		//for (var n: iterable(numeri())) out.print(n + " "); out.println();
-		numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
+		//numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
+		//for (var n: iterable(numeri())) { out.println(n); while (System.in.read() != '\n'); }
+		//loop: for (var n: iterable(numeri())) { out.println(n); for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop; }
+		smorfia();
 		
 		out.println("\nfinito!");
 	}
@@ -411,7 +417,7 @@ public class Schede extends Core {
 	}
 
 	private static ProcessBuilder node() {
-		var pb = new ProcessBuilder("node", "Schede.js", "writeAll( M(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
+		var pb = new ProcessBuilder("node", "Schede.js", "writeAll( S(3, 5, [3, 3, 3, 3, 3, 3, 3, 3, 3]) )");
 		var env = pb.environment();
 		env.put("NODE_DISABLE_COLORS", "1");
 		env.put("NODE_SKIP_PLATFORM_CHECK", "1");
@@ -454,5 +460,33 @@ public class Schede extends Core {
 		row = null;
 		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
 		Schede.schede = schede.toArray(int[][][]::new);
+	}
+	
+	private static void smorfia() throws IOException, FileNotFoundException {
+		record Numero (String descrizione, String traduzione, String altriSignificati) {}
+		var smorfia = new LinkedHashMap<Integer, Numero>(); 
+		try (
+			var br = new BufferedReader(new FileReader("Smorfia.txt"))
+		) {
+			for (String line; (line = br.readLine()) != null; ) {
+				if (!line.matches("\\d+.*")) continue;
+				int s = line.indexOf(" – ");
+				int numero = parseInt(line.substring(0, s));
+				//if (!line.substring(s+3).endsWith(".")) out.println("n"+numero); 
+				String nome = line.substring(s+3, line.length()-1);
+				line = br.readLine();
+				//if (!traduzione.endsWith(".")) out.println("t"+numero); 
+				String traduzione = line.substring(0, line.length()-1);
+				String altriSignificati = br.readLine();
+				//out.printf("%2d|%s|%s\n  |%s\n\n", numero, nome, traduzione, altriSignificati);
+				smorfia.put(numero, new Numero(nome, traduzione, altriSignificati));
+			}
+		}
+		out.println("enter: next number, q+enter: quit\n");
+		loop: for (var n: iterable(numeri())) {
+			var numero = smorfia.get(n);
+			out.printf("%2d) %s - %s\n", n, numero.descrizione, numero.traduzione);
+			for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop;
+		}
 	}
 }
