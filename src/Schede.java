@@ -329,7 +329,7 @@ public class Schede extends Core {
 		for (int z=0, i=0; i<r; i+=1) {
 			var args = new String[c][];
 			for (int j=0; j<c; j+=1) args[j]= boxed(f[z++]).split("\n");
-			s += fmt.vs(i) + merge(fmt.os, args);
+			s += (i==0 ? "" : "\n") + fmt.vs(i) + merge(fmt.os, args);
 		}	
 		return s;
 	}
