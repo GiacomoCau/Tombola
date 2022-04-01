@@ -1,6 +1,5 @@
 import static java.lang.Integer.parseInt;
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
-import static java.lang.String.format;
 import static java.lang.System.out;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
@@ -56,6 +55,9 @@ public class Schede extends Core {
 		}
 	}
 	
+	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
+	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
+	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
@@ -64,24 +66,26 @@ public class Schede extends Core {
 		//for (int i=0; i<100000; i+=1) schede.getFoglio();
 		//out.println(System.currentTimeMillis()-tm);
 		
-		out.println();
+		//out.println();
 		//out.println(schede.compact());
 		//out.println(schede.boxed());
-		out.println(schede.boxed(2, 3));
+		//out.println(schede.boxed(2, 3));
 		//out.println(schede.boxed(2, 3, fmt(2, 7)));
 		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
 		
 		//printFogli(2, 3, Schede::compact);
 		//printFogli(2, 3, Schede::boxed);
 		//printFogli(2, 3, Schede::boxed, fmt(2, 7));
+		//printFogli(2, 3, f-> boxed(f, 3, 2));
 		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)));
 		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)), fmt(2, 7));
 		//printFogli(12, f-> boxed(f, 3, 2), fmt(2));
 		//printSchede(3, 6, Schede::compact);
-		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3), fmt(2)); // ultraedit 2 pagine
+		//printSchede(3, 6, Schede::boxed);
+		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit  2 pagine
 		
-		//printFogli(8, f-> boxed(f, 2, 3), fmt(1, 4, 0)); // word portrait normal consolas 9
-		//printFogli(8, f-> boxed(f, 3, 2), fmt(1)); // word landscape narrow consolas 19 
+		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9  2 pagine
+		//printFogli(8, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20  8 pagine
 		
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
@@ -89,17 +93,96 @@ public class Schede extends Core {
 		//for (var f: iterable(fogli())) out.println(boxed(f));
 		//for (var s: iterable(schede())) out.println(boxed(s));
 		
-		out.println();
+		//out.println();
 		//out.println(StreamSupport.stream(iterable(numeri()).spliterator(), false).map(i->""+i).collect(Collectors.joining(" "))); 
 		//for (var n: (Iterable<Integer>) ()-> numeri()) out.print(n + " "); out.println();
 		//for (var n: iterable(numeri())) out.print(n + " "); out.println();
 		//numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
 		//for (var n: iterable(numeri())) { out.println(n); while (System.in.read() != '\n'); }
 		//loop: for (var n: iterable(numeri())) { out.println(n); for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop; }
-		smorfia();
+		//smorfia();
+		
+		cli(args);
 		
 		out.println("\nfinito!");
 	}
+	
+	private static void cli(String[] args) throws Exception {
+		int i=0; String type, format=null;
+		
+		if (args.length <= i || !args[i].matches("smorfia|schede|fogli")) syntax(args);
+		type = args[i++];
+		
+		if (type.equals("smorfia")) {
+			if (args.length > i && args[i].matches("boxed|compact")) format = args[i++];
+			if (args.length > i) syntax(args);
+			smorfia(format);
+			return;
+		}
+		
+		Vd n = new Vd(type.equals("schede") ? 1 : 2), r = new Vd(1);
+		Od m = new Od(7), c = new Od(3);
+		
+		i = get(n, args, i, "-n", true);
+		i = get(m, args, i, "-m", true);
+		
+		if (args.length <= i || !args[i].matches("boxed|compact")) syntax(args);
+		format = args[i++];
+		
+		if (type.equals("fogli") && format.equals("boxed")) { 
+			i = get(r, args, i, "-r", true);
+			i = get(c, args, i, "-c", true);
+		}
+		
+		if (args.length > i) syntax(args);
+		
+		if (type.equals("schede"))
+			printSchede(n.n, m.m, format.equals("boxed") ? Schede::boxed : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+		else
+			printFogli(n.n, m.m, format.equals("boxed") ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+
+	}
+		
+	private static int get(Vd vd, String[] args, int i, String op, boolean opt) {
+		if (args.length <= i || !args[i].matches(op)) if (!opt) syntax(args); else return i;
+		i+=1;
+		
+		if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+		vd.n = parseInt(args[i++]);
+
+		if (args.length > i && args[i].matches("\\d+")) vd.vs = parseInt(args[i++]);
+		
+		if (args.length > i && args[i].matches("\\d+")) {
+			vd.pb = parseInt(args[i++]);
+			if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+			vd.ps = parseInt(args[i++]);
+		}
+		return i;
+	}
+	
+	private static int get(Od od, String[] args, int i, String op, boolean opt) {
+		if (args.length <= i || !args[i].matches(op))  if (!opt) syntax(args); else return i;
+		i+=1;
+		
+		if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+		od.m = parseInt(args[i++]);
+
+		if (args.length > i && args[i].matches("\\d+")) od.os = parseInt(args[i++]);
+		
+		return i;
+	}
+	
+	private static void syntax(String[] args) {
+		throw new IllegalArgumentException(
+				stream(args).collect(joining(" ")) + "\n" +	"""
+				Syntax:
+					smorfia [compact | boxed]
+					 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
+					  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
+			"""
+		);
+	}	
+	
 	
 	public static Iterator<int[][][]> fogli() {
 		return new Iterator<int[][][]>() {
@@ -167,7 +250,8 @@ public class Schede extends Core {
 			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
 		}		
 	};
-	public static Fmt fmt(int vs) { return fmt(vs, 0, 0, 0); }; 
+	public static Fmt fmt() { return fmt(0); }; 
+	public static Fmt fmt(int vs) { return fmt(vs, 0); }; 
 	public static Fmt fmt(int vs, int os) { return fmt(vs, os, 0, 0); }; 
 	public static Fmt fmt(int vs, int pb, int ps) { return fmt(vs, 0, pb, ps); }; 
 	public static Fmt fmt(int vs, int os, int pb, int ps) { return new Fmt("\n".repeat(vs), " ".repeat(os), pb, "\n".repeat(ps)); }; 
@@ -218,7 +302,7 @@ public class Schede extends Core {
 	private static String merge(String os, String[] ... args) {
 		if (args.length < 2) throw new IllegalArgumentException();
 		int len = args[0].length;
-		for (int i=1; i<args.length; i+=1) if (args[i].length != len) throw new IllegalArgumentException(); 
+		for (int i=1; i<args.length; i+=1) if (args[i].length != len) throw new IllegalArgumentException();
 		var r = new String[len];
 		for (int i=0; i<len; i+=1) {
 			String s = ""; for (int j=0; j<args.length; j+=1) s += (j==0 ? "" : os) + args[j][i]; r[i] = s;
@@ -237,7 +321,7 @@ public class Schede extends Core {
 		return boxed(getFoglio(), fmt);
 	}
 	public String boxed(int r, int c) {
-		return boxed(r, c, fmt(2, 7));
+		return boxed(r, c, fmt(1, 3));
 	}
 	public String boxed(int r, int c, Fmt fmt) {
 		return boxed(getFoglio(), r, c, fmt);
@@ -309,7 +393,7 @@ public class Schede extends Core {
 		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
 	public static String compact(int[] r) {
-		return stream(r).mapToObj(i-> !number ? ""+i :  i==0 ? "  " : format("%2d",i)).collect(joining(!number ? "," : "|"));
+		return stream(r).mapToObj(i-> !number ? ""+i : format(i==0, i)).collect(joining(!number ? "," : "|"));
 	}
 	
 	public static String boxed(int[][][] f) {
@@ -320,9 +404,12 @@ public class Schede extends Core {
 	}
 	
 	public static String boxed(int[][][] f, int r, int c) {
-		return boxed(f, r, c, fmt(2, 7)); 
+		return boxed(f, r, c, fmt(1, 3)); 
 	}
 	public static String boxed(int[][][] f, int r, int c, Fmt fmt) {
+		if (r == 0) r = 1;
+		if (c == 0) c = 1;
+		if (r * c == 1) return boxed(f, fmt);
 		if (r * c != f.length) throw new IllegalArgumentException();
 		if (c == 1) return boxed(f, fmt);
 		String s = "";
@@ -335,18 +422,17 @@ public class Schede extends Core {
 	}
 	
 	public static String boxed(int[][] s) {
-		String r = "", l = "─".repeat(2); 
-		r += "┌"+ (l + "┬").repeat(8) + l + "┐\n";
+		String r = ""; 
+		r += "┌"+ "──┬".repeat(8) + "──┐\n";
 		for (int i=0; true; i+=1) {
 			r += "│" + boxed(s[i]) + "│\n";
 			if (i==2) break;
-			r+= "├" + (l + "┼").repeat(8) + l + "┤\n";
+			r += "├" + "──┼".repeat(8) + "──┤\n";
 		}
-		r += "└" + (l + "┴").repeat(8) + l + "┘\n";
-		return r;
+		return r += "└" + "──┴".repeat(8) + "──┘\n";
 	}
 	public static String boxed(int[] r) {
-		return stream(r).mapToObj(i-> i==0 ? "  " : format("%2d",i)).collect(joining("│"));
+		return stream(r).mapToObj(i-> format(i==0, i)).collect(joining("│"));
 	}
 	
 	private int random(int max) {
@@ -462,7 +548,7 @@ public class Schede extends Core {
 		Schede.schede = schede.toArray(int[][][]::new);
 	}
 	
-	private static void smorfia() throws IOException, FileNotFoundException {
+	private static void smorfia(String format) throws IOException, FileNotFoundException {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
@@ -482,11 +568,44 @@ public class Schede extends Core {
 				smorfia.put(numero, new Numero(nome, traduzione, altriSignificati));
 			}
 		}
-		out.println("enter: next number, q+enter: quit\n");
+		out.println("enter: next number, t+enter: numerts table, q+enter: quit\n");
+		boolean[] numeri = new boolean[91]; 
 		loop: for (var n: iterable(numeri())) {
+			numeri[n] = true;
 			var numero = smorfia.get(n);
-			out.printf("%2d) %s - %s\n", n, numero.descrizione, numero.traduzione);
-			for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop;
+			out.printf("%2d - %s - %s\n", n, numero.descrizione, numero.traduzione);
+			for (int c; (c = System.in.read()) != '\n';) {
+				if (c=='q') break loop;
+				if (c!='t') continue;
+				if (format == null || format.equals("compact")) compact(numeri); else boxed(numeri);
+				while (System.in.read() != '\n');
+			}
 		}
+	}
+
+	private static void compact(boolean[] numeri) {
+		for (int i=0; i<90; i+=10) {
+			for (int j=1; j<=10; j+=1) {
+				int n = i+j; out.print((j==1 ? "\t" : "|")  + format(!numeri[n], n));
+			}
+			out.println();
+		}
+	}
+
+	private static void boxed(boolean[] numeri) {
+		out.println("\t┌"+"──┬".repeat(9)+ "──┐");
+		for (int i=0; true; i+=10) {
+			for (int j=1; j<=10; j+=1) {
+				int n = i+j; out.print((j==1 ? "\t" : "") + "|" + format(!numeri[n], n));
+			}
+			out.println("|");
+			if (i==80) break;
+			out.println("\t├" + "──┼".repeat(9)+ "──┤");
+		}
+		out.println("\t└"+"──┴".repeat(9)+ "──┘");
+	}
+	
+	private static String format(boolean b, int n) {
+		return b ? "  " : String.format("%2d", n);
 	}
 }
