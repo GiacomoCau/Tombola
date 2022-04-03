@@ -55,9 +55,6 @@ public class Schede extends Core {
 		}
 	}
 	
-	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
-	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
-	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		var schede = new Schede();
@@ -107,13 +104,28 @@ public class Schede extends Core {
 		out.println("\nfinito!");
 	}
 	
+	private static void syntax(String[] args, int i) {
+		String line = ""; for (int j=0; j<args.length; j+=1) line += (j==0 ? "" : j!=i ? " " : " |> ") + args[j]; 
+		throw new IllegalArgumentException(
+				line + "\n" + """
+				Syntax:
+					smorfia [compact | boxed]
+					 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
+					  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
+			"""
+		);
+	}	
+	
+	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
+	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
+	
 	private static void cli(String[] args) throws Exception {
 		int i=0;
-		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args);
+		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args, i);
 		String type = args[i++];	
 		if (type.equals("smorfia")) {
 			Boolean compact = !matches(args, i, "boxed|compact") ? null : args[i++].equals("compact");
-			if (args.length > i) syntax(args);
+			if (args.length > i) syntax(args, i);
 			smorfia(compact);
 			return;
 		}
@@ -124,13 +136,13 @@ public class Schede extends Core {
 		
 		i = get(n, args, i, "-n", true);
 		i = get(m, args, i, "-m", true);
-		if (!matches(args, i, "boxed|compact")) syntax(args);
+		if (!matches(args, i, "boxed|compact")) syntax(args, i);
 		boolean boxed = args[i++].equals("boxed");
 		if (fogli && boxed) { 
 			i = get(r, args, i, "-r", true);
 			i = get(c, args, i, "-c", true);
 		}
-		if (args.length > i) syntax(args);
+		if (args.length > i) syntax(args, i);
 		
 		if (fogli)
 			printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
@@ -143,39 +155,28 @@ public class Schede extends Core {
 	}
 		
 	private static int get(Vd vd, String[] args, int i, String regex, boolean opt) {
-		if (!matches(args, i, regex)) if (!opt) syntax(args); else return i;
+		if (!matches(args, i, regex)) if (opt) return i; else syntax(args, i);
 		i+=1;
-		if (!matches(args, i, "\\d+")) syntax(args);
+		if (!matches(args, i, "\\d+")) syntax(args, i);
 		vd.n = parseInt(args[i++]);
 		if (matches(args, i, "\\d+")) vd.vs = parseInt(args[i++]);
 		if (matches(args, i, "\\d+")) {
 			vd.pb = parseInt(args[i++]);
-			if (!matches(args, i, "\\d+")) syntax(args);
+			if (!matches(args, i, "\\d+")) syntax(args, i);
 			vd.ps = parseInt(args[i++]);
 		}
 		return i;
 	}
 	
 	private static int get(Od od, String[] args, int i, String regex, boolean opt) {
-		if (!matches(args, i, regex))  if (!opt) syntax(args); else return i;
+		if (!matches(args, i, regex))  if (opt) return i; else syntax(args, i);
 		i+=1;
-		if (!matches(args, i, "\\d+")) syntax(args);
+		if (!matches(args, i, "\\d+")) syntax(args, i);
 		od.m = parseInt(args[i++]);
 		if (matches(args, i, "\\d+")) od.os = parseInt(args[i++]);
 		return i;
 	}
 		
-	private static void syntax(String[] args) {
-		throw new IllegalArgumentException(
-				stream(args).collect(joining(" ")) + "\n" +	"""
-				Syntax:
-					smorfia [compact | boxed]
-					 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
-					  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
-			"""
-		);
-	}	
-	
 	public static Iterator<int[][][]> fogli() {
 		return new Iterator<int[][][]>() {
 			private Schede schede = new Schede();
