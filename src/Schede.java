@@ -108,70 +108,63 @@ public class Schede extends Core {
 	}
 	
 	private static void cli(String[] args) throws Exception {
-		int i=0; String type, format=null;
-		
-		if (args.length <= i || !args[i].matches("smorfia|schede|fogli")) syntax(args);
-		type = args[i++];
-		
+		int i=0;
+		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args);
+		String type = args[i++];	
 		if (type.equals("smorfia")) {
-			if (args.length > i && args[i].matches("boxed|compact")) format = args[i++];
+			Boolean compact = !matches(args, i, "boxed|compact") ? null : args[i++].equals("compact");
 			if (args.length > i) syntax(args);
-			smorfia(format);
+			smorfia(compact);
 			return;
 		}
 		
-		Vd n = new Vd(type.equals("schede") ? 1 : 2), r = new Vd(1);
+		boolean fogli = type.equals("fogli");
+		Vd n = new Vd(fogli ? 2 : 1), r = new Vd(1);
 		Od m = new Od(7), c = new Od(3);
 		
 		i = get(n, args, i, "-n", true);
 		i = get(m, args, i, "-m", true);
-		
-		if (args.length <= i || !args[i].matches("boxed|compact")) syntax(args);
-		format = args[i++];
-		
-		if (type.equals("fogli") && format.equals("boxed")) { 
+		if (!matches(args, i, "boxed|compact")) syntax(args);
+		boolean boxed = args[i++].equals("boxed");
+		if (fogli && boxed) { 
 			i = get(r, args, i, "-r", true);
 			i = get(c, args, i, "-c", true);
 		}
-		
 		if (args.length > i) syntax(args);
 		
-		if (type.equals("schede"))
-			printSchede(n.n, m.m, format.equals("boxed") ? Schede::boxed : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+		if (fogli)
+			printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
 		else
-			printFogli(n.n, m.m, format.equals("boxed") ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+			printSchede(n.n, m.m, boxed ? Schede::boxed : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+	}
 
+	private static boolean matches(String[] args, int i, String regex) {
+		return args.length > i && args[i].matches(regex);
 	}
 		
-	private static int get(Vd vd, String[] args, int i, String op, boolean opt) {
-		if (args.length <= i || !args[i].matches(op)) if (!opt) syntax(args); else return i;
+	private static int get(Vd vd, String[] args, int i, String regex, boolean opt) {
+		if (!matches(args, i, regex)) if (!opt) syntax(args); else return i;
 		i+=1;
-		
-		if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+		if (!matches(args, i, "\\d+")) syntax(args);
 		vd.n = parseInt(args[i++]);
-
-		if (args.length > i && args[i].matches("\\d+")) vd.vs = parseInt(args[i++]);
-		
-		if (args.length > i && args[i].matches("\\d+")) {
+		if (matches(args, i, "\\d+")) vd.vs = parseInt(args[i++]);
+		if (matches(args, i, "\\d+")) {
 			vd.pb = parseInt(args[i++]);
-			if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+			if (!matches(args, i, "\\d+")) syntax(args);
 			vd.ps = parseInt(args[i++]);
 		}
 		return i;
 	}
 	
-	private static int get(Od od, String[] args, int i, String op, boolean opt) {
-		if (args.length <= i || !args[i].matches(op))  if (!opt) syntax(args); else return i;
+	private static int get(Od od, String[] args, int i, String regex, boolean opt) {
+		if (!matches(args, i, regex))  if (!opt) syntax(args); else return i;
 		i+=1;
-		
-		if (args.length <= i || !args[i].matches("\\d+")) syntax(args);
+		if (!matches(args, i, "\\d+")) syntax(args);
 		od.m = parseInt(args[i++]);
-
-		if (args.length > i && args[i].matches("\\d+")) od.os = parseInt(args[i++]);
-		
+		if (matches(args, i, "\\d+")) od.os = parseInt(args[i++]);
 		return i;
 	}
-	
+		
 	private static void syntax(String[] args) {
 		throw new IllegalArgumentException(
 				stream(args).collect(joining(" ")) + "\n" +	"""
@@ -182,7 +175,6 @@ public class Schede extends Core {
 			"""
 		);
 	}	
-	
 	
 	public static Iterator<int[][][]> fogli() {
 		return new Iterator<int[][][]>() {
@@ -548,7 +540,7 @@ public class Schede extends Core {
 		Schede.schede = schede.toArray(int[][][]::new);
 	}
 	
-	private static void smorfia(String format) throws IOException, FileNotFoundException {
+	private static void smorfia(Boolean compact) throws IOException, FileNotFoundException {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
@@ -568,7 +560,7 @@ public class Schede extends Core {
 				smorfia.put(numero, new Numero(nome, traduzione, altriSignificati));
 			}
 		}
-		out.println("enter: next number, t+enter: numerts table, q+enter: quit\n");
+		out.println("enter: next number, t+enter: numbers table, q+enter: quit\n");
 		boolean[] numeri = new boolean[91]; 
 		loop: for (var n: iterable(numeri())) {
 			numeri[n] = true;
@@ -577,7 +569,7 @@ public class Schede extends Core {
 			for (int c; (c = System.in.read()) != '\n';) {
 				if (c=='q') break loop;
 				if (c!='t') continue;
-				if (format == null || format.equals("compact")) compact(numeri); else boxed(numeri);
+				if (compact == null || compact) compact(numeri); else boxed(numeri);
 				while (System.in.read() != '\n');
 			}
 		}
