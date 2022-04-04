@@ -79,10 +79,10 @@ public class Schede extends Core {
 		//printFogli(12, f-> boxed(f, 3, 2), fmt(2));
 		//printSchede(3, 6, Schede::compact);
 		//printSchede(3, 6, Schede::boxed);
-		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit  2 pagine
+		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit - 2 pagine
 		
-		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9  2 pagine
-		//printFogli(8, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20  8 pagine
+		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9 - 2 pagine
+		//printFogli(8, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20 - 8 pagine
 		
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
@@ -91,7 +91,7 @@ public class Schede extends Core {
 		//for (var s: iterable(schede())) out.println(boxed(s));
 		
 		//out.println();
-		//out.println(StreamSupport.stream(iterable(numeri()).spliterator(), false).map(i->""+i).collect(Collectors.joining(" "))); 
+		//out.println(StreamSupport.stream(iterable(numeri()).spliterator(), false).map(i-> ""+i).collect(Collectors.joining(" "))); 
 		//for (var n: (Iterable<Integer>) ()-> numeri()) out.print(n + " "); out.println();
 		//for (var n: iterable(numeri())) out.print(n + " "); out.println();
 		//numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
@@ -207,37 +207,9 @@ public class Schede extends Core {
 	}
 	
 	public static <T> Iterable<T> iterable(Iterator<T> iterator) {
-		/*
-		return new Iterable<T>() {
-			@Override public Iterator<T> iterator() { return iterator; }
-		};
-		*/
 		return ()-> iterator;
 	}
 	
-	/*
-	public static class Fmt {
-		int pb; String os, vs, ps;
-		public Fmt(int vs) {
-			this.vs = "\n".repeat(vs);
-		}
-		public Fmt(int vs, int os) {
-			this(vs);
-			this.os = " ".repeat(os);
-		}
-		public Fmt(int vs, int pb, int ps) {
-			this(vs, 0, pb, ps);
-		}
-		public Fmt(int vs, int os, int pb, int ps) {
-			this(vs, os);
-			this.pb = pb;
-			this.ps = "\n".repeat(ps);
-		}
-		public String vs(int i) {
-			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
-		}
-	}
-	*/
 	public record Fmt(String vs, String os, int pb, String ps) {
 		public String vs(int i) {
 			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
@@ -434,59 +406,16 @@ public class Schede extends Core {
 	private int[][] random() {
 		return schede[random(schede.length)];
 	}
-	/*
-	private int[][] random0(int[] mx, int[] mn) {
-		Sum[] fsum = schedeBySum.keySet().stream().filter(k-> ge(mx, k.a) && ge(k.a, mn)).toArray(Sum[]::new);
-		int[] size = stream(fsum).mapToInt(k-> schedeBySum.get(k).length).toArray();
-		for (int idx=random(stream(size).sum()), i=0; i<size.length; idx-=size[i], i+=1) {
-			if (idx < size[i]) return schedeBySum.get(fsum[i])[idx];
-		}
-		throw new RuntimeException();
-	}
-	*/
 	private int[][] random(int[] mn, int[] mx) {
-		Entry<Key,int[][][]>[] fsum = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
-		int idx = random(stream(fsum).mapToInt(e->e.getValue().length).sum());
-		for (var e: fsum) {
+		Entry<Key,int[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
+		int idx = random(stream(fsbs).mapToInt(e-> e.getValue().length).sum());
+		for (var e: fsbs) {
 			int length = e.getValue().length;
 			if (idx < length) return schedeBySum.get(e.getKey())[idx];
 			idx -= length;
 		}
 		throw new RuntimeException();
 	}
-	/*
-	private int[][] random3(int[] mx, int[] mn) {
-		record SumLength (Key sum, int length) {}
-		SumLength[] suml = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(e->new SumLength(e.getKey(),e.getValue().length)).toArray(SumLength[]::new);
-		int idx = random(stream(suml).mapToInt(s->s.length).sum());
-		for (var e: suml) {
-			if (idx < e.length) return schedeBySum.get(e.sum)[idx];
-			idx -= e.length;
-		}
-		throw new RuntimeException();
-	}
-	private int[][] random4(int[] mx, int[] mn) {
-		record SumLength (Key sum, int length) {
-			public SumLength(Entry<Key,int[][][]> e) { this(e.getKey(), e.getValue().length); }
-		}
-		SumLength[] suml = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).map(SumLength::new).toArray(SumLength[]::new);
-		int idx = random(stream(suml).mapToInt(s->s.length).sum());
-		for (var e: suml) {
-			if (idx < e.length) return schedeBySum.get(e.sum)[idx];
-			idx -= e.length;
-		}
-		throw new RuntimeException();
-	}
-	private int[][] random5(int[] mx, int[] mn) {
-		Map<Key,Integer> fsum = schedeBySum.entrySet().stream().filter(e-> ge(mx, e.getKey().a) && ge(e.getKey().a, mn)).collect(Collectors.toMap(e->e.getKey(), e->e.getValue().length));
-		int idx = random(fsum.values().stream().mapToInt(i->i).sum());
-		for (var e: fsum.entrySet()) {
-			if (idx < e.getValue()) return schedeBySum.get(e.getKey())[idx];
-			idx -= e.getValue();
-		}
-		throw new RuntimeException();
-	}
-	*/
 	
 	@SuppressWarnings("unused")
 	private static void write(String fn) throws Exception {
@@ -503,7 +432,7 @@ public class Schede extends Core {
 		var nodeDir = "D:\\Programmi\\Node-v13.14.0-win-x64";
 		env.put("Path", nodeDir + ";" + env.get("Path")); 
 		env.put("NODE_PATH", nodeDir + "\\node_module");
-		//env.forEach((k,v)->System.out.println(k + "=" + v));
+		//env.forEach((k,v)-> System.out.println(k + "=" + v));
 		pb.redirectError(INHERIT);
 		pb.redirectInput(INHERIT);
 		return pb;
@@ -525,7 +454,7 @@ public class Schede extends Core {
 					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a);
 				}
 				schede.add(c);
-				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k->c));
+				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k-> c));
 			}
 			row = null;
 			schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
@@ -568,8 +497,8 @@ public class Schede extends Core {
 			var numero = smorfia.get(n);
 			out.printf("%2d - %s - %s\n", n, numero.descrizione, numero.traduzione);
 			for (int c; (c = System.in.read()) != '\n';) {
-				if (c=='q') break loop;
-				if (c!='t') continue;
+				if (c == 'q') break loop;
+				if (c != 't') continue;
 				if (compact == null || compact) compact(numeri); else boxed(numeri);
 				while (System.in.read() != '\n');
 			}
@@ -589,10 +518,10 @@ public class Schede extends Core {
 		out.println("\t┌"+"──┬".repeat(9)+ "──┐");
 		for (int i=0; true; i+=10) {
 			for (int j=1; j<=10; j+=1) {
-				int n = i+j; out.print((j==1 ? "\t" : "") + "|" + format(!numeri[n], n));
+				int n = i+j; out.print((j==1 ? "\t" : "") + "│" + format(!numeri[n], n));
 			}
-			out.println("|");
-			if (i==80) break;
+			out.println("│");
+			if (i == 80) break;
 			out.println("\t├" + "──┼".repeat(9)+ "──┤");
 		}
 		out.println("\t└"+"──┴".repeat(9)+ "──┘");
