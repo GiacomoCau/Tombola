@@ -419,11 +419,11 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	private static void read(String fn) throws Exception {
+		var schede = new ArrayList<int[][]>();
+		row = new LinkedHashMap<>();
 		try (
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(node().start().getInputStream()))
 		) {
-			var schede = new ArrayList<int[][]>();
-			row = new LinkedHashMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = parseInt(line.substring(0, line.indexOf(")")));
@@ -432,10 +432,10 @@ public class Schede extends Core {
 					).toArray(int[][]::new)
 				);
 			}
-			row = null;
-			schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
-			Schede.schede = schede.toArray(int[][][]::new);
 		}
+		row = null;
+		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
+		Schede.schede = schede.toArray(int[][][]::new);
 	}
 	
 	private static void init() {
