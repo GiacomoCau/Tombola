@@ -10,9 +10,7 @@ import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 public class Schede extends Core {
@@ -79,8 +78,8 @@ public class Schede extends Core {
 		//printFogli(12, f-> boxed(f, 3, 2), fmt(2));
 		//printSchede(3, 6, Schede::compact);
 		//printSchede(3, 6, Schede::boxed);
-		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit - 2 pagine
 		
+		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit - 2 pagine	
 		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9 - 2 pagine
 		//printFogli(8, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20 - 8 pagine
 		
@@ -199,10 +198,9 @@ public class Schede extends Core {
 	
 	public static Iterator<Integer> numeri() {
 		return new Iterator<Integer> () {
-			List<Integer> numeri = new LinkedList(); {range(1,91).forEach(numeri::add);}
-			//List<Integer> numeri = new LinkedList() {{range(1,91).forEach(this::add);}};
+			List<Integer> numeri = new LinkedList(range(1,91).boxed().toList());
 			@Override public boolean hasNext() { return numeri.size() > 0; }
-			@Override public Integer next() { return numeri.remove((int)(numeri.size() * Math.random())); }
+			@Override public Integer next() { return numeri.remove(random(numeri.size())); }
 		};
 	}
 	
@@ -254,25 +252,17 @@ public class Schede extends Core {
 		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(iterator.next()));
 	}
 	private static <T> void print(int n, int m, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
-		if (m == 1) {
+		if (m == 1)
 			print(n, iterator, fn, fmt);
-			return;
-		}	
-		for (int i=0; i<n; i+=1) {
-			var	args = new String[m][];
-			for (int j=0; j<m; j+=1) args[j] = fn.apply(iterator.next()).split("\n");
-			out.println(fmt.vs(i) + merge(fmt.os, args));
-		}	
+		else for (int i=0; i<n; i+=1) {
+			out.println(fmt.vs(i) + merge(fmt.os, range(0, m).mapToObj(j-> fn.apply(iterator.next()).split("\n")).toArray(String[][]::new)));
+		}
 	}
 	private static String merge(String os, String[] ... args) {
 		if (args.length < 2) throw new IllegalArgumentException();
 		int len = args[0].length;
-		for (int i=1; i<args.length; i+=1) if (args[i].length != len) throw new IllegalArgumentException();
-		var r = new String[len];
-		for (int i=0; i<len; i+=1) {
-			String s = ""; for (int j=0; j<args.length; j+=1) s += (j==0 ? "" : os) + args[j][i]; r[i] = s;
-		}		
-		return String.join("\n", r);
+		if (stream(args).skip(1).anyMatch(s-> s.length != len)) throw new IllegalArgumentException();
+		return range(0, len).mapToObj(i-> range(0, args.length).mapToObj(j-> args[j][i]).collect(joining(os))).collect(joining("\n"));
 	}
 
 	public String compact() {
@@ -285,6 +275,7 @@ public class Schede extends Core {
 	public String boxed(Fmt fmt) {
 		return boxed(getFoglio(), fmt);
 	}
+	
 	public String boxed(int r, int c) {
 		return boxed(r, c, fmt(1, 3));
 	}
@@ -300,13 +291,13 @@ public class Schede extends Core {
 			z = sub(z, f[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
 		}
 		if (!number) return f;
-		var ns = numbers();
-		for (int[][] s: f) {
+		var nf = numbers();
+		for (var s: f) {
 			for (int j=0, ej=s[0].length; j<ej; j+=1) {
-				List<Integer> n = numbers(ns[j], s, j);
+				var ns = numbers(nf[j], s, j);
 				for (int i=0, ei=s.length; i<ei; i+=1) {
 					if (s[i][j] == 0) continue;
-					s[i][j] = n.remove(0);  
+					s[i][j] = ns.remove(0);  
 				}
 			}
 		}
@@ -320,26 +311,17 @@ public class Schede extends Core {
 	private List<Integer>[] numbers() {
 		if (numbers == null || !clone) {
 			int[] z = {9,10,10,10,10,10,10,10,11};
-			numbers = new List[z.length];
-			for (int d=0, i=0; i<z.length; d+=10, i+=1) {
-				int zi = z[i];
-				List<Integer> l = new ArrayList<>(zi);
-				for (int j=0; j<zi; j+=1) l.add(d+j+(d==0?1:0));
-				if (shuffle) shuffle(l);
-				numbers[i] = l;
-			}
-			if (!clone) return numbers;
+			numbers = range(0, z.length).mapToObj(i-> new ArrayList(range(0, z[i]).map(j-> (i==0?1:i*10)+j).boxed().toList())).toArray(List[]::new);
+			if (shuffle) for (var l: numbers) shuffle(l);
 		}
-		List<Integer>[] clone = new List[numbers.length];
-		for (int i=0; i<numbers.length; i+=1) clone[i] = new ArrayList(numbers[i]);
-		return clone;
+		return !clone ? numbers : stream(numbers).map(ArrayList::new).toArray(List[]::new);
 	}
-	private List<Integer> numbers(List<Integer> nsj, int[][] s, int j) {
-		if (!shuffle) return nsj;
-		var n = new ArrayList();
-		for (int i=0, e=s.length; i<e; i+=1) if (s[i][j] != 0) n.add(nsj.remove(0));
-		if (order) n.sort(naturalOrder());
-		return n;
+	private List<Integer> numbers(List<Integer> nfj, int[][] s, int j) {
+		if (!shuffle) return nfj;
+		var ns = new ArrayList();
+		for (int i=0, e=s.length; i<e; i+=1) if (s[i][j] != 0) ns.add(nfj.remove(0));
+		if (order) ns.sort(naturalOrder());
+		return ns;
 	}
 	
 	private boolean ge(int[] v, int n) {
@@ -377,13 +359,10 @@ public class Schede extends Core {
 		if (r * c == 1) return boxed(f, fmt);
 		if (r * c != f.length) throw new IllegalArgumentException();
 		if (c == 1) return boxed(f, fmt);
-		String s = "";
-		for (int z=0, i=0; i<r; i+=1) {
-			var args = new String[c][];
-			for (int j=0; j<c; j+=1) args[j]= boxed(f[z++]).split("\n");
-			s += (i==0 ? "" : "\n") + fmt.vs(i) + merge(fmt.os, args);
-		}	
-		return s;
+		int cc = c;
+		return range(0, r)
+			.mapToObj(i-> fmt.vs(i) + merge(fmt.os,	range(0, cc).mapToObj(j-> boxed(f[i*cc+j]).split("\n")).toArray(String[][]::new)))
+			.collect(joining("\n"));
 	}
 	
 	public static String boxed(int[][] s) {
@@ -400,8 +379,8 @@ public class Schede extends Core {
 		return stream(r).mapToObj(i-> format(i==0, i)).collect(joining("│"));
 	}
 	
-	private int random(int max) {
-		return (int)(max * Math.random());
+	private static int random(int max) {
+		return (int)(Math.random() * max);
 	}
 	private int[][] random() {
 		return schede[random(schede.length)];
@@ -445,16 +424,13 @@ public class Schede extends Core {
 		) {
 			var schede = new ArrayList<int[][]>();
 			row = new LinkedHashMap<>();
-			//Map<Key, int[][]> card = new TreeMap<>();
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+\\)")) continue;
-				//int id = Integer.parseInt(line.substring(0, line.indexOf(")")));
-				var c = new int[3][];
-				for (int i=0; i<c.length; i+=1) {
-					c[i] = row.computeIfAbsent(new Key(stream(br.readLine().split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a);
-				}
-				schede.add(c);
-				//all.add(card.computeIfAbsent(new Key(stream(c).flatMapToInt(Arrays::stream).toArray()), k-> c));
+				//int id = parseInt(line.substring(0, line.indexOf(")")));
+				schede.add(range(0, 3).mapToObj(i-> 
+						row.computeIfAbsent(new Key(stream(unchecked(()-> br.readLine()).split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a)
+					).toArray(int[][]::new)
+				);
 			}
 			row = null;
 			schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
@@ -470,7 +446,7 @@ public class Schede extends Core {
 		Schede.schede = schede.toArray(int[][][]::new);
 	}
 	
-	private static void smorfia(Boolean compact) throws IOException, FileNotFoundException {
+	private static void smorfia(Boolean compact) throws Exception {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
@@ -480,10 +456,8 @@ public class Schede extends Core {
 				if (!line.matches("\\d+.*")) continue;
 				int s = line.indexOf(" – ");
 				int numero = parseInt(line.substring(0, s));
-				//if (!line.substring(s+3).endsWith(".")) out.println("n"+numero); 
 				String nome = line.substring(s+3, line.length()-1);
 				line = br.readLine();
-				//if (!traduzione.endsWith(".")) out.println("t"+numero); 
 				String traduzione = line.substring(0, line.length()-1);
 				String altriSignificati = br.readLine();
 				//out.printf("%2d|%s|%s\n  |%s\n\n", numero, nome, traduzione, altriSignificati);
@@ -529,5 +503,14 @@ public class Schede extends Core {
 	
 	private static String format(boolean b, int n) {
 		return b ? "  " : String.format("%2d", n);
+	}
+	
+	private static <T> T unchecked(Callable<T> t) {
+		try {
+			return t.call();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
