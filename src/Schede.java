@@ -133,13 +133,13 @@ public class Schede extends Core {
 		Vd n = new Vd(fogli ? 2 : 1), r = new Vd(1);
 		Od m = new Od(7), c = new Od(3);
 		
-		i = get(n, args, i, "-n", true);
-		i = get(m, args, i, "-m", true);
+		i = set(n, args, i, "-n", true);
+		i = set(m, args, i, "-m", true);
 		if (!matches(args, i, "boxed|compact")) syntax(args, i);
 		boolean boxed = args[i++].equals("boxed");
 		if (fogli && boxed) { 
-			i = get(r, args, i, "-r", true);
-			i = get(c, args, i, "-c", true);
+			i = set(r, args, i, "-r", true);
+			i = set(c, args, i, "-c", true);
 		}
 		if (args.length > i) syntax(args, i);
 		
@@ -153,7 +153,7 @@ public class Schede extends Core {
 		return args.length > i && args[i].matches(regex);
 	}
 		
-	private static int get(Vd vd, String[] args, int i, String regex, boolean opt) {
+	private static int set(Vd vd, String[] args, int i, String regex, boolean opt) {
 		if (!matches(args, i, regex)) if (opt) return i; else syntax(args, i);
 		i+=1;
 		if (!matches(args, i, "\\d+")) syntax(args, i);
@@ -167,7 +167,7 @@ public class Schede extends Core {
 		return i;
 	}
 	
-	private static int get(Od od, String[] args, int i, String regex, boolean opt) {
+	private static int set(Od od, String[] args, int i, String regex, boolean opt) {
 		if (!matches(args, i, regex))  if (opt) return i; else syntax(args, i);
 		i+=1;
 		if (!matches(args, i, "\\d+")) syntax(args, i);
@@ -320,6 +320,8 @@ public class Schede extends Core {
 		if (!shuffle) return nfj;
 		var ns = new ArrayList();
 		for (int i=0, e=s.length; i<e; i+=1) if (s[i][j] != 0) ns.add(nfj.remove(0));
+		//range(0, s.length).forEach(i->{ if (s[i][j] != 0) ns.add(nfj.remove(0));});
+		//range(0, s.length).filter(i-> s[i][j] != 0).mapToObj(i-> nfj.remove(0)).toList();
 		if (order) ns.sort(naturalOrder());
 		return ns;
 	}
@@ -464,14 +466,14 @@ public class Schede extends Core {
 				smorfia.put(numero, new Numero(nome, traduzione, altriSignificati));
 			}
 		}
-		out.println("enter: next number, t+enter: numbers table, q+enter: quit\n");
+		out.println("enter: nuovo numero, t+enter: tabellone, f+enter: fine\n");
 		boolean[] numeri = new boolean[91]; 
 		loop: for (var n: iterable(numeri())) {
 			numeri[n] = true;
 			var numero = smorfia.get(n);
 			out.printf("%2d - %s - %s\n", n, numero.descrizione, numero.traduzione);
 			for (int c; (c = System.in.read()) != '\n';) {
-				if (c == 'q') break loop;
+				if (c == 'f') break loop;
 				if (c != 't') continue;
 				if (compact == null || compact) compact(numeri); else boxed(numeri);
 				while (System.in.read() != '\n');
