@@ -209,9 +209,7 @@ public class Schede extends Core {
 	}
 	
 	public record Fmt(String vs, String os, int pb, String ps) {
-		public String vs(int i) {
-			return i==0 ? "" : pb>0 && i%pb==0 ? ps : vs;
-		}		
+		public String vs(int i) { return i == 0 ? "" : pb > 0 && i % pb == 0 ? ps : vs; }		
 	};
 	public static Fmt fmt() { return fmt(0); }; 
 	public static Fmt fmt(int vs) { return fmt(vs, 0); }; 
@@ -370,7 +368,7 @@ public class Schede extends Core {
 	public static String boxed(int[][] s) {
 		String r = ""; 
 		r += "┌"+ "──┬".repeat(8) + "──┐\n";
-		for (int i=0; true; i+=1) {
+		for (int i=0;; i+=1) {
 			r += "│" + boxed(s[i]) + "│\n";
 			if (i==2) break;
 			r += "├" + "──┼".repeat(8) + "──┤\n";
@@ -458,10 +456,10 @@ public class Schede extends Core {
 				if (!line.matches("\\d+.*")) continue;
 				int s = line.indexOf(" – ");
 				int numero = parseInt(line.substring(0, s));
-				String nome = line.substring(s+3, line.length()-1);
+				var nome = line.substring(s+3, line.length()-1);
 				line = br.readLine();
-				String traduzione = line.substring(0, line.length()-1);
-				String altriSignificati = br.readLine();
+				var traduzione = line.substring(0, line.length()-1);
+				var altriSignificati = br.readLine();
 				//out.printf("%2d|%s|%s\n  |%s\n\n", numero, nome, traduzione, altriSignificati);
 				smorfia.put(numero, new Numero(nome, traduzione, altriSignificati));
 			}
@@ -492,7 +490,7 @@ public class Schede extends Core {
 
 	private static void boxed(boolean[] numeri) {
 		out.println("\t┌"+"──┬".repeat(9)+ "──┐");
-		for (int i=0; true; i+=10) {
+		for (int i=0;; i+=10) {
 			for (int j=1; j<=10; j+=1) {
 				int n = i+j; out.print((j==1 ? "\t" : "") + "│" + format(!numeri[n], n));
 			}
