@@ -1,5 +1,6 @@
 import static java.lang.Integer.parseInt;
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
+import static java.lang.System.in;
 import static java.lang.System.out;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
@@ -11,7 +12,9 @@ import static java.util.stream.IntStream.range;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -23,7 +26,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-public class Schede extends Core {
+public class Tombola extends Core {
 
 	private static boolean number = true;
 	private static boolean clone = false;
@@ -56,7 +59,7 @@ public class Schede extends Core {
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		var schede = new Schede();
+		var schede = new Tombola();
 		
 		//long tm = System.currentTimeMillis();
 		//for (int i=0; i<100000; i+=1) schede.getFoglio();
@@ -98,27 +101,52 @@ public class Schede extends Core {
 		//loop: for (var n: iterable(numeri())) { out.println(n); for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop; }
 		//smorfia();
 		
-		cli(args);
-		
-		out.println("\nfinito!");
+		try {
+			//for (;;) cli(args.length > 0 ? args : getLine());
+			if (args.length > 0)
+				cli(args);
+			else {
+				var sintassi = syntax + "\n\t   help | h";
+				out.println(sintassi);
+				loop: for (;;) {
+					switch (getLine()) { 
+						case "": break loop;
+						case "h", "help" : out.println(sintassi); break;
+						case String s: cli(s.split(" +"));
+					}
+				}
+			}
+		}
+		finally {
+			out.println("\nfinito!");
+		}
 	}
+	
+	private static String getLine() throws IOException {
+		out.print("> ");
+		String s = ""; for (int c; (c = in.read()) != '\n';) if (c >= 32) s += (char)c;
+		//out.println(s);
+		return s;
+	}
+	
+	static String syntax = """
+		Sintassi:
+			smorfia [compact | boxed]
+			 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
+			  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
+		"""
+	;
 	
 	private static void syntax(String[] args, int i) {
 		String line = ""; for (int j=0; j<args.length; j+=1) line += (j==0 ? "" : j!=i ? " " : " |> ") + args[j]; 
-		throw new IllegalArgumentException(
-				line + "\n" + """
-				Syntax:
-					smorfia [compact | boxed]
-					 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
-					  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
-			"""
-		);
+		throw new IllegalArgumentException(line + "\n" + syntax.replaceAll("(?m)^", "\t"));
 	}	
 	
 	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
 	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
 	
 	private static void cli(String[] args) throws Exception {
+		//if (args.length == 0 || args.length == 1 && args[0]=="") return;
 		int i=0;
 		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args, i);
 		String type = args[i++];	
@@ -144,9 +172,9 @@ public class Schede extends Core {
 		if (args.length > i) syntax(args, i);
 		
 		if (fogli)
-			printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+			printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
 		else
-			printSchede(n.n, m.m, boxed ? Schede::boxed : Schede::compact, fmt(n.vs, m.os, n.pb, n.ps));
+			printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
 	}
 
 	private static boolean matches(String[] args, int i, String regex) {
@@ -178,7 +206,7 @@ public class Schede extends Core {
 		
 	public static Iterator<int[][][]> fogli() {
 		return new Iterator<int[][][]>() {
-			private Schede schede = new Schede();
+			private Tombola schede = new Tombola();
 			@Override public boolean hasNext() { return true; }
 			@Override public int[][][] next() { return schede.getFoglio(); }
 		};
@@ -186,7 +214,7 @@ public class Schede extends Core {
 
 	public static Iterator<int[][]> schede() {
 		return new Iterator<int[][]>() {
-			private Schede schede = new Schede();			
+			private Tombola schede = new Tombola();			
 			@Override public boolean hasNext() { return true; }
 			private int i=0, f[][][]=schede.getFoglio();
 			@Override public int[][] next() {
@@ -435,7 +463,7 @@ public class Schede extends Core {
 		}
 		row = null;
 		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
-		Schede.schede = schede.toArray(int[][][]::new);
+		Tombola.schede = schede.toArray(int[][][]::new);
 	}
 	
 	private static void init() {
@@ -443,17 +471,18 @@ public class Schede extends Core {
 		var schede = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
 		row = null;
 		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
-		Schede.schede = schede.toArray(int[][][]::new);
+		Tombola.schede = schede.toArray(int[][][]::new);
 	}
 	
 	private static void smorfia(Boolean compact) throws Exception {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
-			var br = new BufferedReader(new FileReader("Smorfia.txt"))
+			var br = new BufferedReader(new FileReader("Smorfia.txt", Charset.forName("UTF-8")))
 		) {
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+.*")) continue;
+				//out.println(line);
 				int s = line.indexOf(" – ");
 				int numero = parseInt(line.substring(0, s));
 				var nome = line.substring(s+3, line.length()-1);
@@ -470,8 +499,12 @@ public class Schede extends Core {
 			numeri[n] = true;
 			var numero = smorfia.get(n);
 			out.printf("%2d - %s - %s\n", n, numero.descrizione, numero.traduzione);
-			for (int c; (c = System.in.read()) != '\n';) {
-				if (c == 'f') break loop;
+			//out.write("%2d - %s - %s\n".formatted(n, numero.descrizione, numero.traduzione).getBytes(Charset.forName("CP850")));
+			for (int c; (c = in.read()) != '\n';) {
+				if (c == 'f') {
+					while (System.in.read() != '\n');
+					break loop;
+				}
 				if (c != 't') continue;
 				if (compact == null || compact) compact(numeri); else boxed(numeri);
 				while (System.in.read() != '\n');
