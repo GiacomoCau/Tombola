@@ -275,7 +275,7 @@ public class Tombola extends Core {
 	}
 	
 	private static <T> void print(int n, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
-		for (int i=0; i<n; i+=1) out.println(fmt.vs(i) + fn.apply(iterator.next()));
+		for (int i=0; i<n; i+=1) out.print(fmt.vs(i) + fn.apply(iterator.next()));
 	}
 	private static <T> void print(int n, int m, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
 		if (m == 1)
@@ -362,10 +362,10 @@ public class Tombola extends Core {
 	}
 	
 	public static String compact(int[][][] f) {
-		return stream(f).map(s-> compact(s)).collect(joining("\n\n"));
+		return stream(f).map(s-> compact(s)).collect(joining("\n"));
 	}	
 	public static String compact(int[][] s) {
-		return stream(s).map(r-> compact(r)).collect(joining("\n"));
+		return stream(s).map(r-> compact(r)).collect(joining("\n")) + "\n";
 	}	
 	public static String compact(int[] r) {
 		return stream(r).mapToObj(i-> !number ? ""+i : format(i==0, i)).collect(joining(!number ? "," : "|"));
@@ -390,7 +390,7 @@ public class Tombola extends Core {
 		int cc = c;
 		return range(0, r)
 			.mapToObj(i-> fmt.vs(i) + merge(fmt.os,	range(0, cc).mapToObj(j-> boxed(f[i*cc+j]).split("\n")).toArray(String[][]::new)))
-			.collect(joining("\n"));
+			.collect(joining("\n")) + "\n";
 	}
 	
 	public static String boxed(int[][] s) {
