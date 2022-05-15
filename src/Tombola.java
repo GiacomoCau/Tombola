@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,7 +37,9 @@ public class Tombola extends Core {
 	private static int[][][] schede;
 	private static Map<Key,int[][][]> schedeBySum = new TreeMap<>();
 	private static List<Integer>[] numbers;
-	
+
+	private static PrintStream out2 = out;
+
 	static {
 		try {
 			//long tm = System.currentTimeMillis();
@@ -112,7 +115,12 @@ public class Tombola extends Core {
 					switch (getLine()) { 
 						case "": break loop;
 						case "h", "help" : out.println(sintassi); break;
-						case String s: cli(s.split(" +"));
+						case String s: try {
+							cli(s.split(" +"));
+						}
+						catch (Throwable t) {
+							t.printStackTrace();
+						}
 					}
 				}
 			}
@@ -132,13 +140,13 @@ public class Tombola extends Core {
 	static String syntax = """
 		Sintassi:
 			smorfia [compact | boxed]
-			 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
-			  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]\
+			 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [> filename]
+			  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]] [> filename]\
 		"""
 	;
 	
 	private static void syntax(String[] args, int i) {
-		String line = ""; for (int j=0; j<args.length; j+=1) line += (j==0 ? "" : j!=i ? " " : " |> ") + args[j]; 
+		String line = ""; for (int j=0; j<args.length; j+=1) line += (j==0 ? "" : " ") + (j!=i ? "" : "|> ") + args[j]; 
 		throw new IllegalArgumentException(line + "\n" + syntax.replaceAll("(?m)^", "\t"));
 	}	
 	
@@ -169,12 +177,22 @@ public class Tombola extends Core {
 			i = set(r, args, i, "-r", true);
 			i = set(c, args, i, "-c", true);
 		}
+		if (matches(args, i, ">")) {
+			i+=1;
+			if (args.length <= i) syntax(args, i);
+			out2 = new PrintStream(args[i++]); 
+		}
 		if (args.length > i) syntax(args, i);
 		
-		if (fogli)
-			printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
-		else
-			printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
+		try {
+			if (fogli)
+				printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
+			else
+				printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
+		}
+		finally {
+			out2 = out; 
+		}
 	}
 
 	private static boolean matches(String[] args, int i, String regex) {
@@ -275,13 +293,13 @@ public class Tombola extends Core {
 	}
 	
 	private static <T> void print(int n, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
-		for (int i=0; i<n; i+=1) out.print(fmt.vs(i) + fn.apply(iterator.next()));
+		for (int i=0; i<n; i+=1) out2.print(fmt.vs(i) + fn.apply(iterator.next()));
 	}
 	private static <T> void print(int n, int m, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
 		if (m == 1)
 			print(n, iterator, fn, fmt);
 		else for (int i=0; i<n; i+=1) {
-			out.println(fmt.vs(i) + merge(fmt.os, range(0, m).mapToObj(j-> fn.apply(iterator.next()).split("\n")).toArray(String[][]::new)));
+			out2.println(fmt.vs(i) + merge(fmt.os, range(0, m).mapToObj(j-> fn.apply(iterator.next()).split("\n")).toArray(String[][]::new)));
 		}
 	}
 	private static String merge(String os, String[] ... args) {
