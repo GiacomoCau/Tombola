@@ -280,8 +280,8 @@ O ancora
 Questa la sintassi completa del comando
 
 	smorfia [compact | boxed]
-	 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed
-	  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]]
+	 schede [-n n [vs [pb ps]]] [-m m [os]] [compact | boxed] [> | >> filename]
+	  fogli [-n n [vs [pb ps]]] [-m m [os]] [compact | boxed] [-r r [vs [pb ps]]] [-c c [os]] [> | >> filename]
 
 con
 

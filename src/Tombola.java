@@ -11,6 +11,7 @@ import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -104,18 +105,17 @@ public class Tombola extends Core {
 		//for (var n: iterable(numeri())) { out.println(n); while (System.in.read() != '\n'); }
 		//loop: for (var n: iterable(numeri())) { out.println(n); for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop; }
 		//smorfia();
+		//cli()
+		//for (;;) cli(args.length > 0 ? args : getLine());
 		
 		try {
-			//for (;;) cli(args.length > 0 ? args : getLine());
 			if (args.length > 0)
 				cli(args);
 			else {
-				syntax += "\n\t   help | h";
 				out.println(syntax);
 				loop: for (;;) {
 					switch (getLine()) { 
 						case "": break loop;
-						case "h", "help" : out.println(syntax); break;
 						case String s: try {
 							cli(s.split(" +"));
 						}
@@ -132,7 +132,7 @@ public class Tombola extends Core {
 	}
 	
 	private static String getLine() throws IOException {
-		out.print("\n> ");
+		out.print("> ");
 		String s = ""; for (int c; (c = in.read()) != '\n';) if (c >= 32) s += (char)c;
 		//out.println(s);
 		return s;
@@ -141,8 +141,9 @@ public class Tombola extends Core {
 	static String syntax = """
 		Sintassi:
 			smorfia [compact | boxed]
-			 schede [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [> filename]
-			  fogli [-n n [vs [pb ps]]] [-m m [os]] compact | boxed [-r r [vs [pb ps]]] [-c c [os]] [> filename]\
+			 schede [-n n [vs [pb ps]]] [-m m [os]] [compact | boxed] [> | >> filename]
+			  fogli [-n n [vs [pb ps]]] [-m m [os]] [compact | boxed] [-r r [vs [pb ps]]] [-c c [os]] [> | >> filename]
+			   help | h\
 		"""
 	;
 	
@@ -156,12 +157,16 @@ public class Tombola extends Core {
 	
 	private static void cli(String[] args) throws Exception {
 		int i=0;
-		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args, i);
+		if (!matches(args, i, "smorfia|schede|fogli|help|h")) syntax(args, i);
 		String type = args[i++];	
+		if (type.matches("help|h")) {
+			out.println(syntax);
+			return;
+		}
 		if (type.equals("smorfia")) {
-			Boolean compact = !matches(args, i, "boxed|compact") ? null : args[i++].equals("compact");
+			boolean boxed = !matches(args, i, "boxed|compact") ? true : args[i++].equals("boxed");
 			if (args.length > i) syntax(args, i);
-			smorfia(compact);
+			smorfia(boxed);
 			return;
 		}
 		
@@ -171,16 +176,17 @@ public class Tombola extends Core {
 		
 		i = set(n, args, i, "-n", true);
 		i = set(m, args, i, "-m", true);
-		if (!matches(args, i, "boxed|compact")) syntax(args, i);
-		boolean boxed = args[i++].equals("boxed");
+		boolean boxed = !matches(args, i, "boxed|compact") ? true : args[i++].equals("boxed");
 		if (fogli && boxed) { 
 			i = set(r, args, i, "-r", true);
 			i = set(c, args, i, "-c", true);
 		}
-		if (matches(args, i, ">")) {
-			i+=1;
+		if (matches(args, i, ">>|>")) {
+			var append = args[i++].equals(">>");
 			if (args.length <= i) syntax(args, i);
-			out2 = new PrintStream(args[i++]); 
+			//out2 = new PrintStream(args[i++]); 
+			out2 = new PrintStream(new FileOutputStream(args[i++], append));
+			if (append) out2.println();
 		}
 		if (args.length > i) syntax(args, i);
 		
@@ -191,7 +197,10 @@ public class Tombola extends Core {
 				printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
 		}
 		finally {
-			if (out2 != out) out2 = out; 
+			if (out2 != out)
+				out2 = out;
+			else
+				out.println();
 		}
 	}
 
@@ -496,7 +505,7 @@ public class Tombola extends Core {
 		Tombola.schede = schede.toArray(int[][][]::new);
 	}
 	
-	private static void smorfia(Boolean compact) throws Exception {
+	private static void smorfia(boolean boxed) throws Exception {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
@@ -528,7 +537,7 @@ public class Tombola extends Core {
 					break loop;
 				}
 				if (c != 't') continue;
-				if (compact == null || compact) compact(numeri); else boxed(numeri);
+				if (boxed) boxed(numeri); else compact(numeri);
 				while (System.in.read() != '\n');
 			}
 		}
@@ -542,7 +551,8 @@ public class Tombola extends Core {
 			out.println();
 		}
 	}
-
+	
+	/* TODO sostituito dal seguente, eliminare
 	private static void boxed(boolean[] numeri) {
 		out.println("\t┌"+"──┬".repeat(9)+ "──┐");
 		for (int i=0;; i+=10) {
@@ -554,6 +564,22 @@ public class Tombola extends Core {
 			out.println("\t├" + "──┼".repeat(9)+ "──┤");
 		}
 		out.println("\t└"+"──┴".repeat(9)+ "──┘");
+	}
+	*/
+	private static void boxed(boolean[] numeri) {
+		out.println("\t┌"+"──┬".repeat(4)+ "──╥" + "──┬".repeat(4) + "──┐");
+		for (int i=0;; i+=10) {
+			for (int j=1; j<=10; j+=1) {
+				int n = i+j; out.print(eIf(j>1, "\t") + (j==6 ? "║" : "│") + format(!numeri[n], n));
+			}
+			out.println("│");
+			if (i == 80) break;
+			if ((i + 10) % 30 == 0)
+				out.println("\t╞" + "══╪".repeat(4) + "══╬" + "══╪".repeat(4) + "══╡");
+			else	
+				out.println("\t├" + "──┼".repeat(4) + "──╫" + "──┼".repeat(4) + "──┤");
+		}
+		out.println("\t└" + "──┴".repeat(4) + "──╨" + "──┴".repeat(4) + "──┘");
 	}
 	
 	private static String format(boolean b, int n) {
