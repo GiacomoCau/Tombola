@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Tombola extends Core {
 
@@ -37,9 +38,9 @@ public class Tombola extends Core {
 	private static int[][][] schede;
 	private static Map<Key,int[][][]> schedeBySum = new TreeMap<>();
 	private static List<Integer>[] numbers;
-
+	
 	private static PrintStream out2 = out;
-
+	
 	static {
 		try {
 			//long tm = System.currentTimeMillis();
@@ -109,12 +110,12 @@ public class Tombola extends Core {
 			if (args.length > 0)
 				cli(args);
 			else {
-				var sintassi = syntax + "\n\t   help | h";
-				out.println(sintassi);
+				syntax += "\n\t   help | h";
+				out.println(syntax);
 				loop: for (;;) {
 					switch (getLine()) { 
 						case "": break loop;
-						case "h", "help" : out.println(sintassi); break;
+						case "h", "help" : out.println(syntax); break;
 						case String s: try {
 							cli(s.split(" +"));
 						}
@@ -131,7 +132,7 @@ public class Tombola extends Core {
 	}
 	
 	private static String getLine() throws IOException {
-		out.print("> ");
+		out.print("\n> ");
 		String s = ""; for (int c; (c = in.read()) != '\n';) if (c >= 32) s += (char)c;
 		//out.println(s);
 		return s;
@@ -146,7 +147,7 @@ public class Tombola extends Core {
 	;
 	
 	private static void syntax(String[] args, int i) {
-		String line = ""; for (int j=0; j<args.length; j+=1) line += (j==0 ? "" : " ") + (j!=i ? "" : "|> ") + args[j]; 
+		String line = ""; for (int j=0; j<args.length; j+=1) line += eIf(j==0, " ") + eIf(j!=i, "|> ") + args[j]; 
 		throw new IllegalArgumentException(line + "\n" + syntax.replaceAll("(?m)^", "\t"));
 	}	
 	
@@ -154,7 +155,6 @@ public class Tombola extends Core {
 	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
 	
 	private static void cli(String[] args) throws Exception {
-		//if (args.length == 0 || args.length == 1 && args[0]=="") return;
 		int i=0;
 		if (!matches(args, i, "smorfia|schede|fogli")) syntax(args, i);
 		String type = args[i++];	
@@ -167,7 +167,7 @@ public class Tombola extends Core {
 		
 		boolean fogli = type.equals("fogli");
 		Vd n = new Vd(fogli ? 2 : 1), r = new Vd(1);
-		Od m = new Od(7), c = new Od(3);
+		Od m = new Od(fogli ? 5 : 3), c = new Od(3);
 		
 		i = set(n, args, i, "-n", true);
 		i = set(m, args, i, "-m", true);
@@ -191,7 +191,7 @@ public class Tombola extends Core {
 				printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
 		}
 		finally {
-			out2 = out; 
+			if (out2 != out) out2 = out; 
 		}
 	}
 
@@ -255,7 +255,7 @@ public class Tombola extends Core {
 	}
 	
 	public record Fmt(String vs, String os, int pb, String ps) {
-		public String vs(int i) { return i == 0 ? "" : pb > 0 && i % pb == 0 ? ps : vs; }		
+		public String vs(int i) { return eIf(i==0, ()-> pb > 0 && i % pb == 0 ? ps : vs); }		
 	};
 	public static Fmt fmt() { return fmt(0); }; 
 	public static Fmt fmt(int vs) { return fmt(vs, 0); }; 
@@ -293,13 +293,17 @@ public class Tombola extends Core {
 	}
 	
 	private static <T> void print(int n, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
-		for (int i=0; i<n; i+=1) out2.print(fmt.vs(i) + fn.apply(iterator.next()));
+		for (int i=0; i<n; i+=1) out2.print(fmt.vs(i) + fn.apply(iterator.next()) + eIf(i==n-1, "\n"));
 	}
 	private static <T> void print(int n, int m, Iterator<T> iterator, Function<T,String> fn, Fmt fmt) {
 		if (m == 1)
 			print(n, iterator, fn, fmt);
 		else for (int i=0; i<n; i+=1) {
-			out2.println(fmt.vs(i) + merge(fmt.os, range(0, m).mapToObj(j-> fn.apply(iterator.next()).split("\n")).toArray(String[][]::new)));
+			out2.print(
+				fmt.vs(i)
+				+ merge(fmt.os, range(0, m).mapToObj(j-> fn.apply(iterator.next()).split("\n")).toArray(String[][]::new))
+				+ eIf(i==n-1, "\n")
+			);
 		}
 	}
 	private static String merge(String os, String[] ... args) {
@@ -380,10 +384,10 @@ public class Tombola extends Core {
 	}
 	
 	public static String compact(int[][][] f) {
-		return stream(f).map(s-> compact(s)).collect(joining("\n"));
+		return stream(f).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
 	public static String compact(int[][] s) {
-		return stream(s).map(r-> compact(r)).collect(joining("\n")) + "\n";
+		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
 	public static String compact(int[] r) {
 		return stream(r).mapToObj(i-> !number ? ""+i : format(i==0, i)).collect(joining(!number ? "," : "|"));
@@ -408,7 +412,7 @@ public class Tombola extends Core {
 		int cc = c;
 		return range(0, r)
 			.mapToObj(i-> fmt.vs(i) + merge(fmt.os,	range(0, cc).mapToObj(j-> boxed(f[i*cc+j]).split("\n")).toArray(String[][]::new)))
-			.collect(joining("\n")) + "\n";
+			.collect(joining("\n"));
 	}
 	
 	public static String boxed(int[][] s) {
@@ -419,7 +423,7 @@ public class Tombola extends Core {
 			if (i==2) break;
 			r += "├" + "──┼".repeat(8) + "──┤\n";
 		}
-		return r += "└" + "──┴".repeat(8) + "──┘\n";
+		return r += "└" + "──┴".repeat(8) + "──┘";
 	}
 	public static String boxed(int[] r) {
 		return stream(r).mapToObj(i-> format(i==0, i)).collect(joining("│"));
@@ -543,7 +547,7 @@ public class Tombola extends Core {
 		out.println("\t┌"+"──┬".repeat(9)+ "──┐");
 		for (int i=0;; i+=10) {
 			for (int j=1; j<=10; j+=1) {
-				int n = i+j; out.print((j==1 ? "\t" : "") + "│" + format(!numeri[n], n));
+				int n = i+j; out.print(eIf(j>1, "\t") + "│" + format(!numeri[n], n));
 			}
 			out.println("│");
 			if (i == 80) break;
@@ -563,5 +567,13 @@ public class Tombola extends Core {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static String eIf(boolean b, String s) {
+		return b ? "" : s;
+	}
+	
+	public static String eIf(boolean b, Supplier<String> s) {
+		return eIf(b, s.get());
 	}
 }
