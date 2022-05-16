@@ -36,9 +36,9 @@ public class Tombola extends Core {
 	private static boolean shuffle = true;
 	private static boolean order = true;
 		
-	private static int[][][] schede;
-	private static Map<Key,int[][][]> schedeBySum = new TreeMap<>();
-	private static List<Integer>[] numbers;
+	private static byte[][][] schede;
+	private static Map<Key,byte[][][]> schedeBySum = new TreeMap<>();
+	private static List<Byte>[] numbers;
 	
 	private static PrintStream out2 = out;
 	
@@ -242,32 +242,32 @@ public class Tombola extends Core {
 		if (cli.matches("\\d+")) od.os = parseInt(cli.arg());
 	}
 		
-	public static Iterator<int[][][]> fogli() {
-		return new Iterator<int[][][]>() {
+	public static Iterator<byte[][][]> fogli() {
+		return new Iterator<byte[][][]>() {
 			private Tombola tombola = new Tombola();
 			@Override public boolean hasNext() { return true; }
-			@Override public int[][][] next() { return tombola.getFoglio(); }
+			@Override public byte[][][] next() { return tombola.getFoglio(); }
 		};
 	}
 
-	public static Iterator<int[][]> schede() {
-		return new Iterator<int[][]>() {
+	public static Iterator<byte[][]> schede() {
+		return new Iterator<byte[][]>() {
 			private Tombola tombola = new Tombola();
 			@Override public boolean hasNext() { return true; }
-			private int i=0, f[][][]=tombola.getFoglio();
-			@Override public int[][] next() {
+			private int i=0; byte f[][][]=tombola.getFoglio();
+			@Override public byte[][] next() {
 				if (i == f.length) { i=0; f=tombola.getFoglio(); }
 				return f[i++];
 			}
 		};
 	}
 	/* TODO in alternativa al precedente
-	public static Iterator<int[][]> schede2() {
-		return new Iterator<int[][]>() {
-			private Iterator<int[][][]> fogli = fogli();			
+	public static Iterator<byte[][]> schede2() {
+		return new Iterator<byte[][]>() {
+			private Iterator<byte[][][]> fogli = fogli();			
 			@Override public boolean hasNext() { return true; }
-			private int i=0, f[][][]=fogli.next();
-			@Override public int[][] next() {
+			private int i=0; byte f[][][]=fogli.next();
+			@Override public byte[][] next() {
 				if (i == f.length) { i=0; f=fogli.next(); }
 				return f[i++];
 			}
@@ -297,31 +297,31 @@ public class Tombola extends Core {
 	public static Fmt fmt(int vs, int os, int pb, int ps) { return new Fmt("\n".repeat(vs), " ".repeat(os), pb, "\n".repeat(ps)); }; 
 
 
-	public static void printSchede(int n, Function<int[][],String> fn) {
+	public static void printSchede(int n, Function<byte[][],String> fn) {
 		printSchede(n, fn, fmt(1));
 	}
-	public static void printSchede(int n, Function<int[][],String> fn, Fmt fmt) {
+	public static void printSchede(int n, Function<byte[][],String> fn, Fmt fmt) {
 		print(n, schede(), fn, fmt);
 	}
 	
-	public static void printSchede(int n, int m, Function<int[][],String> fn) {
+	public static void printSchede(int n, int m, Function<byte[][],String> fn) {
 		printSchede(n, m, fn, fmt(1, 3));
 	}
-	public static void printSchede(int n, int m, Function<int[][],String> fn, Fmt fmt) {
+	public static void printSchede(int n, int m, Function<byte[][],String> fn, Fmt fmt) {
 		print(n, m, schede(), fn, fmt);
 	}
 	
-	public static void printFogli(int n, Function<int[][][],String> fn) {
+	public static void printFogli(int n, Function<byte[][][],String> fn) {
 		printFogli(n, fn, fmt(2));
 	}
-	public static void printFogli(int n, Function<int[][][],String> fn, Fmt fmt) {
+	public static void printFogli(int n, Function<byte[][][],String> fn, Fmt fmt) {
 		print(n, fogli(), fn, fmt);
 	}
 	
-	public static void printFogli(int n, int m, Function<int[][][],String> fn) {
+	public static void printFogli(int n, int m, Function<byte[][][],String> fn) {
 		printFogli(n, m, fn, fmt(2, 5));
 	}
-	public static void printFogli(int n, int m, Function<int[][][],String> fn, Fmt fmt) {
+	public static void printFogli(int n, int m, Function<byte[][][],String> fn, Fmt fmt) {
 		print(n, m, fogli(), fn, fmt);
 	}
 	
@@ -364,11 +364,11 @@ public class Tombola extends Core {
 		return boxed(getFoglio(), r, c, fmt);
 	}
 	
-	private int[][][] getFoglio() {
-		int[] z = {9,10,10,10,10,10,10,10,11};
-		var f = new int[6][][];
+	private byte[][][] getFoglio() {
+		byte[] z = {9,10,10,10,10,10,10,10,11};
+		var f = new byte[6][][];
 		for (int s=f.length-1, i=0; i<f.length; s-=1, i+=1) {
-			int[] zmn = sub(z, s*3), zmx = sub(z, s);
+			byte[] zmn = sub(z, s*3), zmx = sub(z, s);
 			z = sub(z, f[i] = clone(ge(zmx, 3) ? random() : random(zmn, zmx)));
 		}
 		if (!number) return f;
@@ -385,19 +385,19 @@ public class Tombola extends Core {
 		return f;
 	}
 	
-	private int[][] clone(int[][] m) {
-		return stream(m).map(int[]::clone).toArray(int[][]::new);
+	private byte[][] clone(byte[][] m) {
+		return stream(m).map(byte[]::clone).toArray(byte[][]::new);
 	}
 
-	private List<Integer>[] numbers() {
+	private List<Byte>[] numbers() {
 		if (numbers == null || !clone) {
-			int[] z = {9,10,10,10,10,10,10,10,11};
-			numbers = range(0, z.length).mapToObj(i-> new ArrayList(range(0, z[i]).map(j-> (i==0?1:i*10)+j).boxed().toList())).toArray(List[]::new);
+			byte[] z = {9,10,10,10,10,10,10,10,11};
+			numbers = range(0, z.length).mapToObj(i-> new ArrayList(range(0, z[i]).mapToObj(j-> toByte((i==0?1:i*10)+j)).toList())).toArray(List[]::new);
 			if (shuffle) for (var l: numbers) shuffle(l);
 		}
 		return !clone ? numbers : stream(numbers).map(ArrayList::new).toArray(List[]::new);
 	}
-	private List<Integer> numbers(List<Integer> nfj, int[][] s, int j) {
+	private List<Byte> numbers(List<Byte> nfj, byte[][] s, int j) {
 		if (!shuffle) return nfj;
 		var ns = new ArrayList();
 		for (int i=0, e=s.length; i<e; i+=1) if (s[i][j] != 0) ns.add(nfj.remove(0));
@@ -406,37 +406,40 @@ public class Tombola extends Core {
 		if (order) ns.sort(naturalOrder());
 		return ns;
 	}
+	private Byte toByte(int i) {
+		return Byte.valueOf((byte) i);
+	}
 	
-	private boolean ge(int[] v, int n) {
+	private boolean ge(byte[] v, int n) {
 		for (int i=0; i<v.length; i+=1) if (v[i] < n) return false;
 		return true;
 	}
-	private boolean ge(int[] v, int[] v2) {
+	private boolean ge(byte[] v, byte[] v2) {
 		for (int i=0; i<v.length; i+=1) if (v[i] < v2[i]) return false;
 		return true;
 	}
 	
-	public static String compact(int[][][] f) {
+	public static String compact(byte[][][] f) {
 		return stream(f).map(s-> compact(s)).collect(joining("\n\n"));
 	}	
-	public static String compact(int[][] s) {
+	public static String compact(byte[][] s) {
 		return stream(s).map(r-> compact(r)).collect(joining("\n"));
 	}	
-	public static String compact(int[] r) {
-		return stream(r).mapToObj(i-> !number ? ""+i : format(i==0, i)).collect(joining(!number ? "," : "|"));
+	public static String compact(byte[] r) {
+		return stream(toint(r)).mapToObj(i-> !number ? ""+i : format(i==0, i)).collect(joining(!number ? "," : "|"));
 	}
 	
-	public static String boxed(int[][][] f) {
+	public static String boxed(byte[][][] f) {
 		return boxed(f, fmt(1));
 	}
-	public static String boxed(int[][][] f, Fmt fmt) {
+	public static String boxed(byte[][][] f, Fmt fmt) {
 		return stream(f).map(s-> boxed(s)).collect(joining("\n" + fmt.vs));
 	}
 	
-	public static String boxed(int[][][] f, int r, int c) {
+	public static String boxed(byte[][][] f, int r, int c) {
 		return boxed(f, r, c, fmt(1, 3)); 
 	}
-	public static String boxed(int[][][] f, int r, int c, Fmt fmt) {
+	public static String boxed(byte[][][] f, int r, int c, Fmt fmt) {
 		if (r == 0) r = 1;
 		if (c == 0) c = 1;
 		if (r * c == 1) return boxed(f, fmt);
@@ -448,7 +451,7 @@ public class Tombola extends Core {
 			.collect(joining("\n"));
 	}
 	
-	public static String boxed(int[][] s) {
+	public static String boxed(byte[][] s) {
 		String r = ""; 
 		r += "┌"+ "──┬".repeat(8) + "──┐\n";
 		for (int i=0;; i+=1) {
@@ -458,19 +461,19 @@ public class Tombola extends Core {
 		}
 		return r += "└" + "──┴".repeat(8) + "──┘";
 	}
-	public static String boxed(int[] r) {
-		return stream(r).mapToObj(i-> format(i==0, i)).collect(joining("│"));
+	public static String boxed(byte[] r) {
+		return stream(toint(r)).mapToObj(i-> format(i==0, i)).collect(joining("│"));
 	}
 	
 	private static int random(int max) {
 		return (int)(Math.random() * max);
 	}
-	private int[][] random() {
+	private byte[][] random() {
 		return schede[random(schede.length)];
 	}
 	/* TODO sostituito dal seguente, eliminare
-	private int[][] random(int[] mn, int[] mx) {
-		Entry<Key,int[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
+	private byte[][] random(byte[] mn, byte[] mx) {
+		Entry<Key,byte[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
 		int idx = random(stream(fsbs).mapToInt(e-> e.getValue().length).sum());
 		for (var e: fsbs) {
 			int length = e.getValue().length;
@@ -479,8 +482,8 @@ public class Tombola extends Core {
 		}
 		throw new RuntimeException();
 	}
-	private int[][] random1(int[] mn, int[] mx) {
-		Entry<Key,int[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
+	private byte[][] random1(byte[] mn, byte[] mx) {
+		Entry<Key,byte[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
 		int idx = random(stream(fsbs).mapToInt(e-> e.getValue().length).sum());
 		for (var e: fsbs) {
 			int length = e.getValue().length;
@@ -489,8 +492,8 @@ public class Tombola extends Core {
 		}
 		throw new RuntimeException();
 	}
-	private int[][] random2(int[] mn, int[] mx) {
-		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(e-> e.getValue()).toArray(int[][][][]::new);
+	private byte[][] random2(byte[] mn, byte[] mx) {
+		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(e-> e.getValue()).toArray(byte[][][][]::new);
 		int idx = random(stream(fsbs).mapToInt(e-> e.length).sum());
 		for (var a: fsbs) {
 			if (idx < a.length) return a[idx];
@@ -498,7 +501,7 @@ public class Tombola extends Core {
 		}
 		throw new RuntimeException();
 	}
-	private int[][] random3(int[] mn, int[] mx) {
+	private byte[][] random3(byte[] mn, byte[] mx) {
 		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(e-> e.getValue()).toList();
 		int idx = random(fsbs.stream().mapToInt(e-> e.length).sum());
 		for (var a: fsbs) {
@@ -508,7 +511,7 @@ public class Tombola extends Core {
 		throw new RuntimeException();
 	}
 	*/
-	private int[][] random(int[] mn, int[] mx) {
+	private byte[][] random(byte[] mn, byte[] mx) {
 		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(Entry::getValue).toList();
 		int i = random(fsbs.stream().mapToInt(a-> a.length).sum());
 		for (var a: fsbs) {
@@ -541,7 +544,7 @@ public class Tombola extends Core {
 	
 	@SuppressWarnings("unused")
 	private static void read(String fn) throws Exception {
-		var schede = new ArrayList<int[][]>();
+		var schede = new ArrayList<byte[][]>();
 		row = new LinkedHashMap<>();
 		try (
 			var br = new BufferedReader(fn != null ? new FileReader(fn) : new InputStreamReader(node().start().getInputStream()))
@@ -550,22 +553,22 @@ public class Tombola extends Core {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = parseInt(line.substring(0, line.indexOf(")")));
 				schede.add(range(0, 3).mapToObj(i-> 
-						row.computeIfAbsent(new Key(stream(uncked(()-> br.readLine()).split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a)
-					).toArray(int[][]::new)
+						row.computeIfAbsent(new Key(tobyte(stream(uncked(()-> br.readLine()).split("")).mapToInt(Integer::parseInt).toArray())), k-> k.a)
+					).toArray(byte[][]::new)
 				);
 			}
 		}
 		row = null;
-		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
-		Tombola.schede = schede.toArray(int[][][]::new);
+		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(byte[][][]::new)));
+		Tombola.schede = schede.toArray(byte[][][]::new);
 	}
 	
 	private static void init() {
 		row = new LinkedHashMap<>();
-		var schede = S(3, 5, new int[] {3,3,3,3,3,3,3,3,3});
+		var schede = S(3, 5, new byte[] {3,3,3,3,3,3,3,3,3});
 		row = null;
-		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(int[][][]::new)));
-		Tombola.schede = schede.toArray(int[][][]::new);
+		schede.stream().collect(groupingBy(Key::new)).forEach((k,v)-> schedeBySum.put(k, v.toArray(byte[][][]::new)));
+		Tombola.schede = schede.toArray(byte[][][]::new);
 	}
 	
 	private static void smorfia(boolean boxed) throws Exception {
