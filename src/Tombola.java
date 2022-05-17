@@ -160,6 +160,7 @@ public class Tombola extends Core {
 		if (!matches(args, i, "smorfia|schede|fogli|help|h")) syntax(args, i);
 		String type = args[i++];	
 		if (type.matches("help|h")) {
+			if (args.length > i) syntax(args, i);
 			out.println(syntax);
 			return;
 		}
@@ -184,7 +185,6 @@ public class Tombola extends Core {
 		if (matches(args, i, ">>|>")) {
 			var append = args[i++].equals(">>");
 			if (args.length <= i) syntax(args, i);
-			//out2 = new PrintStream(args[i++]); 
 			out2 = new PrintStream(new FileOutputStream(args[i++], append));
 			if (append) out2.println();
 		}
@@ -378,7 +378,7 @@ public class Tombola extends Core {
 		var ns = new ArrayList();
 		for (int i=0, e=s.length; i<e; i+=1) if (s[i][j] != 0) ns.add(nfj.remove(0));
 		//range(0, s.length).forEach(i->{ if (s[i][j] != 0) ns.add(nfj.remove(0));});
-		//range(0, s.length).filter(i-> s[i][j] != 0).mapToObj(i-> nfj.remove(0)).toList();
+		//range(0, s.length).filter(i-> s[i][j] != 0).forEach(i-> ns.add(nfj.remove(0)));
 		if (order) ns.sort(naturalOrder());
 		return ns;
 	}
@@ -487,7 +487,7 @@ public class Tombola extends Core {
 				if (!line.matches("\\d+\\)")) continue;
 				//int id = parseInt(line.substring(0, line.indexOf(")")));
 				schede.add(range(0, 3).mapToObj(i-> 
-						row.computeIfAbsent(new Key(stream(unchecked(()-> br.readLine()).split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a)
+						row.computeIfAbsent(new Key(stream(uncked(()-> br.readLine()).split("")).mapToInt(Integer::parseInt).toArray()), k-> k.a)
 					).toArray(int[][]::new)
 				);
 			}
@@ -533,12 +533,12 @@ public class Tombola extends Core {
 			//out.write("%2d - %s - %s\n".formatted(n, numero.descrizione, numero.traduzione).getBytes(Charset.forName("CP850")));
 			for (int c; (c = in.read()) != '\n';) {
 				if (c == 'f') {
-					while (System.in.read() != '\n');
+					while (in.read() != '\n');
 					break loop;
 				}
 				if (c != 't') continue;
 				if (boxed) boxed(numeri); else compact(numeri);
-				while (System.in.read() != '\n');
+				while (in.read() != '\n');
 			}
 		}
 	}
@@ -567,7 +567,7 @@ public class Tombola extends Core {
 	}
 	*/
 	private static void boxed(boolean[] numeri) {
-		out.println("\t┌"+"──┬".repeat(4)+ "──╥" + "──┬".repeat(4) + "──┐");
+		out.println("\t┌" + "──┬".repeat(4) + "──╥" + "──┬".repeat(4) + "──┐");
 		for (int i=0;; i+=10) {
 			for (int j=1; j<=10; j+=1) {
 				int n = i+j; out.print(eIf(j>1, "\t") + (j==6 ? "║" : "│") + format(!numeri[n], n));
@@ -586,7 +586,7 @@ public class Tombola extends Core {
 		return b ? "  " : String.format("%2d", n);
 	}
 	
-	private static <T> T unchecked(Callable<T> t) {
+	private static <T> T uncked(Callable<T> t) {
 		try {
 			return t.call();
 		}
