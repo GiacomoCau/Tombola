@@ -11,7 +11,6 @@ import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -185,7 +184,7 @@ public class Tombola extends Core {
 		if (matches(args, i, ">>|>")) {
 			var append = args[i++].equals(">>");
 			if (args.length <= i) syntax(args, i);
-			out2 = new PrintStream(new FileOutputStream(args[i++], append));
+			out2 = new PrintStream(args[i++], Charset.forName("cp437"));
 			if (append) out2.println();
 		}
 		if (args.length > i) syntax(args, i);
@@ -509,12 +508,12 @@ public class Tombola extends Core {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
-			var br = new BufferedReader(new FileReader("Smorfia.txt", Charset.forName("UTF-8")))
+			var br = new BufferedReader(new FileReader("Smorfia.txt", Charset.forName("cp437")))
 		) {
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+.*")) continue;
 				//out.println(line);
-				int s = line.indexOf(" – ");
+				int s = line.indexOf(" - ");
 				int numero = parseInt(line.substring(0, s));
 				var nome = line.substring(s+3, line.length()-1);
 				line = br.readLine();
@@ -529,7 +528,7 @@ public class Tombola extends Core {
 		loop: for (var n: iterable(numeri())) {
 			numeri[n] = true;
 			var numero = smorfia.get(n);
-			out.printf("%2d - %s - %s\n", n, numero.descrizione, numero.traduzione);
+			out.printf("%2d - %s - %s.  ", n, numero.descrizione, numero.traduzione);
 			//out.write("%2d - %s - %s\n".formatted(n, numero.descrizione, numero.traduzione).getBytes(Charset.forName("CP850")));
 			for (int c; (c = in.read()) != '\n';) {
 				if (c == 'f') {
@@ -544,10 +543,11 @@ public class Tombola extends Core {
 	}
 
 	private static void compact(boolean[] numeri) {
-		for (int i=0; i<90; i+=10) {
+		for (int i=0;; i+=10) {
 			for (int j=1; j<=10; j+=1) {
 				int n = i+j; out.print((j==1 ? "\t" : "|")  + format(!numeri[n], n));
 			}
+			if (i == 80) break;
 			out.println();
 		}
 	}
@@ -566,6 +566,7 @@ public class Tombola extends Core {
 		out.println("\t└"+"──┴".repeat(9)+ "──┘");
 	}
 	*/
+	/* TODO sostituito dal seguente, eliminare
 	private static void boxed(boolean[] numeri) {
 		out.println("\t┌" + "──┬".repeat(4) + "──╥" + "──┬".repeat(4) + "──┐");
 		for (int i=0;; i+=10) {
@@ -580,6 +581,24 @@ public class Tombola extends Core {
 				out.println("\t├" + "──┼".repeat(4) + "──╫" + "──┼".repeat(4) + "──┤");
 		}
 		out.println("\t└" + "──┴".repeat(4) + "──╨" + "──┴".repeat(4) + "──┘");
+	}
+	*/
+	private static void boxed(boolean[] numeri) {
+		out.println("\t┌" + "──┬".repeat(4) + "──┐┌" + "──┬".repeat(4) + "──┐");
+		for (int i=0;; i+=10) {
+			for (int j=1; j<=10; j+=1) {
+				int n = i+j; out.print(eIf(j>1, "\t") + (j==6 ? "││" : "│") + format(!numeri[n], n));
+			}
+			out.println("│");
+			if (i == 80) break;
+			if ((i + 10) % 30 != 0)
+				out.println("\t├" + "──┼".repeat(4) + "──┤├" + "──┼".repeat(4) + "──┤");
+			else {	
+				out.println("\t└" + "──┴".repeat(4) + "──┘└" + "──┴".repeat(4) + "──┘");
+				out.println("\t┌" + "──┬".repeat(4) + "──┐┌" + "──┬".repeat(4) + "──┐");
+			}
+		}
+		out.print("\t└" + "──┴".repeat(4) + "──┘└" + "──┴".repeat(4) + "──┘  ");
 	}
 	
 	private static String format(boolean b, int n) {
