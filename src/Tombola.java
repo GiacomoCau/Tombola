@@ -63,32 +63,32 @@ public class Tombola extends Core {
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		var schede = new Tombola();
+		var tombola = new Tombola();
 		
 		//long tm = System.currentTimeMillis();
-		//for (int i=0; i<100000; i+=1) schede.getFoglio();
+		//for (int i=0; i<100000; i+=1) tombola.getFoglio();
 		//out.println(System.currentTimeMillis()-tm);
 		
 		//out.println();
-		//out.println(schede.compact());
-		//out.println(schede.boxed());
-		//out.println(schede.boxed(2, 3));
-		//out.println(schede.boxed(2, 3, fmt(2, 7)));
-		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + schede.boxed(2, 3));
+		//out.println(tombola.compact());
+		//out.println(tombola.boxed());
+		//out.println(tombola.boxed(2, 3));
+		//out.println(tombola.boxed(2, 3, fmt(1, 3)));
+		//for (int i=0; i<4; i+=1) System.out.println((i==0 ? "" : "\n\n") + tombola.boxed(2, 3));
 		
-		//printFogli(2, 3, Schede::compact);
-		//printFogli(2, 3, Schede::boxed);
-		//printFogli(2, 3, Schede::boxed, fmt(2, 7));
-		//printFogli(2, 3, f-> boxed(f, 3, 2));
-		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)));
-		//printFogli(2, 3, f-> boxed(f, 3, 2, fmt(1, 5)), fmt(2, 7));
-		//printFogli(12, f-> boxed(f, 3, 2), fmt(2));
-		//printSchede(3, 6, Schede::compact);
-		//printSchede(3, 6, Schede::boxed);
+		//printFogli(2, 3, Tombola::compact);
+		//printFogli(2, 3, Tombola::boxed);
+		//printFogli(2, 3, Tombola::boxed, fmt(2, 5));
+		//printFogli(3, 2, f-> boxed(f, 2, 3));
+		//printFogli(3, 2, f-> boxed(f, 2, 3, fmt(1, 3)));
+		//printFogli(3, 2, f-> boxed(f, 2, 3, fmt(1, 3)), fmt(2, 5));
+		//printFogli(12, f-> boxed(f, 2, 3), fmt(2));
+		//printSchede(3, 6, Tombola::compact);
+		//printSchede(3, 6, Tombola::boxed);
 		
 		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit - 2 pagine	
 		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9 - 2 pagine
-		//printFogli(8, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20 - 8 pagine
+		//printFogli(2, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20 - 2 pagine
 		
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
@@ -103,9 +103,9 @@ public class Tombola extends Core {
 		//numeri().forEachRemaining(n-> out.print(n + " ")); out.println();
 		//for (var n: iterable(numeri())) { out.println(n); while (System.in.read() != '\n'); }
 		//loop: for (var n: iterable(numeri())) { out.println(n); for (int c; (c = System.in.read()) != '\n';) if (c=='q') break loop; }
-		//smorfia();
-		//cli()
-		//for (;;) cli(args.length > 0 ? args : getLine());
+		//smorfia(true);
+		//cli(getLine().split(" +"));
+		//for (;;) cli(args.length > 0 ? args : getLine().split(" +"));
 		
 		try {
 			if (args.length > 0)
@@ -155,7 +155,7 @@ public class Tombola extends Core {
 		void syntax() {
 			String line = ""; for (int j=0; j<args.length; j+=1) line += eIf(j==0, " ") + eIf(j!=i, "|> ") + args[j];
 			throw new IllegalArgumentException(line + "\n" + syntax);
-		}	
+		}
 	}
 	
 	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
@@ -279,7 +279,7 @@ public class Tombola extends Core {
 	}
 	
 	public static void printSchede(int n, int m, Function<int[][],String> fn) {
-		printSchede(n, m, fn, fmt(1, 7));
+		printSchede(n, m, fn, fmt(1, 3));
 	}
 	public static void printSchede(int n, int m, Function<int[][],String> fn, Fmt fmt) {
 		print(n, m, schede(), fn, fmt);
@@ -293,7 +293,7 @@ public class Tombola extends Core {
 	}
 	
 	public static void printFogli(int n, int m, Function<int[][][],String> fn) {
-		printFogli(n, m, fn, fmt(2, 7));
+		printFogli(n, m, fn, fmt(2, 5));
 	}
 	public static void printFogli(int n, int m, Function<int[][][],String> fn, Fmt fmt) {
 		print(n, m, fogli(), fn, fmt);
@@ -404,7 +404,7 @@ public class Tombola extends Core {
 		return boxed(f, fmt(1));
 	}
 	public static String boxed(int[][][] f, Fmt fmt) {
-		return stream(f).map(s-> boxed(s)).collect(joining(fmt.vs));
+		return stream(f).map(s-> boxed(s)).collect(joining("\n" + fmt.vs));
 	}
 	
 	public static String boxed(int[][][] f, int r, int c) {
