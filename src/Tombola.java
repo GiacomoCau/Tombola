@@ -2,6 +2,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.lang.System.in;
 import static java.lang.System.out;
+import static java.nio.charset.Charset.forName;
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.Comparator.naturalOrder;
@@ -15,7 +16,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -137,7 +137,7 @@ public class Tombola extends Core {
 		return s;
 	}
 	
-	static String syntax = """
+	private static String syntax = """
 		Sintassi:
 			smorfia [compact | boxed]
 			 schede [-n n [vs [pb ps]]] [-m m [os]] [compact | boxed] [> | >> filename]
@@ -146,26 +146,33 @@ public class Tombola extends Core {
 		"""
 	;
 	
-	private static void syntax(String[] args, int i) {
-		String line = ""; for (int j=0; j<args.length; j+=1) line += eIf(j==0, " ") + eIf(j!=i, "|> ") + args[j]; 
-		throw new IllegalArgumentException(line + "\n" + syntax.replaceAll("(?m)^", "\t"));
-	}	
+	private static class Cli {
+		private int i; private String args[], syntax;
+		Cli(String[] args, String syntax) { this.args = args; this.syntax = syntax.replaceAll("(?m)^", "\t"); }
+		boolean more() { return args.length > i; }
+		boolean matches(String regex) {	return more() && args[i].matches(regex); }
+		String arg() { return args[i++]; }
+		void syntax() {
+			String line = ""; for (int j=0; j<args.length; j+=1) line += eIf(j==0, " ") + eIf(j!=i, "|> ") + args[j];
+			throw new IllegalArgumentException(line + "\n" + syntax);
+		}	
+	}
 	
 	private static class Vd {int n=1, vs, pb, ps; Vd(int vs) {this.vs=vs;}} 
 	private static class Od {int m=1, os; Od(int os) {this.os=os;}}
 	
 	private static void cli(String[] args) throws Exception {
-		int i=0;
-		if (!matches(args, i, "smorfia|schede|fogli|help|h")) syntax(args, i);
-		String type = args[i++];	
+		var cli = new Cli(args, syntax);
+		if (!cli.matches("smorfia|schede|fogli|help|h")) cli.syntax();
+		String type = cli.arg();	
 		if (type.matches("help|h")) {
-			if (args.length > i) syntax(args, i);
+			if (cli.more()) cli.syntax();
 			out.println(syntax);
 			return;
 		}
 		if (type.equals("smorfia")) {
-			boolean boxed = !matches(args, i, "boxed|compact") ? true : args[i++].equals("boxed");
-			if (args.length > i) syntax(args, i);
+			boolean boxed = !cli.matches("boxed|compact") ? true : cli.arg().equals("boxed");
+			if (cli.more()) cli.syntax();
 			smorfia(boxed);
 			return;
 		}
@@ -174,20 +181,20 @@ public class Tombola extends Core {
 		Vd n = new Vd(fogli ? 2 : 1), r = new Vd(1);
 		Od m = new Od(fogli ? 5 : 3), c = new Od(3);
 		
-		i = set(n, args, i, "-n", true);
-		i = set(m, args, i, "-m", true);
-		boolean boxed = !matches(args, i, "boxed|compact") ? true : args[i++].equals("boxed");
+		if (cli.matches("-n")) set(n, cli);
+		if (cli.matches("-m")) set(m, cli);
+		boolean boxed = !cli.matches("boxed|compact") ? true : cli.arg().equals("boxed");
 		if (fogli && boxed) { 
-			i = set(r, args, i, "-r", true);
-			i = set(c, args, i, "-c", true);
+			if (cli.matches("-r")) set(r, cli);
+			if (cli.matches("-c")) set(c, cli);
 		}
-		if (matches(args, i, ">>|>")) {
-			var append = args[i++].equals(">>");
-			if (args.length <= i) syntax(args, i);
-			out2 = new PrintStream(args[i++], Charset.forName("cp437"));
+		if (cli.matches(">>|>")) {
+			var append = cli.arg().equals(">>");
+			if (cli.more()) cli.syntax();
+			out2 = new PrintStream(cli.arg(), forName("cp437"));
 			if (append) out2.println();
 		}
-		if (args.length > i) syntax(args, i);
+		if (cli.more()) cli.syntax();
 		
 		try {
 			if (fogli)
@@ -203,31 +210,23 @@ public class Tombola extends Core {
 		}
 	}
 
-	private static boolean matches(String[] args, int i, String regex) {
-		return args.length > i && args[i].matches(regex);
-	}
-		
-	private static int set(Vd vd, String[] args, int i, String regex, boolean opt) {
-		if (!matches(args, i, regex)) if (opt) return i; else syntax(args, i);
-		i+=1;
-		if (!matches(args, i, "\\d+")) syntax(args, i);
-		vd.n = parseInt(args[i++]);
-		if (matches(args, i, "\\d+")) vd.vs = parseInt(args[i++]);
-		if (matches(args, i, "\\d+")) {
-			vd.pb = parseInt(args[i++]);
-			if (!matches(args, i, "\\d+")) syntax(args, i);
-			vd.ps = parseInt(args[i++]);
+	private static void set(Vd vd, Cli cli) {
+		cli.arg();
+		if (!cli.matches("\\d+")) cli.syntax();
+		vd.n = parseInt(cli.arg());
+		if (cli.matches("\\d+")) vd.vs = parseInt(cli.arg());
+		if (cli.matches("\\d+")) {
+			vd.pb = parseInt(cli.arg());
+			if (!cli.matches("\\d+")) cli.syntax();
+			vd.ps = parseInt(cli.arg());
 		}
-		return i;
 	}
 	
-	private static int set(Od od, String[] args, int i, String regex, boolean opt) {
-		if (!matches(args, i, regex))  if (opt) return i; else syntax(args, i);
-		i+=1;
-		if (!matches(args, i, "\\d+")) syntax(args, i);
-		od.m = parseInt(args[i++]);
-		if (matches(args, i, "\\d+")) od.os = parseInt(args[i++]);
-		return i;
+	private static void set(Od od, Cli cli) {
+		cli.arg();
+		if (!cli.matches("\\d+")) cli.syntax();
+		od.m = parseInt(cli.arg());
+		if (cli.matches("\\d+")) od.os = parseInt(cli.arg());
 	}
 		
 	public static Iterator<int[][][]> fogli() {
@@ -508,7 +507,7 @@ public class Tombola extends Core {
 		record Numero (String descrizione, String traduzione, String altriSignificati) {}
 		var smorfia = new LinkedHashMap<Integer, Numero>(); 
 		try (
-			var br = new BufferedReader(new FileReader("Smorfia.txt", Charset.forName("cp437")))
+			var br = new BufferedReader(new FileReader("Smorfia.txt", forName("cp437")))
 		) {
 			for (String line; (line = br.readLine()) != null; ) {
 				if (!line.matches("\\d+.*")) continue;
