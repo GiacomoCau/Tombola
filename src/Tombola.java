@@ -12,6 +12,7 @@ import static java.util.stream.IntStream.range;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -88,7 +89,7 @@ public class Tombola extends Core {
 		
 		//out.println("\n"); printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7))); // ultraedit - 2 pagine	
 		//printFogli(8, f-> boxed(f, 2, 3, fmt(1, 7)), fmt(1, 4, 0)); // word portrait normal consolas 9 - 2 pagine
-		//printFogli(2, f-> boxed(f, 3, 2, fmt(1, 7)), fmt(0)); // word landscape narrow consolas 20 - 2 pagine
+		printFogli(50, f-> boxed(f, 3, 2, fmt(0, 7)), fmt(0)); // word landscape narrow consolas 21 - 2 pagine
 		
 		//for (var f=fogli(); f.hasNext(); ) out.println(boxed(f.next()));
 		//var f=fogli(); while (f.hasNext()) out.println(boxed(f.next()));
@@ -106,21 +107,21 @@ public class Tombola extends Core {
 		//smorfia(true);
 		//cli(getLine().split(" +"));
 		//for (;;) cli(args.length > 0 ? args : getLine().split(" +"));
-		
+		/* run cli
 		try {
-			if (args.length > 0)
+			if (args.length > 0) {
 				cli(args);
-			else {
-				out.println(syntax);
-				loop: for (;;) {
-					switch (getLine()) { 
-						case "": break loop;
-						case String s: try {
-							cli(s.split(" +"));
-						}
-						catch (Throwable t) {
-							t.printStackTrace();
-						}
+				return;
+			}	
+			out.println(syntax);
+			loop: for (;;) {
+				switch (readLine()) {
+					case "": break loop;
+					case String s: try {
+						cli(s.split(" +"));
+					}
+					catch (Throwable t) {
+						t.printStackTrace();
 					}
 				}
 			}
@@ -128,13 +129,24 @@ public class Tombola extends Core {
 		finally {
 			out.println("\nfinito!");
 		}
+		//*/
 	}
 	
-	private static String getLine() throws IOException {
+	private static String readLine() throws IOException {
 		out.print("> ");
 		String s = ""; for (int c; (c = in.read()) != '\n';) if (c >= 32) s += (char)c;
+		//String s = ""; int c; while((c = in.read()) != '\n') if (c >= 32) s += (char)c;
 		//out.println(s);
 		return s;
+		/* TODO in alternativa al precedente
+		return java.util.stream.IntStream
+			.generate(()-> uncked(()-> Integer.valueOf(in.read())))
+			.takeWhile(i-> i != '\n')
+			.filter(i-> i >= 32)
+			.mapToObj(i-> String.valueOf((char)i))
+			.collect(joining())
+		;
+		*/
 	}
 	
 	private static String syntax = """
@@ -153,8 +165,7 @@ public class Tombola extends Core {
 		boolean matches(String regex) {	return more() && args[i].matches(regex); }
 		String arg() { return args[i++]; }
 		void syntax() {
-			String line = ""; for (int j=0; j<args.length; j+=1) line += eIf(j==0, " ") + eIf(j!=i, "|> ") + args[j];
-			throw new IllegalArgumentException(line + "\n" + syntax);
+			throw new IllegalArgumentException(range(0, args.length).mapToObj(j-> eIf(j!=i, "|> ") + args[j]).collect(joining(" ")) + "\n" + syntax);
 		}
 	}
 	
@@ -177,30 +188,32 @@ public class Tombola extends Core {
 			return;
 		}
 		
-		boolean fogli = type.equals("fogli");
-		Vd n = new Vd(fogli ? 2 : 1), r = new Vd(1);
-		Od m = new Od(fogli ? 5 : 3), c = new Od(3);
+		boolean schede = type.equals("schede");
+		Vd n = new Vd(schede ? 1 : 2), r = new Vd(1);
+		Od m = new Od(schede ? 3 : 5), c = new Od(3);
 		
 		if (cli.matches("-n")) set(n, cli);
 		if (cli.matches("-m")) set(m, cli);
 		boolean boxed = !cli.matches("boxed|compact") ? true : cli.arg().equals("boxed");
-		if (fogli && boxed) { 
+		if (!schede && boxed) { 
 			if (cli.matches("-r")) set(r, cli);
 			if (cli.matches("-c")) set(c, cli);
 		}
-		if (cli.matches(">>|>")) {
+		if (!cli.matches(">>|>")) {
+			if (cli.more()) cli.syntax();
+		}
+		else {
 			var append = cli.arg().equals(">>");
 			if (cli.more()) cli.syntax();
-			out2 = new PrintStream(cli.arg(), forName("cp437"));
+			out2 = new PrintStream(new FileOutputStream(cli.arg(), append), true, forName("cp437"));
 			if (append) out2.println();
 		}
-		if (cli.more()) cli.syntax();
 		
 		try {
-			if (fogli)
-				printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
-			else
+			if (schede)
 				printSchede(n.n, m.m, boxed ? Tombola::boxed : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
+			else
+				printFogli(n.n, m.m, boxed ? f-> boxed(f, r.n, c.m, fmt(r.vs, c.os, r.pb, r.ps)) : Tombola::compact, fmt(n.vs, m.os, n.pb, n.ps));
 		}
 		finally {
 			if (out2 != out)
@@ -231,23 +244,36 @@ public class Tombola extends Core {
 		
 	public static Iterator<int[][][]> fogli() {
 		return new Iterator<int[][][]>() {
-			private Tombola schede = new Tombola();
+			private Tombola tombola = new Tombola();
 			@Override public boolean hasNext() { return true; }
-			@Override public int[][][] next() { return schede.getFoglio(); }
+			@Override public int[][][] next() { return tombola.getFoglio(); }
 		};
 	}
 
 	public static Iterator<int[][]> schede() {
 		return new Iterator<int[][]>() {
-			private Tombola schede = new Tombola();			
+			private Tombola tombola = new Tombola();
 			@Override public boolean hasNext() { return true; }
-			private int i=0, f[][][]=schede.getFoglio();
+			private int i=0, f[][][]=tombola.getFoglio();
 			@Override public int[][] next() {
-				if (i == f.length) { i=0; f=schede.getFoglio(); }
+				if (i == f.length) { i=0; f=tombola.getFoglio(); }
 				return f[i++];
 			}
 		};
 	}
+	/* TODO in alternativa al precedente
+	public static Iterator<int[][]> schede2() {
+		return new Iterator<int[][]>() {
+			private Iterator<int[][][]> fogli = fogli();			
+			@Override public boolean hasNext() { return true; }
+			private int i=0, f[][][]=fogli.next();
+			@Override public int[][] next() {
+				if (i == f.length) { i=0; f=fogli.next(); }
+				return f[i++];
+			}
+		};
+	}
+	*/
 	
 	public static Iterator<Integer> numeri() {
 		return new Iterator<Integer> () {
@@ -442,6 +468,7 @@ public class Tombola extends Core {
 	private int[][] random() {
 		return schede[random(schede.length)];
 	}
+	/* TODO sostituito dal seguente, eliminare
 	private int[][] random(int[] mn, int[] mx) {
 		Entry<Key,int[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
 		int idx = random(stream(fsbs).mapToInt(e-> e.getValue().length).sum());
@@ -449,6 +476,44 @@ public class Tombola extends Core {
 			int length = e.getValue().length;
 			if (idx < length) return schedeBySum.get(e.getKey())[idx];
 			idx -= length;
+		}
+		throw new RuntimeException();
+	}
+	private int[][] random1(int[] mn, int[] mx) {
+		Entry<Key,int[][][]>[] fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).toArray(Entry[]::new);
+		int idx = random(stream(fsbs).mapToInt(e-> e.getValue().length).sum());
+		for (var e: fsbs) {
+			int length = e.getValue().length;
+			if (idx < length) return e.getValue()[idx];
+			idx -= length;
+		}
+		throw new RuntimeException();
+	}
+	private int[][] random2(int[] mn, int[] mx) {
+		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(e-> e.getValue()).toArray(int[][][][]::new);
+		int idx = random(stream(fsbs).mapToInt(e-> e.length).sum());
+		for (var a: fsbs) {
+			if (idx < a.length) return a[idx];
+			idx -= a.length;
+		}
+		throw new RuntimeException();
+	}
+	private int[][] random3(int[] mn, int[] mx) {
+		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(e-> e.getValue()).toList();
+		int idx = random(fsbs.stream().mapToInt(e-> e.length).sum());
+		for (var a: fsbs) {
+			if (idx < a.length) return a[idx];
+			idx -= a.length;
+		}
+		throw new RuntimeException();
+	}
+	*/
+	private int[][] random(int[] mn, int[] mx) {
+		var fsbs = schedeBySum.entrySet().stream().filter(e-> ge(e.getKey().a, mn) && ge(mx, e.getKey().a)).map(Entry::getValue).toList();
+		int i = random(fsbs.stream().mapToInt(a-> a.length).sum());
+		for (var a: fsbs) {
+			if (i < a.length) return a[i];
+			i -= a.length;
 		}
 		throw new RuntimeException();
 	}

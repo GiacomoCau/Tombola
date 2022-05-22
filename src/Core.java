@@ -71,15 +71,17 @@ public class Core {
 	private static int toint(boolean b) {
 		return b ? 1 : 0;
 	}
-	private static <T> List<T> list(T r) {
+	private static <T> List<T> list(T t) {
 		var l = new ArrayList<T>();
-		l.add(r);
+		l.add(t);
 		return l;
+		//return new ArrayList() {{add(t);}};
 	}
 	private static <T> List<T> add(List<T> l, T t) {
 		l = new ArrayList<T>(l);
 		l.add(t);
 		return l;
+		//return new ArrayList(l) {{add(t);}};
 	}
 	
 	
@@ -213,6 +215,7 @@ public class Core {
 		Key(int[][] m) {
 			a = new int[m[0].length];
 			for (int i=0; i<a.length; i+=1) for (int j=0; j<m.length; j+=1) a[i] += m[j][i];
+			//range(0, a.length).forEach(i-> range(0, m.length).forEach(j-> a[i]=m[j][i]));
 		}
 		
 		@Override
